@@ -2,31 +2,45 @@
   "activeSeason": "SS41",
   "seasonEnd": "2026-06-10",
   "seasonLabel": "Season 41",
+  "seasonNumber": 41,
   "trialDays": 7,
-  "nextSeason": "SS42"
+  "nextSeason": "SS42",
+  "nextSeasonLabel": "Season 42",
+  "tiers": {
+    "individual": {
+      "label": "Individual",
+      "maxPlayers": 1,
+      "seasonalPrice": 12,
+      "monthlyPrice": 5,
+      "features": ["dashboard", "rivals", "operators", "maps", "discord"]
+    },
+    "team": {
+      "label": "Team",
+      "maxPlayers": 5,
+      "seasonalPrice": 28,
+      "monthlyPrice": 11,
+      "features": ["dashboard", "rivals", "operators", "maps", "discord", "roster", "comparison"]
+    },
+    "org": {
+      "label": "Org",
+      "maxPlayers": 999,
+      "seasonalPrice": 45,
+      "monthlyPrice": 17,
+      "features": ["dashboard", "rivals", "operators", "maps", "discord", "roster", "comparison", "search"]
+    },
+    "freelancer": {
+      "label": "Freelancer",
+      "maxPlayers": 1,
+      "seasonalPrice": 20,
+      "monthlyPrice": 8,
+      "features": ["dashboard", "rivals", "operators", "maps", "discord", "coaching"]
+    },
+    "trial": {
+      "label": "Trial",
+      "maxPlayers": 1,
+      "seasonalPrice": 0,
+      "monthlyPrice": 0,
+      "features": ["dashboard", "rivals", "operators", "maps"]
+    }
+  }
 }
-```
-
-Commit each file after you create it.
-
-**Step 7: Confirm your structure**
-
-Your repo should now look like this when you click through the folders:
-```
-siegescope/
-├── index.html
-├── config.json
-├── README.md
-└── assets/
-    ├── css/
-    │   ├── base.css
-    │   ├── dashboard.css
-    │   └── licensing.css
-    └── js/
-        ├── license.js
-        ├── r6fetch.js
-        ├── store.js
-        ├── charts.js
-        ├── dashboard.js
-        ├── team.js
-        └── coaching.js
