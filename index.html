@@ -4,9 +4,394 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SiegeScope</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f13;
+      --surface: #18181f;
+      --card: #1e1e28;
+      --border: rgba(255,255,255,0.08);
+      --gold: #F7C948;
+      --gold-dim: rgba(247,201,72,0.12);
+      --gold-border: rgba(247,201,72,0.25);
+      --text: #e8e6e0;
+      --muted: #6e6e7a;
+      --success: #4caf82;
+      --danger: #e05a5a;
+      --warning: #e8943a;
+      --blue: #4a90d9;
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .screen { display: none; width: 100%; max-width: 480px; }
+    .screen.active { display: block; }
+
+    .logo {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--gold);
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .card-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .input-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 15px;
+      letter-spacing: 1px;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.15s;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"]:focus { border-color: var(--gold); }
+    input[type="text"]::placeholder { color: var(--muted); letter-spacing: 0.5px; }
+
+    .key-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      background: var(--gold);
+      color: #0f0f13;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      margin-bottom: 10px;
+    }
+
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-ghost {
+      width: 100%;
+      padding: 11px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+
+    .msg {
+      font-size: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .msg.error { background: rgba(224,90,90,0.1); border: 1px solid rgba(224,90,90,0.25); color: #e05a5a; }
+    .msg.success { background: rgba(76,175,130,0.1); border: 1px solid rgba(76,175,130,0.25); color: var(--success); }
+    .msg.warn { background: rgba(232,148,58,0.1); border: 1px solid rgba(232,148,58,0.25); color: var(--warning); }
+    .msg.hidden { display: none; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .pricing-link {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 16px;
+    }
+
+    .pricing-link a {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .pricing-link a:hover { text-decoration: underline; }
+
+    .season-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--gold-dim);
+      border: 1px solid var(--gold-border);
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      letter-spacing: 0.4px;
+    }
+
+    .pulse {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .tier-info {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      margin-bottom: 20px;
+    }
+
+    .tier-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 3px 0;
+    }
+
+    .tier-row span:last-child { color: var(--text); font-weight: 500; }
+
+    .loading-dots::after {
+      content: '';
+      animation: dots 1.2s steps(3, end) infinite;
+    }
+
+    @keyframes dots {
+      0%   { content: ''; }
+      33%  { content: '.'; }
+      66%  { content: '..'; }
+      100% { content: '...'; }
+    }
+  </style>
 </head>
 <body>
-  <h1>SiegeScope is coming.</h1>
-  <p>Setup confirmed.</p>
+
+  <div id="s-loading" class="screen active">
+    <div class="logo">SiegeScope</div>
+    <div class="card" style="text-align:center;padding:40px">
+      <div style="color:var(--muted);font-size:13px" class="loading-dots">Checking license</div>
+    </div>
+  </div>
+
+  <div id="s-activate" class="screen">
+    <div class="logo">SiegeScope</div>
+    <div class="card">
+      <div class="season-badge"><div class="pulse"></div>Season 41 · Active</div>
+      <div class="card-title">Enter your license key</div>
+      <div class="card-sub">Purchase a key from Gumroad or start a 7-day free trial to access your dashboard.</div>
+
+      <div class="input-label">License key</div>
+      <input type="text" id="key-input" placeholder="SS41-XXXX-XXXX-XXXX" maxlength="19" autocomplete="off" spellcheck="false" oninput="formatKey(this)" onkeydown="if(event.key==='Enter') doActivate()">
+      <div class="key-hint">Format: SS41 followed by three 4-character blocks</div>
+
+      <div id="activate-msg" class="msg hidden"></div>
+
+      <button class="btn-primary" id="activate-btn" onclick="doActivate()">Activate key</button>
+
+      <div class="divider">or</div>
+
+      <button class="btn-ghost" onclick="window.open('https://gumroad.com','_blank')">Buy a key on Gumroad ↗</button>
+    </div>
+    <div class="pricing-link">Not sure which plan? <a href="#" onclick="showPricing()">See all plans and pricing</a></div>
+  </div>
+
+  <div id="s-expired" class="screen">
+    <div class="logo">SiegeScope</div>
+    <div class="card">
+      <div class="card-title">Your key has expired</div>
+      <div class="card-sub" id="expired-reason">Season 41 has ended. Choose how you want to continue for Season 42.</div>
+
+      <div class="tier-info" id="expired-tier-info">
+        <div class="tier-row"><span>Previous tier</span><span id="expired-tier-label">Individual</span></div>
+        <div class="tier-row"><span>Key expired</span><span id="expired-date">Jun 10, 2026</span></div>
+      </div>
+
+      <button class="btn-primary" onclick="window.open('https://gumroad.com','_blank')">Buy Season 42 key — $12 ↗</button>
+      <button class="btn-ghost" style="margin-bottom:10px" onclick="window.open('https://gumroad.com','_blank')">Switch to monthly — $5/mo ↗</button>
+      <button class="btn-ghost" onclick="showActivate()">I already have a new key</button>
+    </div>
+  </div>
+
+  <div id="s-dashboard" class="screen">
+    <div class="logo">SiegeScope</div>
+    <div class="card">
+      <div class="season-badge"><div class="pulse"></div><span id="dash-season">Season 41</span></div>
+      <div class="card-title">Welcome back</div>
+      <div class="card-sub">Your license is active. Dashboard loading shortly.</div>
+
+      <div class="tier-info">
+        <div class="tier-row"><span>Plan</span><span id="dash-tier">Individual</span></div>
+        <div class="tier-row"><span>Expires</span><span id="dash-expires">Jun 10, 2026</span></div>
+        <div class="tier-row"><span>Days remaining</span><span id="dash-days">74</span></div>
+      </div>
+
+      <div id="activate-msg-dash" class="msg success">License active. Redirecting to your dashboard<span class="loading-dots"></span></div>
+    </div>
+  </div>
+
+  <script src="./assets/js/license.js"></script>
+  <script>
+    function formatKey(el) {
+      let v = el.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+      let out = '';
+      if (v.length > 0) out += v.slice(0, 4);
+      if (v.length > 4) out += '-' + v.slice(4, 8);
+      if (v.length > 8) out += '-' + v.slice(8, 12);
+      if (v.length > 12) out += '-' + v.slice(12, 16);
+      el.value = out;
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function showActivate() { showScreen('s-activate'); }
+    function showPricing() { alert('Pricing page coming soon. Visit gumroad.com for now.'); }
+
+    function showMsg(id, type, text) {
+      const el = document.getElementById(id);
+      el.className = 'msg ' + type;
+      el.textContent = text;
+    }
+
+    function hideMsg(id) {
+      document.getElementById(id).className = 'msg hidden';
+    }
+
+    async function doActivate() {
+      const key = document.getElementById('key-input').value.trim();
+      if (key.length < 19) {
+        showMsg('activate-msg', 'error', 'Key must be 19 characters. Format: SS41-XXXX-XXXX-XXXX');
+        return;
+      }
+
+      const btn = document.getElementById('activate-btn');
+      btn.disabled = true;
+      btn.textContent = 'Checking...';
+      hideMsg('activate-msg');
+
+      const result = await SiegeLicense.activate(key);
+
+      btn.disabled = false;
+      btn.textContent = 'Activate key';
+
+      if (!result.valid) {
+        showMsg('activate-msg', result.expired ? 'warn' : 'error', result.reason);
+        return;
+      }
+
+      showMsg('activate-msg', 'success', 'Key activated. Loading your dashboard...');
+      setTimeout(() => loadDashboard(result), 1200);
+    }
+
+    function loadDashboard(result) {
+      document.getElementById('dash-tier').textContent = result.label;
+      document.getElementById('dash-expires').textContent = result.expiresLabel;
+      document.getElementById('dash-days').textContent = result.daysLeft;
+      showScreen('s-dashboard');
+      setTimeout(() => {
+        window.location.href = './views/individual.html';
+      }, 2000);
+    }
+
+    async function init() {
+      const status = await SiegeLicense.checkOnLoad();
+
+      if (status.status === 'none') {
+        showScreen('s-activate');
+        return;
+      }
+
+      if (status.status === 'expired') {
+        document.getElementById('expired-reason').textContent = status.reason;
+        if (status.tier) {
+          const tierLabels = { individual: 'Individual', team: 'Team', org: 'Org', freelancer: 'Freelancer', trial: 'Trial' };
+          document.getElementById('expired-tier-label').textContent = tierLabels[status.tier] || status.tier;
+        }
+        showScreen('s-expired');
+        return;
+      }
+
+      loadDashboard(status);
+    }
+
+    init();
+  </script>
 </body>
 </html>
