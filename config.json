@@ -1,0 +1,32 @@
+{
+  "activeSeason": "SS41",
+  "seasonEnd": "2026-06-10",
+  "seasonLabel": "Season 41",
+  "trialDays": 7,
+  "nextSeason": "SS42"
+}
+```
+
+Commit each file after you create it.
+
+**Step 7: Confirm your structure**
+
+Your repo should now look like this when you click through the folders:
+```
+siegescope/
+├── index.html
+├── config.json
+├── README.md
+└── assets/
+    ├── css/
+    │   ├── base.css
+    │   ├── dashboard.css
+    │   └── licensing.css
+    └── js/
+        ├── license.js
+        ├── r6fetch.js
+        ├── store.js
+        ├── charts.js
+        ├── dashboard.js
+        ├── team.js
+        └── coaching.js
