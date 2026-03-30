@@ -144,103 +144,79 @@
       line-height: 1.5;
     }
 
-    .msg.error { background: rgba(224,90,90,0.1); border: 1px solid rgba(224,90,90,0.25); color: #e05a5a; }
+    .msg.error   { background: rgba(224,90,90,0.1);  border: 1px solid rgba(224,90,90,0.25);  color: #e05a5a; }
     .msg.success { background: rgba(76,175,130,0.1); border: 1px solid rgba(76,175,130,0.25); color: var(--success); }
-    .msg.warn { background: rgba(232,148,58,0.1); border: 1px solid rgba(232,148,58,0.25); color: var(--warning); }
-    .msg.hidden { display: none; }
+    .msg.warn    { background: rgba(232,148,58,0.1); border: 1px solid rgba(232,148,58,0.25); color: var(--warning); }
+    .msg.hidden  { display: none; }
 
     .divider {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      display: flex; align-items: center; gap: 12px;
       margin: 20px 0;
-      color: var(--muted);
-      font-size: 11px;
+      color: var(--muted); font-size: 11px;
     }
-
     .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
+      content: ''; flex: 1; height: 1px; background: var(--border);
     }
 
     .pricing-link {
-      text-align: center;
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 16px;
+      text-align: center; font-size: 12px;
+      color: var(--muted); margin-top: 16px;
     }
-
-    .pricing-link a {
-      color: var(--gold);
-      text-decoration: none;
-      font-weight: 500;
-    }
-
+    .pricing-link a { color: var(--gold); text-decoration: none; font-weight: 500; }
     .pricing-link a:hover { text-decoration: underline; }
 
     .season-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--gold-dim);
-      border: 1px solid var(--gold-border);
-      color: var(--gold);
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 4px;
-      margin-bottom: 20px;
-      letter-spacing: 0.4px;
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--gold-dim); border: 1px solid var(--gold-border);
+      color: var(--gold); font-size: 11px; font-weight: 600;
+      padding: 3px 10px; border-radius: 4px;
+      margin-bottom: 20px; letter-spacing: 0.4px;
     }
 
     .pulse {
-      width: 6px; height: 6px;
-      border-radius: 50%;
+      width: 6px; height: 6px; border-radius: 50%;
       background: var(--gold);
       animation: pulse 2s ease-in-out infinite;
     }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
 
     .tier-info {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
-      padding: 14px;
-      margin-bottom: 20px;
+      padding: 14px; margin-bottom: 20px;
     }
-
     .tier-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-      color: var(--muted);
-      padding: 3px 0;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; color: var(--muted); padding: 3px 0;
     }
-
     .tier-row span:last-child { color: var(--text); font-weight: 500; }
 
     .loading-dots::after {
       content: '';
-      animation: dots 1.2s steps(3, end) infinite;
+      animation: dots 1.2s steps(3,end) infinite;
     }
+    @keyframes dots { 0%{content:''} 33%{content:'.'} 66%{content:'..'} 100%{content:'...'} }
 
-    @keyframes dots {
-      0%   { content: ''; }
-      33%  { content: '.'; }
-      66%  { content: '..'; }
-      100% { content: '...'; }
+    /* Player input on dashboard screen */
+    .player-input-wrap {
+      margin-bottom: 20px;
+    }
+    .player-input-wrap input {
+      font-size: 14px;
+      letter-spacing: 0.5px;
+      margin-bottom: 0;
+    }
+    .player-input-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
     }
   </style>
 </head>
 <body>
 
+  <!-- Loading screen -->
   <div id="s-loading" class="screen active">
     <div class="logo">SiegeScope</div>
     <div class="card" style="text-align:center;padding:40px">
@@ -248,6 +224,7 @@
     </div>
   </div>
 
+  <!-- Activate screen -->
   <div id="s-activate" class="screen">
     <div class="logo">SiegeScope</div>
     <div class="card">
@@ -256,7 +233,10 @@
       <div class="card-sub">Purchase a key from Gumroad or start a 7-day free trial to access your dashboard.</div>
 
       <div class="input-label">License key</div>
-      <input type="text" id="key-input" placeholder="SS41-XXXX-XXXX-XXXX" maxlength="19" autocomplete="off" spellcheck="false" oninput="formatKey(this)" onkeydown="if(event.key==='Enter') doActivate()">
+      <input type="text" id="key-input" placeholder="SS41-XXXX-XXXX-XXXX" maxlength="19"
+        autocomplete="off" spellcheck="false"
+        oninput="formatKey(this)"
+        onkeydown="if(event.key==='Enter') doActivate()">
       <div class="key-hint">Format: SS41 followed by three 4-character blocks</div>
 
       <div id="activate-msg" class="msg hidden"></div>
@@ -270,6 +250,7 @@
     <div class="pricing-link">Not sure which plan? <a href="#" onclick="showPricing()">See all plans and pricing</a></div>
   </div>
 
+  <!-- Expired screen -->
   <div id="s-expired" class="screen">
     <div class="logo">SiegeScope</div>
     <div class="card">
@@ -287,12 +268,13 @@
     </div>
   </div>
 
+  <!-- Dashboard / redirect screen -->
   <div id="s-dashboard" class="screen">
     <div class="logo">SiegeScope</div>
     <div class="card">
       <div class="season-badge"><div class="pulse"></div><span id="dash-season">Season 41</span></div>
       <div class="card-title">Welcome back</div>
-      <div class="card-sub">Your license is active. Dashboard loading shortly.</div>
+      <div class="card-sub">License active. Enter your Ubisoft username to load your dashboard.</div>
 
       <div class="tier-info">
         <div class="tier-row"><span>Plan</span><span id="dash-tier">Individual</span></div>
@@ -300,29 +282,49 @@
         <div class="tier-row"><span>Days remaining</span><span id="dash-days">74</span></div>
       </div>
 
-      <div id="activate-msg-dash" class="msg success">License active. Redirecting to your dashboard<span class="loading-dots"></span></div>
+      <!-- Player username input -->
+      <div class="player-input-wrap">
+        <div class="input-label">Your Ubisoft username</div>
+        <input
+          type="text"
+          id="player-input"
+          placeholder="e.g. Beaulo or your username"
+          autocomplete="off"
+          spellcheck="false"
+          onkeydown="if(event.key==='Enter') goToDashboard()"
+        >
+        <div class="player-input-hint">You can also paste a full R6 Tracker URL.</div>
+      </div>
+
+      <div id="player-msg" class="msg hidden"></div>
+
+      <button class="btn-primary" onclick="goToDashboard()">Open My Dashboard →</button>
+      <button class="btn-ghost" onclick="goToDashboard(true)">Skip — search later</button>
     </div>
   </div>
 
   <script src="./assets/js/license.js"></script>
   <script>
+
+    // ── Formatting ──────────────────────────────────────────────────────────
     function formatKey(el) {
       let v = el.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
       let out = '';
-      if (v.length > 0) out += v.slice(0, 4);
-      if (v.length > 4) out += '-' + v.slice(4, 8);
-      if (v.length > 8) out += '-' + v.slice(8, 12);
+      if (v.length > 0)  out += v.slice(0, 4);
+      if (v.length > 4)  out += '-' + v.slice(4, 8);
+      if (v.length > 8)  out += '-' + v.slice(8, 12);
       if (v.length > 12) out += '-' + v.slice(12, 16);
       el.value = out;
     }
 
+    // ── Screens ─────────────────────────────────────────────────────────────
     function showScreen(id) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById(id).classList.add('active');
     }
 
     function showActivate() { showScreen('s-activate'); }
-    function showPricing() { alert('Pricing page coming soon. Visit gumroad.com for now.'); }
+    function showPricing()  { alert('Pricing page coming soon. Visit gumroad.com for now.'); }
 
     function showMsg(id, type, text) {
       const el = document.getElementById(id);
@@ -334,6 +336,7 @@
       document.getElementById(id).className = 'msg hidden';
     }
 
+    // ── Activate ─────────────────────────────────────────────────────────────
     async function doActivate() {
       const key = document.getElementById('key-input').value.trim();
       if (key.length < 19) {
@@ -356,20 +359,51 @@
         return;
       }
 
-      showMsg('activate-msg', 'success', 'Key activated. Loading your dashboard...');
-      setTimeout(() => loadDashboard(result), 1200);
+      showMsg('activate-msg', 'success', 'Key activated! Setting up your dashboard...');
+      setTimeout(() => loadDashboard(result), 800);
     }
 
+    // ── Dashboard screen ─────────────────────────────────────────────────────
     function loadDashboard(result) {
-      document.getElementById('dash-tier').textContent = result.label;
-      document.getElementById('dash-expires').textContent = result.expiresLabel;
-      document.getElementById('dash-days').textContent = result.daysLeft;
+      document.getElementById('dash-tier').textContent    = result.label    || 'Individual';
+      document.getElementById('dash-expires').textContent = result.expiresLabel || '—';
+      document.getElementById('dash-days').textContent    = result.daysLeft  || '—';
+
+      // Pre-fill player input from localStorage if we saved one before
+      const lastPlayer = localStorage.getItem('ss_last_player') || '';
+      if (lastPlayer) {
+        document.getElementById('player-input').value = lastPlayer;
+      }
+
       showScreen('s-dashboard');
-      setTimeout(() => {
-        window.location.href = './views/individual.html';
-      }, 2000);
     }
 
+    // ── Redirect to dashboard ────────────────────────────────────────────────
+    function goToDashboard(skip = false) {
+      const raw = document.getElementById('player-input').value.trim();
+
+      if (!skip && !raw) {
+        showMsg('player-msg', 'error', 'Enter your Ubisoft username to continue.');
+        return;
+      }
+
+      // Parse out identifier from URL if pasted
+      let player = raw;
+      const urlMatch = raw.match(/\/profile\/ubi\/([^/]+)/);
+      if (urlMatch) player = decodeURIComponent(urlMatch[1]);
+
+      // Save for next visit
+      if (player) localStorage.setItem('ss_last_player', player);
+
+      // Build redirect URL
+      const dashUrl = player
+        ? `./views/individual.html?player=${encodeURIComponent(player)}`
+        : './views/individual.html';
+
+      window.location.href = dashUrl;
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────────
     async function init() {
       const status = await SiegeLicense.checkOnLoad();
 
@@ -379,15 +413,16 @@
       }
 
       if (status.status === 'expired') {
-        document.getElementById('expired-reason').textContent = status.reason;
+        document.getElementById('expired-reason').textContent = status.reason || 'Your key has expired.';
         if (status.tier) {
-          const tierLabels = { individual: 'Individual', team: 'Team', org: 'Org', freelancer: 'Freelancer', trial: 'Trial' };
-          document.getElementById('expired-tier-label').textContent = tierLabels[status.tier] || status.tier;
+          const labels = { individual:'Individual', team:'Team', org:'Org', freelancer:'Freelancer', trial:'Trial' };
+          document.getElementById('expired-tier-label').textContent = labels[status.tier] || status.tier;
         }
         showScreen('s-expired');
         return;
       }
 
+      // Valid license — go straight to dashboard setup screen
       loadDashboard(status);
     }
 
