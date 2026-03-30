@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SiegeScope — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<style>
+/* ── Reset & Root ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --season-color: #a0daae;
+  --bg-deep:      #08090f;
+  --bg-mid:       #0d0f1c;
+  --bg-card:      #111422;
+  --bg-card2:     #161928;
+  --border:       #ffffff0d;
+  --border-light: #ffffff18;
+  --text-primary: #e8eaf0;
+  --text-secondary: #8890a4;
+  --text-dim:     #4a5066;
+  --accent:       var(--season-color);
+  --accent-dim:   color-mix(in srgb, var(--season-color) 30%, transparent);
+  --red:          #ff4466;
+  --green:        #3ddc84;
+  --gold:         #f5c842;
+  --radius:       8px;
+  --radius-lg:    14px;
+  font-size: 14px;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Layout ───────────────────────────────────────────────── */
+.app { display: flex; flex-direction: column; min-height: 100vh; }
+
+.topbar {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 24px;
+  background: var(--bg-mid);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+}
+
+.topbar-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: var(--accent);
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.search-wrap {
+  flex: 1; max-width: 480px;
+  display: flex; gap: 8px;
+}
+
+.search-input {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  padding: 8px 14px;
+  outline: none;
+  transition: border-color .2s;
+}
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--text-dim); }
+
+.btn {
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  transition: opacity .15s, transform .1s;
+}
+.btn:active { transform: scale(.97); }
+.btn-primary {
+  background: var(--accent);
+  color: #0a1a0f;
+}
+.btn-ghost {
+  background: var(--bg-card2);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+}
+
+.topbar-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.refresh-time { font-size: 11px; color: var(--text-dim); font-family: 'DM Mono', monospace; }
+
+/* ── States ───────────────────────────────────────────────── */
+.state { display: flex; flex-direction: column; align-items: center; justify-content: center;
+  flex: 1; padding: 60px 24px; text-align: center; gap: 12px; }
+.state-icon { font-size: 48px; }
+.state-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+.state-sub   { font-size: 13px; color: var(--text-secondary); max-width: 340px; line-height: 1.6; }
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border-light);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Dashboard Grid ───────────────────────────────────────── */
+.dashboard {
+  display: none;
+  flex: 1;
+  padding: 20px 24px 40px;
+  gap: 16px;
+  flex-direction: column;
+}
+.dashboard.visible { display: flex; }
+
+/* Season banner */
+.season-banner {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px;
+  background: var(--accent-dim);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  border-radius: var(--radius);
+  font-size: 12px;
+  color: var(--accent);
+  font-family: 'DM Mono', monospace;
+  letter-spacing: .5px;
+}
+.season-banner span { color: var(--text-secondary); }
+
+/* Hero row */
+.hero-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.player-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.player-avatar {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--bg-card2);
+}
+
+.player-info { display: flex; flex-direction: column; gap: 4px; }
+.player-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 1.5px;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.player-meta {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+}
+.player-badges { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.badge {
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--bg-card2);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+}
+.badge.accent { background: var(--accent-dim); border-color: color-mix(in srgb, var(--accent) 40%, transparent); color: var(--accent); }
+
+/* Rank card */
+.rank-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.rank-badge-img {
+  width: 80px; height: 80px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px var(--accent));
+  flex-shrink: 0;
+}
+.rank-info { display: flex; flex-direction: column; gap: 3px; }
+.rank-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+}
+.rank-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 2px;
+  color: var(--accent);
+  line-height: 1;
+}
+.rank-rp {
+  font-family: 'DM Mono', monospace;
+  font-size: 22px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.rank-sub { font-size: 11px; color: var(--text-dim); font-family: 'DM Mono', monospace; }
+
+/* Stat grid */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color .2s;
+}
+.stat-card:hover { border-color: var(--border-light); }
+.stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+}
+.stat-value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 1px;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.stat-value.accent { color: var(--accent); }
+.stat-value.green  { color: var(--green); }
+.stat-value.red    { color: var(--red); }
+.stat-sub {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+}
+
+/* Section headers */
+.section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.chart-wrap { position: relative; height: 220px; }
+
+/* Two-col layout */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 700px) {
+  .two-col { grid-template-columns: 1fr; }
+  .hero-row { grid-template-columns: 1fr; }
+}
+
+/* Season history table */
+.season-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.season-table th {
+  text-align: left; padding: 6px 10px;
+  font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--text-dim); font-family: 'DM Mono', monospace;
+  border-bottom: 1px solid var(--border);
+}
+.season-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'DM Mono', monospace;
+  color: var(--text-secondary);
+}
+.season-table tr:last-child td { border-bottom: none; }
+.season-table tr:hover td { background: var(--bg-card2); }
+.season-dot {
+  display: inline-block; width: 8px; height: 8px;
+  border-radius: 50%; margin-right: 6px; vertical-align: middle;
+}
+
+/* WL Bar */
+.wl-bar-track {
+  height: 6px; border-radius: 3px;
+  background: var(--red);
+  overflow: hidden; margin-bottom: 6px;
+}
+.wl-bar-fill { height: 100%; background: var(--green); border-radius: 3px; transition: width .6s ease; }
+.wl-bar-labels { display: flex; justify-content: space-between; font-size: 11px; font-family: 'DM Mono', monospace; }
+.wl-w { color: var(--green); }
+.wl-l { color: var(--red); }
+.wl-pct { color: var(--text-secondary); }
+
+/* Leaderboard position chip */
+.lb-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: var(--accent-dim);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: var(--accent);
+}
+.lb-chip-label { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+
+/* Error toast */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: #1e0a12; border: 1px solid var(--red);
+  color: var(--red); border-radius: var(--radius);
+  padding: 12px 18px; font-size: 13px;
+  animation: slideIn .3s ease;
+  z-index: 9999; max-width: 320px;
+}
+@keyframes slideIn { from { transform: translateY(20px); opacity: 0; } }
+
+/* Branding */
+.deerflow-badge {
+  position: fixed; bottom: 16px; left: 16px;
+  font-size: 10px; font-family: 'DM Mono', monospace;
+  color: var(--text-dim); text-decoration: none;
+  opacity: .5; transition: opacity .2s;
+  letter-spacing: 1px;
+}
+.deerflow-badge:hover { opacity: 1; }
+
+/* Recent searches dropdown */
+.recent-list {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  overflow: hidden; z-index: 200;
+  box-shadow: 0 8px 24px #00000060;
+}
+.recent-item {
+  padding: 9px 14px;
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background .15s;
+}
+.recent-item:hover { background: var(--bg-card2); color: var(--accent); }
+
+.search-relative { position: relative; flex: 1; }
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <a class="topbar-logo" href="#">SIEGESCOPE</a>
+    <div class="search-wrap">
+      <div class="search-relative">
+        <input
+          class="search-input"
+          id="searchInput"
+          type="text"
+          placeholder="Enter username or tracker URL…"
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <div class="recent-list" id="recentList" style="display:none;"></div>
+      </div>
+      <button class="btn btn-primary" id="searchBtn">Search</button>
+    </div>
+    <div class="topbar-right">
+      <span class="refresh-time" id="refreshTime"></span>
+      <button class="btn btn-ghost" id="refreshBtn" style="display:none;">↺ Refresh</button>
+    </div>
+  </header>
+
+  <!-- Empty state -->
+  <div class="state" id="emptyState">
+    <div class="state-icon">🎯</div>
+    <div class="state-title">Enter a Player</div>
+    <div class="state-sub">Paste a username, UUID, or full R6 Tracker URL to load stats.</div>
+  </div>
+
+  <!-- Loading state -->
+  <div class="state" id="loadingState" style="display:none;">
+    <div class="spinner"></div>
+    <div class="state-title">Loading Stats…</div>
+    <div class="state-sub" id="loadingMsg">Fetching profile data</div>
+  </div>
+
+  <!-- Error state -->
+  <div class="state" id="errorState" style="display:none;">
+    <div class="state-icon">⚠️</div>
+    <div class="state-title">Could Not Load Player</div>
+    <div class="state-sub" id="errorMsg">Check the username and try again.</div>
+    <button class="btn btn-ghost" onclick="reset()">Try Again</button>
+  </div>
+
+  <!-- Dashboard -->
+  <main class="dashboard" id="dashboard">
+
+    <!-- Season banner -->
+    <div class="season-banner" id="seasonBanner">
+      <span id="bannerSeason">Y11S1 · SILENT HUNT</span>
+      <span>·</span>
+      <span id="bannerDate">Season ends ~Jun 10 2026</span>
+    </div>
+
+    <!-- Hero Row: Player + Rank -->
+    <div class="hero-row">
+      <div class="player-card">
+        <img class="player-avatar" id="playerAvatar" src="" alt="avatar">
+        <div class="player-info">
+          <div class="player-name" id="playerName">—</div>
+          <div class="player-meta" id="playerMeta">Loading…</div>
+          <div class="player-badges" id="playerBadges"></div>
+        </div>
+      </div>
+      <div class="rank-card">
+        <img class="rank-badge-img" id="rankImage" src="" alt="rank">
+        <div class="rank-info">
+          <div class="rank-label">Current Rank</div>
+          <div class="rank-name" id="rankName">—</div>
+          <div class="rank-rp" id="rankRP">—</div>
+          <div class="rank-sub" id="rankSub">—</div>
+          <div style="margin-top:8px;" id="lbChipWrap"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Current Season Stats -->
+    <div>
+      <div class="section-head">
+        <div class="section-title" id="seasonStatTitle">Season Stats</div>
+      </div>
+      <div class="stat-row" id="seasonStatRow">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+    <!-- WL Bar -->
+    <div class="card">
+      <div class="section-head" style="margin-bottom:10px;">
+        <div class="section-title">Win / Loss</div>
+      </div>
+      <div id="wlBar"></div>
+    </div>
+
+    <!-- RP Chart -->
+    <div class="card">
+      <div class="section-head">
+        <div class="section-title">RP History — This Season</div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="rpChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Two-col: Multikills + Career -->
+    <div class="two-col">
+      <div class="card">
+        <div class="section-head">
+          <div class="section-title">Multikills</div>
+        </div>
+        <div class="chart-wrap" style="height:180px;">
+          <canvas id="mkChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-head">
+          <div class="section-title">Career Overview</div>
+        </div>
+        <div class="stat-row" id="careerStatRow" style="grid-template-columns:1fr 1fr;">
+          <!-- filled by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Season History Chart -->
+    <div class="card">
+      <div class="section-head">
+        <div class="section-title">Season History (Peak RP)</div>
+      </div>
+      <div class="chart-wrap" style="height:200px;">
+        <canvas id="historyChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Season History Table -->
+    <div class="card">
+      <div class="section-head">
+        <div class="section-title">Season Log</div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="season-table" id="seasonTable">
+          <thead>
+            <tr>
+              <th>Season</th>
+              <th>Peak RP</th>
+              <th>Rank</th>
+              <th>W</th>
+              <th>L</th>
+              <th>KD</th>
+              <th>Win%</th>
+            </tr>
+          </thead>
+          <tbody id="seasonTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Branding -->
+<a href="https://deerflow.tech" target="_blank" class="deerflow-badge">✦ Deerflow</a>
+
+<script type="module">
+import { fetchProfile, fetchRPHistory, parseIdentifier } from '../assets/js/r6fetch.js';
+import { cachePlayer, getCachedPlayer, cacheRPHistory, getCachedRPHistory,
+         setLastRefresh, timeSinceRefresh } from '../assets/js/store.js';
+import { renderRPChart, renderSeasonHistoryChart, renderMultikillChart, renderWinLossBar }
+  from '../assets/js/charts.js';
+
+// ─── State ───────────────────────────────────────────────────────────────────
+let currentIdentifier = null;
+let currentPlayer     = null;
+
+// ─── DOM refs ────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+const params = new URLSearchParams(location.search);
+const preload = params.get('player');
+if (preload) {
+  $('searchInput').value = preload;
+  loadPlayer(preload);
+}
+
+// Search handlers
+$('searchBtn').addEventListener('click', () => {
+  const val = $('searchInput').value.trim();
+  if (val) loadPlayer(val);
+});
+$('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const val = $('searchInput').value.trim();
+    if (val) loadPlayer(val);
+  }
+});
+
+$('refreshBtn').addEventListener('click', () => {
+  if (currentIdentifier) loadPlayer(currentIdentifier, true);
+});
+
+// Recent dropdown
+$('searchInput').addEventListener('focus', showRecent);
+$('searchInput').addEventListener('input',  showRecent);
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-relative')) hideRecent();
+});
+
+// ─── Load ─────────────────────────────────────────────────────────────────────
+async function loadPlayer(input, forceRefresh = false) {
+  const identifier = parseIdentifier(input);
+  if (!identifier) { showError('Could not parse that input. Try a username or tracker URL.'); return; }
+
+  currentIdentifier = identifier;
+  showLoading('Checking cache…');
+
+  try {
+    // Player profile
+    let player = forceRefresh ? null : getCachedPlayer(identifier);
+    if (!player) {
+      setLoadingMsg('Fetching profile…');
+      player = await fetchProfile(identifier);
+      cachePlayer(identifier, player);
+      setLastRefresh(identifier);
+    }
+    currentPlayer = player;
+
+    // RP history
+    let rpHistory = forceRefresh ? null : getCachedRPHistory(identifier);
+    if (!rpHistory) {
+      setLoadingMsg('Fetching RP history…');
+      rpHistory = await fetchRPHistory(identifier);
+      cacheRPHistory(identifier, rpHistory);
+    }
+
+    renderDashboard(player, rpHistory);
+    showDashboard();
+    updateRefreshTime(identifier);
+
+  } catch (err) {
+    console.error(err);
+    showError(err.message || 'Could not load player. Check the username and try again.');
+  }
+}
+
+// ─── Render ───────────────────────────────────────────────────────────────────
+function renderDashboard(p, rpHistory) {
+  const r = p.ranked || {};
+  const c = p.career || {};
+  const sc = r.seasonColor || '#a0daae';
+
+  // Apply season color
+  document.documentElement.style.setProperty('--season-color', sc);
+
+  // Season banner
+  $('bannerSeason').textContent = `${r.seasonShort || 'Y11S1'} · ${(r.seasonName || 'Silent Hunt').toUpperCase()}`;
+
+  // Player card
+  if (p.avatarUrl) $('playerAvatar').src = p.avatarUrl;
+  $('playerName').textContent = p.username || '—';
+  $('playerMeta').textContent = `CL ${p.clearanceLevel || '—'}  ·  BP ${p.battlepass || '—'}`;
+  const badges = $('playerBadges');
+  badges.innerHTML = '';
+  if (r.elo) badges.innerHTML += `<span class="badge accent">TRN ELO ${r.elo.toLocaleString()}</span>`;
+  if (r.topPosition && r.topPosition <= 100) badges.innerHTML += `<span class="badge accent">TOP ${r.topPosition}</span>`;
+
+  // Rank card
+  if (r.rankImage) $('rankImage').src = r.rankImage;
+  $('rankName').textContent  = r.rankName  || '—';
+  $('rankRP').textContent    = r.rp != null ? `${r.rp.toLocaleString()} RP` : '—';
+  $('rankSub').textContent   = r.maxRp != null ? `Peak: ${r.maxRp.toLocaleString()} RP` : '';
+  const lbWrap = $('lbChipWrap');
+  lbWrap.innerHTML = '';
+  if (r.leaderboard) {
+    lbWrap.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="lb-chip-label">Leaderboard</span>
+        <span class="lb-chip">#${r.leaderboard.toLocaleString()}</span>
+      </div>`;
+  }
+
+  // Season stats
+  const ssRow = $('seasonStatRow');
+  $('seasonStatTitle').textContent = `${r.seasonName || 'Season'} Stats`;
+  ssRow.innerHTML = '';
+  const seasonStats = [
+    { label: 'Matches',    value: r.matchesPlayed, fmt: n => n?.toLocaleString() },
+    { label: 'K/D',        value: r.kd,            fmt: n => n?.toFixed(2), cls: kdClass(r.kd) },
+    { label: 'Win %',      value: r.winPct,        fmt: n => `${n?.toFixed(1)}%`, cls: n => n >= 50 ? 'green' : 'red' },
+    { label: 'Kills/Game', value: r.killsPerGame,  fmt: n => n?.toFixed(2) },
+    { label: 'HS%',        value: r.headshotPct,   fmt: n => `${n?.toFixed(1)}%` },
+    { label: 'First Bloods', value: r.firstBloods, fmt: n => n?.toLocaleString() },
+    { label: 'Clutches',   value: r.clutches,      fmt: n => n?.toLocaleString() },
+    { label: 'Kills',      value: r.kills,         fmt: n => n?.toLocaleString() },
+  ];
+  seasonStats.forEach(({ label, value, fmt, cls }) => {
+    const colorClass = typeof cls === 'function' ? cls(value) : (cls || '');
+    ssRow.innerHTML += `
+      <div class="stat-card">
+        <div class="stat-label">${label}</div>
+        <div class="stat-value ${colorClass}">${value != null ? fmt(value) : '—'}</div>
+      </div>`;
+  });
+
+  // WL bar
+  renderWinLossBar('wlBar', r.wins || 0, r.losses || 0);
+
+  // Career stats
+  const crRow = $('careerStatRow');
+  crRow.innerHTML = '';
+  const careerStats = [
+    { label: 'Total Matches', value: c.matchesPlayed, fmt: n => n?.toLocaleString() },
+    { label: 'Career K/D',    value: c.kd,            fmt: n => n?.toFixed(2) },
+    { label: 'Career Win%',   value: c.winPct,        fmt: n => `${n?.toFixed(1)}%` },
+    { label: 'Time Played',   value: c.timePlayed,    fmt: formatHours },
+    { label: 'Total Kills',   value: c.kills,         fmt: n => n?.toLocaleString() },
+    { label: 'HS%',           value: c.headshotPct,   fmt: n => `${n?.toFixed(1)}%` },
+  ];
+  careerStats.forEach(({ label, value, fmt }) => {
+    crRow.innerHTML += `
+      <div class="stat-card">
+        <div class="stat-label">${label}</div>
+        <div class="stat-value" style="font-size:20px;">${value != null ? fmt(value) : '—'}</div>
+      </div>`;
+  });
+
+  // Charts
+  renderRPChart('rpChart', rpHistory, r.rp, sc);
+  renderMultikillChart('mkChart', r.multikills, sc);
+  renderSeasonHistoryChart('historyChart', p.seasonHistory, 12);
+
+  // Season table
+  const tbody = $('seasonTableBody');
+  tbody.innerHTML = '';
+  (p.seasonHistory || []).slice(0, 20).forEach(s => {
+    tbody.innerHTML += `
+      <tr>
+        <td><span class="season-dot" style="background:${s.color}"></span>${s.shortName || s.season}</td>
+        <td>${s.maxRp != null ? s.maxRp.toLocaleString() : '—'}</td>
+        <td style="font-size:10px;color:var(--text-dim)">${s.rankName || '—'}</td>
+        <td style="color:var(--green)">${s.wins ?? '—'}</td>
+        <td style="color:var(--red)">${s.losses ?? '—'}</td>
+        <td>${s.kd != null ? s.kd.toFixed(2) : '—'}</td>
+        <td>${s.winPct != null ? s.winPct.toFixed(1) + '%' : '—'}</td>
+      </tr>`;
+  });
+}
+
+// ─── UI States ─────────────────────────────────────────────────────────────────
+function showLoading(msg) {
+  $('emptyState').style.display   = 'none';
+  $('errorState').style.display   = 'none';
+  $('dashboard').classList.remove('visible');
+  $('loadingState').style.display = 'flex';
+  setLoadingMsg(msg);
+}
+function setLoadingMsg(msg) { $('loadingMsg').textContent = msg; }
+
+function showDashboard() {
+  $('loadingState').style.display = 'none';
+  $('dashboard').classList.add('visible');
+  $('refreshBtn').style.display = '';
+}
+
+function showError(msg) {
+  $('loadingState').style.display = 'none';
+  $('dashboard').classList.remove('visible');
+  $('errorState').style.display   = 'flex';
+  $('errorMsg').textContent        = msg;
+}
+
+window.reset = function() {
+  $('errorState').style.display = 'none';
+  $('emptyState').style.display = 'flex';
+  $('searchInput').value        = '';
+  currentIdentifier = null;
+};
+
+function updateRefreshTime(id) {
+  const ts = timeSinceRefresh(id);
+  $('refreshTime').textContent = ts ? `Updated ${ts}` : '';
+}
+
+// ─── Recent searches ──────────────────────────────────────────────────────────
+function showRecent() {
+  // Import store dynamically to avoid circular
+  const recent = JSON.parse(localStorage.getItem('ss_recent') || '[]');
+  const list = $('recentList');
+  if (!recent.length) { list.style.display = 'none'; return; }
+  list.innerHTML = recent.slice(0, 5)
+    .map(r => `<div class="recent-item" data-val="${r}">${r}</div>`)
+    .join('');
+  list.style.display = 'block';
+  list.querySelectorAll('.recent-item').forEach(el => {
+    el.addEventListener('click', () => {
+      $('searchInput').value = el.dataset.val;
+      hideRecent();
+      loadPlayer(el.dataset.val);
+    });
+  });
+}
+function hideRecent() { $('recentList').style.display = 'none'; }
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function kdClass(kd) {
+  if (kd == null) return '';
+  if (kd >= 2.0) return 'accent';
+  if (kd >= 1.0) return 'green';
+  return 'red';
+}
+
+function formatHours(seconds) {
+  if (seconds == null) return '—';
+  const h = Math.floor(seconds / 3600);
+  return `${h.toLocaleString()}h`;
+}
+</script>
+</body>
+</html>
