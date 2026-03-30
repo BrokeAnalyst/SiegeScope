@@ -2,827 +2,1442 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://siegescope-proxy.millezbiz.workers.dev https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://trackercdn.com https://ubisoft-avatars.akamaized.net data:;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://siegescope-proxy.millezbiz.workers.dev https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://discord.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://trackercdn.com https://ubisoft-avatars.akamaized.net https://media.tenor.com data:;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SiegeScope — Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
 <style>
-/* ── Reset & Root ─────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --season-color: #a0daae;
-  --bg-deep:      #08090f;
-  --bg-mid:       #0d0f1c;
-  --bg-card:      #111422;
-  --bg-card2:     #161928;
-  --border:       #ffffff0d;
-  --border-light: #ffffff18;
-  --text-primary: #e8eaf0;
-  --text-secondary: #8890a4;
-  --text-dim:     #4a5066;
-  --accent:       var(--season-color);
-  --accent-dim:   color-mix(in srgb, var(--season-color) 30%, transparent);
-  --red:          #ff4466;
-  --green:        #3ddc84;
-  --gold:         #f5c842;
-  --radius:       8px;
-  --radius-lg:    14px;
-  font-size: 14px;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sc:#a0daae;--bg:#08090f;--mid:#0d0f1c;--card:#111422;--card2:#161928;
+  --border:#ffffff0d;--borderl:#ffffff18;--text:#e8eaf0;--muted:#8890a4;--dim:#4a5066;
+  --red:#ff4466;--green:#3ddc84;--gold:#f5c842;--r:8px;--rl:14px;
 }
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
 
-html, body {
-  height: 100%;
-  background: var(--bg-deep);
-  color: var(--text-primary);
-  font-family: 'DM Sans', sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
+/* Topbar */
+.topbar{display:flex;align-items:center;gap:10px;padding:10px 20px;background:var(--mid);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--sc);flex-shrink:0}
+.search-input{flex:1;max-width:340px;background:var(--card);border:1px solid var(--borderl);border-radius:var(--r);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:7px 12px;outline:none;transition:border-color .2s}
+.search-input:focus{border-color:var(--sc)}
+.search-input::placeholder{color:var(--dim)}
+.search-input:disabled{opacity:.4;cursor:not-allowed}
+.btn{padding:7px 14px;border-radius:var(--r);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:opacity .15s,transform .1s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--sc);color:#0a1a0f}
+.btn-ghost{background:var(--card2);color:var(--muted);border:1px solid var(--borderl)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.refresh-time{font-size:11px;color:var(--dim);font-family:'DM Mono',monospace}
+.locked-badge{font-size:10px;font-family:'DM Mono',monospace;padding:3px 8px;border-radius:20px;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.25);color:var(--gold);display:none}
 
-/* ── Layout ───────────────────────────────────────────────── */
-.app { display: flex; flex-direction: column; min-height: 100vh; }
+/* States */
+.state{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:60px 24px;text-align:center;gap:12px;min-height:60vh}
+.state-icon{font-size:48px}
+.state-title{font-size:18px;font-weight:600}
+.state-sub{font-size:13px;color:var(--muted);max-width:340px;line-height:1.6}
+.spinner{width:36px;height:36px;border:3px solid var(--borderl);border-top-color:var(--sc);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-.topbar {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 24px;
-  background: var(--bg-mid);
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; z-index: 100;
-}
-
-.topbar-logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  letter-spacing: 2px;
-  color: var(--accent);
-  text-decoration: none;
-  flex-shrink: 0;
-}
-
-.search-wrap {
-  flex: 1; max-width: 480px;
-  display: flex; gap: 8px;
-}
-
-.search-input {
-  flex: 1;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius);
-  color: var(--text-primary);
-  font-family: 'DM Mono', monospace;
-  font-size: 13px;
-  padding: 8px 14px;
-  outline: none;
-  transition: border-color .2s;
-}
-.search-input:focus { border-color: var(--accent); }
-.search-input::placeholder { color: var(--text-dim); }
-
-.btn {
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  border: none;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  transition: opacity .15s, transform .1s;
-}
-.btn:active { transform: scale(.97); }
-.btn-primary {
-  background: var(--accent);
-  color: #0a1a0f;
-}
-.btn-ghost {
-  background: var(--bg-card2);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-light);
-}
-
-.topbar-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
-.refresh-time { font-size: 11px; color: var(--text-dim); font-family: 'DM Mono', monospace; }
-
-/* ── States ───────────────────────────────────────────────── */
-.state { display: flex; flex-direction: column; align-items: center; justify-content: center;
-  flex: 1; padding: 60px 24px; text-align: center; gap: 12px; }
-.state-icon { font-size: 48px; }
-.state-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
-.state-sub   { font-size: 13px; color: var(--text-secondary); max-width: 340px; line-height: 1.6; }
-.spinner {
-  width: 36px; height: 36px;
-  border: 3px solid var(--border-light);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ── Dashboard Grid ───────────────────────────────────────── */
-.dashboard {
-  display: none;
-  flex: 1;
-  padding: 20px 24px 40px;
-  gap: 16px;
-  flex-direction: column;
-}
-.dashboard.visible { display: flex; }
+/* Dashboard */
+.dashboard{display:none;flex:1;padding:16px 20px 60px;gap:14px;flex-direction:column}
+.dashboard.visible{display:flex}
 
 /* Season banner */
-.season-banner {
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 16px;
-  background: var(--accent-dim);
-  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
-  border-radius: var(--radius);
-  font-size: 12px;
-  color: var(--accent);
-  font-family: 'DM Mono', monospace;
-  letter-spacing: .5px;
-}
-.season-banner span { color: var(--text-secondary); }
+.season-banner{display:flex;align-items:center;gap:10px;padding:8px 14px;background:rgba(160,218,174,.07);border:1px solid rgba(160,218,174,.18);border-radius:var(--r);font-size:11px;color:var(--sc);font-family:'DM Mono',monospace}
+.season-banner span{color:var(--muted)}
 
-/* Hero row */
-.hero-row {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 20px;
-  align-items: start;
-}
+/* Hero */
+.hero-row{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start}
+.player-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:16px;display:flex;gap:14px;align-items:center}
+.player-avatar{width:64px;height:64px;border-radius:50%;border:2px solid var(--sc);object-fit:cover;background:var(--card2);flex-shrink:0}
+.player-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1.5px;line-height:1}
+.player-meta{font-size:11px;color:var(--dim);font-family:'DM Mono',monospace;margin-top:3px}
+.player-badges{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.badge{font-size:10px;font-family:'DM Mono',monospace;padding:2px 7px;border-radius:20px;background:var(--card2);border:1px solid var(--borderl);color:var(--muted)}
+.badge.accent{background:rgba(160,218,174,.1);border-color:rgba(160,218,174,.3);color:var(--sc)}
+.badge.gold{background:rgba(245,200,66,.1);border-color:rgba(245,200,66,.25);color:var(--gold)}
+.rank-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:16px;display:flex;align-items:center;gap:16px}
+.rank-img{width:72px;height:72px;object-fit:contain;filter:drop-shadow(0 0 10px var(--sc));flex-shrink:0}
+.rank-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);font-family:'DM Mono',monospace}
+.rank-name{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--sc);line-height:1}
+.rank-rp{font-family:'DM Mono',monospace;font-size:20px;font-weight:500}
+.rank-sub{font-size:11px;color:var(--dim);font-family:'DM Mono',monospace}
+.lb-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:rgba(160,218,174,.1);border:1px solid rgba(160,218,174,.25);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:var(--sc);margin-top:6px}
 
-.player-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 20px;
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-
-.player-avatar {
-  width: 72px; height: 72px;
-  border-radius: 50%;
-  border: 2px solid var(--accent);
-  object-fit: cover;
-  flex-shrink: 0;
-  background: var(--bg-card2);
-}
-
-.player-info { display: flex; flex-direction: column; gap: 4px; }
-.player-name {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 28px;
-  letter-spacing: 1.5px;
-  color: var(--text-primary);
-  line-height: 1;
-}
-.player-meta {
-  font-size: 11px;
-  color: var(--text-dim);
-  font-family: 'DM Mono', monospace;
-}
-.player-badges { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
-.badge {
-  font-size: 10px;
-  font-family: 'DM Mono', monospace;
-  padding: 2px 8px;
-  border-radius: 20px;
-  background: var(--bg-card2);
-  border: 1px solid var(--border-light);
-  color: var(--text-secondary);
-}
-.badge.accent { background: var(--accent-dim); border-color: color-mix(in srgb, var(--accent) 40%, transparent); color: var(--accent); }
-
-/* Rank card */
-.rank-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-.rank-badge-img {
-  width: 80px; height: 80px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 12px var(--accent));
-  flex-shrink: 0;
-}
-.rank-info { display: flex; flex-direction: column; gap: 3px; }
-.rank-label {
-  font-size: 10px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  font-family: 'DM Mono', monospace;
-}
-.rank-name {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 32px;
-  letter-spacing: 2px;
-  color: var(--accent);
-  line-height: 1;
-}
-.rank-rp {
-  font-family: 'DM Mono', monospace;
-  font-size: 22px;
-  color: var(--text-primary);
-  font-weight: 500;
-}
-.rank-sub { font-size: 11px; color: var(--text-dim); font-family: 'DM Mono', monospace; }
+/* Show RP toggle */
+.rp-toggle{font-size:10px;font-family:'DM Mono',monospace;color:var(--dim);cursor:pointer;border:none;background:none;padding:0;transition:color .15s;text-decoration:underline dotted}
+.rp-toggle:hover{color:var(--muted)}
 
 /* Stat grid */
-.stat-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 10px;
-}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:3px;transition:border-color .2s}
+.stat-card:hover{border-color:var(--borderl)}
+.stat-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);font-family:'DM Mono',monospace}
+.stat-value{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;line-height:1}
+.stat-value.accent{color:var(--sc)}.stat-value.green{color:var(--green)}.stat-value.red{color:var(--red)}
 
-.stat-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  transition: border-color .2s;
-}
-.stat-card:hover { border-color: var(--border-light); }
-.stat-label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--text-dim);
-  font-family: 'DM Mono', monospace;
-}
-.stat-value {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 28px;
-  letter-spacing: 1px;
-  color: var(--text-primary);
-  line-height: 1;
-}
-.stat-value.accent { color: var(--accent); }
-.stat-value.green  { color: var(--green); }
-.stat-value.red    { color: var(--red); }
-.stat-sub {
-  font-size: 10px;
-  color: var(--text-dim);
-  font-family: 'DM Mono', monospace;
-}
+/* Card / section */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:18px}
+.chart-wrap{position:relative;height:220px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 
-/* Section headers */
-.section-head {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 12px;
-}
-.section-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 16px;
-  letter-spacing: 2px;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-}
+/* WL bar */
+.wl-track{height:5px;border-radius:3px;background:var(--red);overflow:hidden;margin-bottom:5px}
+.wl-fill{height:100%;background:var(--green);border-radius:3px;transition:width .6s ease}
+.wl-labels{display:flex;justify-content:space-between;font-size:11px;font-family:'DM Mono',monospace}
+.wl-w{color:var(--green)}.wl-l{color:var(--red)}.wl-pct{color:var(--muted)}
 
-/* Cards */
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 20px;
-}
+/* Goal tracker */
+.goal-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:18px}
+.goal-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.preset-btn{padding:4px 12px;border-radius:20px;border:1px solid var(--borderl);background:var(--card2);color:var(--muted);font-size:11px;font-family:'DM Mono',monospace;cursor:pointer;transition:all .15s}
+.preset-btn:hover,.preset-btn.active{background:rgba(160,218,174,.1);border-color:rgba(160,218,174,.3);color:var(--sc)}
+.goal-input-row{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.goal-input{background:var(--card2);border:1px solid var(--borderl);border-radius:var(--r);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:7px 12px;outline:none;width:140px;transition:border-color .2s}
+.goal-input:focus{border-color:var(--sc)}
+.goal-bar-track{height:8px;border-radius:4px;background:var(--card2);overflow:hidden;margin:6px 0}
+.goal-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--sc),#6fd68a);transition:width .6s ease}
+.goal-labels{display:flex;justify-content:space-between;font-size:11px;font-family:'DM Mono',monospace;color:var(--muted)}
+.pace-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.pace-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;text-align:center}
+.pace-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);font-family:'DM Mono',monospace;margin-bottom:4px}
+.pace-value{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--sc)}
+.pace-sub{font-size:10px;color:var(--dim);font-family:'DM Mono',monospace}
+.top100-live{font-size:10px;font-family:'DM Mono',monospace;color:var(--dim);margin-top:6px}
+.top100-live .live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:4px;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-.chart-wrap { position: relative; height: 220px; }
+/* Rivals */
+.rival-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-bottom:10px}
+.rival-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;gap:10px;align-items:center;position:relative;transition:border-color .2s}
+.rival-card:hover{border-color:var(--borderl)}
+.rival-avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;background:var(--card);border:1px solid var(--borderl);flex-shrink:0}
+.rival-name{font-family:'DM Mono',monospace;font-size:12px;font-weight:500}
+.rival-rank-name{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;display:flex;align-items:center;gap:6px}
+.rival-rank-img{width:20px;height:20px;object-fit:contain}
+.rival-delta{font-size:10px;font-family:'DM Mono',monospace;margin-top:2px}
+.rival-delta.ahead{color:var(--green)}.rival-delta.behind{color:var(--red)}
+.rival-remove{position:absolute;top:7px;right:7px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:13px;padding:0;transition:color .15s}
+.rival-remove:hover{color:var(--red)}
+.rival-add-row{display:flex;gap:8px}
+.rival-add-input{flex:1;background:var(--card2);border:1px solid var(--borderl);border-radius:var(--r);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:6px 10px;outline:none;transition:border-color .2s}
+.rival-add-input:focus{border-color:var(--sc)}
 
-/* Two-col layout */
-.two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-@media (max-width: 700px) {
-  .two-col { grid-template-columns: 1fr; }
-  .hero-row { grid-template-columns: 1fr; }
-}
+/* Season history cards */
+.season-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px}
+.season-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--r);padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:default;transition:border-color .2s;position:relative}
+.season-card:hover{border-color:var(--borderl)}
+.season-card-label{font-size:9px;font-family:'DM Mono',monospace;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.season-rank-img{width:48px;height:48px;object-fit:contain}
+.season-tooltip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid var(--borderl);border-radius:6px;padding:6px 10px;font-size:11px;font-family:'DM Mono',monospace;color:var(--text);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:10;text-align:center}
+.season-card:hover .season-tooltip{opacity:1}
+.season-card-wins{font-size:10px;font-family:'DM Mono',monospace;color:var(--dim)}
 
-/* Season history table */
-.season-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-.season-table th {
-  text-align: left; padding: 6px 10px;
-  font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
-  color: var(--text-dim); font-family: 'DM Mono', monospace;
-  border-bottom: 1px solid var(--border);
-}
-.season-table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
-  font-family: 'DM Mono', monospace;
-  color: var(--text-secondary);
-}
-.season-table tr:last-child td { border-bottom: none; }
-.season-table tr:hover td { background: var(--bg-card2); }
-.season-dot {
-  display: inline-block; width: 8px; height: 8px;
-  border-radius: 50%; margin-right: 6px; vertical-align: middle;
-}
+/* Operators section */
+.op-filter{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.op-filter-btn{padding:3px 10px;border-radius:20px;border:1px solid var(--borderl);background:var(--card2);color:var(--muted);font-size:10px;font-family:'DM Mono',monospace;cursor:pointer;transition:all .15s}
+.op-filter-btn:hover,.op-filter-btn.active{background:rgba(160,218,174,.1);border-color:rgba(160,218,174,.3);color:var(--sc)}
+.op-sort{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
 
-/* WL Bar */
-.wl-bar-track {
-  height: 6px; border-radius: 3px;
-  background: var(--red);
-  overflow: hidden; margin-bottom: 6px;
-}
-.wl-bar-fill { height: 100%; background: var(--green); border-radius: 3px; transition: width .6s ease; }
-.wl-bar-labels { display: flex; justify-content: space-between; font-size: 11px; font-family: 'DM Mono', monospace; }
-.wl-w { color: var(--green); }
-.wl-l { color: var(--red); }
-.wl-pct { color: var(--text-secondary); }
+/* Operator list (badge style) */
+.op-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:8px}
+.op-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;display:flex;gap:10px;align-items:center;transition:border-color .2s}
+.op-card:hover{border-color:var(--borderl)}
+.op-badge{width:36px;height:36px;object-fit:contain;flex-shrink:0}
+.op-name{font-size:12px;font-weight:600;color:var(--text);line-height:1.2}
+.op-side-tag{font-size:9px;font-family:'DM Mono',monospace;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.op-kd-val{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;line-height:1}
+.op-stats-sub{font-size:10px;color:var(--dim);font-family:'DM Mono',monospace}
+.op-wr-bar{height:3px;border-radius:2px;background:var(--red);overflow:hidden;margin-top:3px}
+.op-wr-fill{height:100%;background:var(--green);border-radius:2px}
 
-/* Leaderboard position chip */
-.lb-chip {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 4px 12px;
-  border-radius: 20px;
-  background: var(--accent-dim);
-  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 14px;
-  letter-spacing: 1px;
-  color: var(--accent);
-}
-.lb-chip-label { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+/* Operator comparison (portrait style) */
+.op-compare-wrap{overflow-x:auto;padding-bottom:4px}
+.op-compare-row{display:flex;gap:10px;min-width:max-content}
+.op-portrait-card{width:120px;background:var(--card2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;flex-shrink:0;transition:border-color .2s}
+.op-portrait-card:hover{border-color:var(--borderl)}
+.op-portrait-img{width:100%;height:140px;object-fit:cover;object-position:top center;display:block}
+.op-portrait-info{padding:8px}
+.op-portrait-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px}
+.op-portrait-kd{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;line-height:1}
+.op-portrait-wr{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted)}
+.op-portrait-games{font-size:10px;font-family:'DM Mono',monospace;color:var(--dim)}
+.compare-chart-wrap{position:relative;height:200px;margin-top:14px}
 
-/* Error toast */
-.toast {
-  position: fixed; bottom: 24px; right: 24px;
-  background: #1e0a12; border: 1px solid var(--red);
-  color: var(--red); border-radius: var(--radius);
-  padding: 12px 18px; font-size: 13px;
-  animation: slideIn .3s ease;
-  z-index: 9999; max-width: 320px;
-}
-@keyframes slideIn { from { transform: translateY(20px); opacity: 0; } }
+/* Maps */
+.map-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:8px}
+.map-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .2s}
+.map-card:hover{border-color:var(--borderl)}
+.map-img{width:100%;height:65px;object-fit:cover;display:block;opacity:.65}
+.map-info{padding:8px 10px}
+.map-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px}
+.map-wr-bar{height:3px;border-radius:2px;background:var(--red);overflow:hidden;margin-bottom:4px}
+.map-wr-fill{height:100%;border-radius:2px;background:var(--green)}
+.map-meta{display:flex;justify-content:space-between;font-size:10px;font-family:'DM Mono',monospace;color:var(--dim)}
 
-/* Branding */
-.deerflow-badge {
-  position: fixed; bottom: 16px; left: 16px;
-  font-size: 10px; font-family: 'DM Mono', monospace;
-  color: var(--text-dim); text-decoration: none;
-  opacity: .5; transition: opacity .2s;
-  letter-spacing: 1px;
-}
-.deerflow-badge:hover { opacity: 1; }
+/* Map + operator insight cards */
+.insight-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.insight-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .2s}
+.insight-card:hover{border-color:var(--borderl)}
+.insight-map-header{position:relative;height:70px;overflow:hidden}
+.insight-map-img{width:100%;height:100%;object-fit:cover;opacity:.55}
+.insight-map-overlay{position:absolute;inset:0;display:flex;align-items:flex-end;padding:8px 10px;background:linear-gradient(transparent,rgba(0,0,0,.8))}
+.insight-map-name{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;color:#fff}
+.insight-map-wr{font-size:10px;font-family:'DM Mono',monospace;color:var(--sc);margin-left:auto}
+.insight-body{padding:10px}
+.insight-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);font-family:'DM Mono',monospace;margin-bottom:6px}
+.insight-ops{display:flex;gap:6px;flex-wrap:wrap}
+.insight-op{display:flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:3px 8px;font-size:11px;font-family:'DM Mono',monospace;color:var(--muted)}
+.insight-op img{width:18px;height:18px;object-fit:contain}
+.insight-op-wr{color:var(--sc);margin-left:2px}
 
-/* Recent searches dropdown */
-.recent-list {
-  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius);
-  overflow: hidden; z-index: 200;
-  box-shadow: 0 8px 24px #00000060;
-}
-.recent-item {
-  padding: 9px 14px;
-  font-size: 12px;
-  font-family: 'DM Mono', monospace;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background .15s;
-}
-.recent-item:hover { background: var(--bg-card2); color: var(--accent); }
+/* Career table */
+.s-table{width:100%;border-collapse:collapse;font-size:12px}
+.s-table th{text-align:left;padding:5px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);font-family:'DM Mono',monospace;border-bottom:1px solid var(--border)}
+.s-table td{padding:7px 8px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;color:var(--muted)}
+.s-table tr:last-child td{border-bottom:none}
+.s-table tr:hover td{background:var(--card2)}
+.s-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle}
 
-.search-relative { position: relative; flex: 1; }
+/* Cat overlay */
+.cat-overlay{position:fixed;inset:0;background:#000000bb;z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;cursor:pointer}
+.cat-overlay.show{display:flex}
+.cat-overlay img{width:280px;border-radius:var(--rl);border:3px solid var(--sc)}
+.cat-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:3px;color:var(--sc)}
+.cat-sub{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;background:#1e0a12;border:1px solid var(--red);color:var(--red);border-radius:var(--r);padding:10px 16px;font-size:12px;z-index:9998;animation:slideIn .3s ease;max-width:300px}
+.toast.success{background:#0a1e12;border-color:var(--green);color:var(--green)}
+@keyframes slideIn{from{transform:translateY(16px);opacity:0}}
+
+.skeleton{background:linear-gradient(90deg,var(--card2) 25%,var(--border) 50%,var(--card2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--r);height:80px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.deerflow{position:fixed;bottom:14px;left:14px;font-size:10px;font-family:'DM Mono',monospace;color:var(--dim);opacity:.4;transition:opacity .2s;text-decoration:none}
+.deerflow:hover{opacity:1}
+
+@media(max-width:700px){
+  .two-col{grid-template-columns:1fr}
+  .hero-row{grid-template-columns:1fr}
+  .pace-grid{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
-
 <body>
-<div class="app">
 
-  <!-- Topbar -->
-  <header class="topbar">
-    <a class="topbar-logo" href="#">SIEGESCOPE</a>
-    <div class="search-wrap">
-      <div class="search-relative">
-        <input
-          class="search-input"
-          id="searchInput"
-          type="text"
-          placeholder="Enter username or tracker URL…"
-          autocomplete="off"
-          spellcheck="false"
-        >
-        <div class="recent-list" id="recentList" style="display:none;"></div>
-      </div>
-      <button class="btn btn-primary" id="searchBtn">Search</button>
-    </div>
-    <div class="topbar-right">
-      <span class="refresh-time" id="refreshTime"></span>
-      <button class="btn btn-ghost" id="refreshBtn" style="display:none;">↺ Refresh</button>
-    </div>
-  </header>
+<div class="cat-overlay" id="catOverlay" onclick="this.classList.remove('show')">
+  <div class="cat-title">GOAL REACHED! 🎉</div>
+  <img id="catGif" src="" alt="cat">
+  <div class="cat-sub">Tap anywhere to dismiss</div>
+</div>
 
-  <!-- Empty state -->
-  <div class="state" id="emptyState">
-    <div class="state-icon">🎯</div>
-    <div class="state-title">Enter a Player</div>
-    <div class="state-sub">Paste a username, UUID, or full R6 Tracker URL to load stats.</div>
+<div style="display:flex;flex-direction:column;min-height:100vh">
+
+<header class="topbar">
+  <span class="logo">SIEGESCOPE</span>
+  <input class="search-input" id="searchInput" type="text" placeholder="Username or R6 Tracker URL…" autocomplete="off" spellcheck="false">
+  <button class="btn btn-primary" id="searchBtn">Search</button>
+  <div class="topbar-right">
+    <span class="locked-badge" id="lockedBadge">🔒 Key locked</span>
+    <span class="refresh-time" id="refreshTime"></span>
+    <button class="btn btn-ghost" id="refreshBtn" style="display:none">↺ Refresh</button>
+  </div>
+</header>
+
+<div class="state" id="emptyState">
+  <div class="state-icon">🎯</div>
+  <div class="state-title">Enter a Player</div>
+  <div class="state-sub">Paste a username, UUID, or full R6 Tracker profile URL.</div>
+</div>
+
+<div class="state" id="loadingState" style="display:none">
+  <div class="spinner"></div>
+  <div class="state-title">Loading Stats…</div>
+  <div class="state-sub" id="loadingMsg">Fetching profile</div>
+</div>
+
+<div class="state" id="errorState" style="display:none">
+  <div class="state-icon">⚠️</div>
+  <div class="state-title">Could Not Load Player</div>
+  <div class="state-sub" id="errorMsg">Check username and try again.</div>
+  <button class="btn btn-ghost" onclick="resetDash()">Try Again</button>
+</div>
+
+<main class="dashboard" id="dashboard">
+
+  <div class="season-banner">
+    <span id="bannerText">Y11S1 · SILENT HUNT</span>
+    <span>·</span>
+    <span id="bannerDate">Season ends ~Jun 10 2026</span>
   </div>
 
-  <!-- Loading state -->
-  <div class="state" id="loadingState" style="display:none;">
-    <div class="spinner"></div>
-    <div class="state-title">Loading Stats…</div>
-    <div class="state-sub" id="loadingMsg">Fetching profile data</div>
+  <!-- Hero -->
+  <div class="hero-row">
+    <div class="player-card">
+      <img class="player-avatar" id="playerAvatar" src="" alt="avatar">
+      <div>
+        <div class="player-name" id="playerName">—</div>
+        <div class="player-meta" id="playerMeta"></div>
+        <div class="player-badges" id="playerBadges"></div>
+      </div>
+    </div>
+    <div class="rank-card">
+      <img class="rank-img" id="rankImg" src="" alt="rank">
+      <div>
+        <div class="rank-label">Current Rank</div>
+        <div class="rank-name" id="rankName">—</div>
+        <div class="rank-rp" id="rankRP">—</div>
+        <div class="rank-sub" id="rankSub"></div>
+        <div id="lbChip"></div>
+      </div>
+    </div>
   </div>
 
-  <!-- Error state -->
-  <div class="state" id="errorState" style="display:none;">
-    <div class="state-icon">⚠️</div>
-    <div class="state-title">Could Not Load Player</div>
-    <div class="state-sub" id="errorMsg">Check the username and try again.</div>
-    <button class="btn btn-ghost" onclick="reset()">Try Again</button>
+  <!-- Season stats -->
+  <div>
+    <div class="section-head"><div class="section-title" id="seasonTitle">Season Stats</div></div>
+    <div class="stat-row" id="seasonStats"></div>
   </div>
 
-  <!-- Dashboard -->
-  <main class="dashboard" id="dashboard">
+  <!-- WL Bar -->
+  <div class="card">
+    <div class="section-head" style="margin-bottom:8px"><div class="section-title">Win / Loss</div></div>
+    <div id="wlBar"></div>
+  </div>
 
-    <!-- Season banner -->
-    <div class="season-banner" id="seasonBanner">
-      <span id="bannerSeason">Y11S1 · SILENT HUNT</span>
-      <span>·</span>
-      <span id="bannerDate">Season ends ~Jun 10 2026</span>
+  <!-- RP Chart -->
+  <div class="card">
+    <div class="section-head"><div class="section-title">RP History — This Season</div></div>
+    <div class="chart-wrap"><canvas id="rpChart"></canvas></div>
+  </div>
+
+  <!-- Goal Tracker -->
+  <div class="goal-card">
+    <div class="section-head">
+      <div class="section-title">RP Goal Tracker</div>
+      <button class="btn btn-ghost" onclick="notifyGoalProgress()" style="font-size:11px;padding:5px 10px">📢 Discord Update</button>
     </div>
 
-    <!-- Hero Row: Player + Rank -->
-    <div class="hero-row">
-      <div class="player-card">
-        <img class="player-avatar" id="playerAvatar" src="" alt="avatar">
-        <div class="player-info">
-          <div class="player-name" id="playerName">—</div>
-          <div class="player-meta" id="playerMeta">Loading…</div>
-          <div class="player-badges" id="playerBadges"></div>
-        </div>
-      </div>
-      <div class="rank-card">
-        <img class="rank-badge-img" id="rankImage" src="" alt="rank">
-        <div class="rank-info">
-          <div class="rank-label">Current Rank</div>
-          <div class="rank-name" id="rankName">—</div>
-          <div class="rank-rp" id="rankRP">—</div>
-          <div class="rank-sub" id="rankSub">—</div>
-          <div style="margin-top:8px;" id="lbChipWrap"></div>
-        </div>
-      </div>
+    <div class="goal-presets" id="goalPresets">
+      <button class="preset-btn active" data-rp="TOP100">Top 100 (Live)</button>
+      <button class="preset-btn" data-rp="5000">5,000 RP</button>
+      <button class="preset-btn" data-rp="4500">4,500 RP</button>
+      <button class="preset-btn" data-rp="CUSTOM">Custom…</button>
     </div>
 
-    <!-- Current Season Stats -->
-    <div>
-      <div class="section-head">
-        <div class="section-title" id="seasonStatTitle">Season Stats</div>
-      </div>
-      <div class="stat-row" id="seasonStatRow">
-        <!-- filled by JS -->
-      </div>
+    <div class="goal-input-row" id="customGoalRow" style="display:none">
+      <input class="goal-input" id="customGoalInput" type="number" placeholder="Target RP" min="100" max="9999">
+      <button class="btn btn-primary" onclick="applyCustomGoal()">Set</button>
     </div>
 
-    <!-- WL Bar -->
+    <div id="top100LiveInfo" class="top100-live" style="margin-bottom:10px;display:none">
+      <span class="live-dot"></span><span id="top100LiveText">Fetching live Top 100 cutoff…</span>
+    </div>
+
+    <div class="goal-labels">
+      <span id="goalCurrentLabel">Current: —</span>
+      <span id="goalTargetLabel">Target: —</span>
+    </div>
+    <div class="goal-bar-track"><div class="goal-bar-fill" id="goalBarFill" style="width:0%"></div></div>
+    <div style="text-align:center;font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);margin-bottom:12px" id="goalPctLabel">—</div>
+
+    <div class="pace-grid">
+      <div class="pace-card">
+        <div class="pace-label">RP Needed</div>
+        <div class="pace-value" id="paceNeeded">—</div>
+        <div class="pace-sub">to goal</div>
+      </div>
+      <div class="pace-card">
+        <div class="pace-label">Wins Needed</div>
+        <div class="pace-value" id="paceWins">—</div>
+        <div class="pace-sub">at +4 RP/win</div>
+      </div>
+      <div class="pace-card">
+        <div class="pace-label">Daily Pace</div>
+        <div class="pace-value" id="paceDaily">—</div>
+        <div class="pace-sub" id="paceDailySub">wins/day</div>
+      </div>
+      <div class="pace-card">
+        <div class="pace-label">Weekly Pace</div>
+        <div class="pace-value" id="paceWeekly">—</div>
+        <div class="pace-sub" id="paceWeeklySub">wins/week</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rivals -->
+  <div class="card">
+    <div class="section-head"><div class="section-title">Rival Watchlist</div></div>
+    <div class="rival-grid" id="rivalGrid"></div>
+    <div class="rival-add-row">
+      <input class="rival-add-input" id="rivalInput" placeholder="Add rival — username or tracker URL…" onkeydown="if(event.key==='Enter') addRival()">
+      <button class="btn btn-ghost" onclick="addRival()" style="font-size:12px">+ Add</button>
+    </div>
+  </div>
+
+  <!-- Season history cards -->
+  <div class="card">
+    <div class="section-head"><div class="section-title">Season History</div></div>
+    <div class="season-cards" id="seasonCards"></div>
+  </div>
+
+  <!-- Operator comparison (portrait + chart) -->
+  <div class="card">
+    <div class="section-head">
+      <div class="section-title">Top Operator Comparison</div>
+    </div>
+    <div class="op-compare-wrap">
+      <div class="op-compare-row" id="opCompareRow">
+        <div class="skeleton" style="width:120px;height:200px;flex-shrink:0"></div>
+        <div class="skeleton" style="width:120px;height:200px;flex-shrink:0"></div>
+        <div class="skeleton" style="width:120px;height:200px;flex-shrink:0"></div>
+        <div class="skeleton" style="width:120px;height:200px;flex-shrink:0"></div>
+        <div class="skeleton" style="width:120px;height:200px;flex-shrink:0"></div>
+      </div>
+    </div>
+    <div class="compare-chart-wrap"><canvas id="opCompareChart"></canvas></div>
+  </div>
+
+  <!-- Operator list -->
+  <div class="card">
+    <div class="section-head"><div class="section-title">All Operators</div></div>
+    <div class="op-filter" id="opFilter">
+      <button class="op-filter-btn active" data-side="all">All</button>
+      <button class="op-filter-btn" data-side="attacker">Attackers</button>
+      <button class="op-filter-btn" data-side="defender">Defenders</button>
+    </div>
+    <div class="op-grid" id="opGrid">
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+  </div>
+
+  <!-- Map + Operator Insights -->
+  <div class="card">
+    <div class="section-head"><div class="section-title">Map + Operator Insights</div></div>
+    <div style="font-size:11px;color:var(--dim);font-family:'DM Mono',monospace;margin-bottom:12px">Your top 5 maps by games played, and which operators you excel with on each.</div>
+    <div class="insight-grid" id="insightGrid">
+      <div class="skeleton" style="height:140px"></div>
+      <div class="skeleton" style="height:140px"></div>
+      <div class="skeleton" style="height:140px"></div>
+    </div>
+  </div>
+
+  <!-- Map performance -->
+  <div class="card">
+    <div class="section-head"><div class="section-title">Map Performance</div></div>
+    <div class="map-grid" id="mapGrid">
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+  </div>
+
+  <!-- Career + Season log -->
+  <div class="two-col">
     <div class="card">
-      <div class="section-head" style="margin-bottom:10px;">
-        <div class="section-title">Win / Loss</div>
-      </div>
-      <div id="wlBar"></div>
+      <div class="section-head"><div class="section-title">Career Overview</div></div>
+      <div class="stat-row" id="careerStats" style="grid-template-columns:1fr 1fr"></div>
     </div>
-
-    <!-- RP Chart -->
     <div class="card">
-      <div class="section-head">
-        <div class="section-title">RP History — This Season</div>
-      </div>
-      <div class="chart-wrap">
-        <canvas id="rpChart"></canvas>
-      </div>
-    </div>
-
-    <!-- Two-col: Multikills + Career -->
-    <div class="two-col">
-      <div class="card">
-        <div class="section-head">
-          <div class="section-title">Multikills</div>
-        </div>
-        <div class="chart-wrap" style="height:180px;">
-          <canvas id="mkChart"></canvas>
-        </div>
-      </div>
-      <div class="card">
-        <div class="section-head">
-          <div class="section-title">Career Overview</div>
-        </div>
-        <div class="stat-row" id="careerStatRow" style="grid-template-columns:1fr 1fr;">
-          <!-- filled by JS -->
-        </div>
-      </div>
-    </div>
-
-    <!-- Season History Chart -->
-    <div class="card">
-      <div class="section-head">
-        <div class="section-title">Season History (Peak RP)</div>
-      </div>
-      <div class="chart-wrap" style="height:200px;">
-        <canvas id="historyChart"></canvas>
-      </div>
-    </div>
-
-    <!-- Season History Table -->
-    <div class="card">
-      <div class="section-head">
-        <div class="section-title">Season Log</div>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="season-table" id="seasonTable">
-          <thead>
-            <tr>
-              <th>Season</th>
-              <th>Peak RP</th>
-              <th>Rank</th>
-              <th>W</th>
-              <th>L</th>
-              <th>KD</th>
-              <th>Win%</th>
-            </tr>
-          </thead>
+      <div class="section-head"><div class="section-title">Season Log</div></div>
+      <div style="overflow-x:auto">
+        <table class="s-table">
+          <thead><tr><th>Season</th><th>Rank</th><th>W</th><th>L</th><th>KD</th><th>Win%</th><th></th></tr></thead>
           <tbody id="seasonTableBody"></tbody>
         </table>
       </div>
     </div>
+  </div>
 
-  </main>
+</main>
 </div>
 
-<!-- Branding -->
-<a href="https://deerflow.tech" target="_blank" class="deerflow-badge">✦ Deerflow</a>
+<a href="https://deerflow.tech" target="_blank" class="deerflow">✦ Deerflow</a>
 
 <script type="module">
-import { fetchProfile, fetchRPHistory, parseIdentifier } from '../assets/js/r6fetch.js';
-import { cachePlayer, getCachedPlayer, cacheRPHistory, getCachedRPHistory,
-         setLastRefresh, timeSinceRefresh } from '../assets/js/store.js';
-import { renderRPChart, renderSeasonHistoryChart, renderMultikillChart, renderWinLossBar }
-  from '../assets/js/charts.js';
+// ══════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════
+const DISCORD_WEBHOOK = 'YOUR_DISCORD_WEBHOOK_URL_HERE';
+const WORKER          = 'https://siegescope-proxy.millezbiz.workers.dev';
+const SEASON_END      = new Date('2026-06-10');
+const CURRENT_SEASON  = 41;
 
-// ─── State ───────────────────────────────────────────────────────────────────
-let currentIdentifier = null;
-let currentPlayer     = null;
+const CAT_GIFS = [
+  'https://media.tenor.com/s97GWDnLxfMAAAAC/cat-happy.gif',
+  'https://media.tenor.com/IKtAWZKdDkEAAAAC/cat-dance.gif',
+  'https://media.tenor.com/X85HIbIPQhYAAAAC/cat-party.gif',
+  'https://media.tenor.com/Yx-KfV7AMbYAAAAC/happy-cat-meme.gif',
+];
 
-// ─── DOM refs ────────────────────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
+// ══════════════════════════════════════════════════
+// State
+// ══════════════════════════════════════════════════
+let currentPlayer = null;
+let currentRP     = null;
+let currentRPHist = null;
+let goalRP        = 4900;
+let goalLabel     = 'Top 100';
+let top100RP      = null;
+let useTop100Mode = true;
+let rivals        = JSON.parse(localStorage.getItem('ss_rivals') || '[]');
+let allOps        = [];
+let allMaps       = [];
+let opFilter      = 'all';
+let goalHitSent   = {};
+let rpVisible     = {}; // track which season cards have RP revealed
 
-// ─── Init ─────────────────────────────────────────────────────────────────────
-const params = new URLSearchParams(location.search);
-const preload = params.get('player');
-if (preload) {
-  $('searchInput').value = preload;
-  loadPlayer(preload);
+// ══════════════════════════════════════════════════
+// Key lock
+// ══════════════════════════════════════════════════
+const LOCK_KEY       = 'ss_locked_player';
+const getLockedPlayer = () => localStorage.getItem(LOCK_KEY);
+const isLocked       = () => !!getLockedPlayer();
+const lockPlayer     = u => { if (!getLockedPlayer()) localStorage.setItem(LOCK_KEY, u.toLowerCase().trim()); };
+const checkLock      = u => !getLockedPlayer() || getLockedPlayer() === u.toLowerCase().trim();
+
+// ══════════════════════════════════════════════════
+// Fetch helpers
+// ══════════════════════════════════════════════════
+async function wfetch(path) {
+  const url = `${WORKER}/?url=${encodeURIComponent('https://api.tracker.gg' + path)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Worker fetch failed: ${res.status} for ${path}`);
+  return res.json();
 }
 
-// Search handlers
-$('searchBtn').addEventListener('click', () => {
-  const val = $('searchInput').value.trim();
-  if (val) loadPlayer(val);
-});
-$('searchInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    const val = $('searchInput').value.trim();
-    if (val) loadPlayer(val);
-  }
+// Fetch the live Top 100 cutoff RP from the leaderboard
+async function fetchTop100RP() {
+  try {
+    // Page 1 = top 25, page 4 = ranks 76-100, we want #100
+    const raw = await wfetch(`/api/v2/r6siege/standard/leaderboards?platform=pc&boardId=RankPoints&gamemode=pvp_ranked&seasonId=${CURRENT_SEASON}&page=4`);
+    const entries = raw?.data?.items || raw?.data?.entries || [];
+    if (entries.length > 0) {
+      // Last entry on page 4 is closest to #100
+      const last = entries[entries.length - 1];
+      const rp = last?.stats?.rankPoints?.value ?? last?.rankPoints ?? null;
+      if (rp) return rp;
+    }
+  } catch {}
+  // Fallback: try alternate endpoint
+  try {
+    const raw = await wfetch(`/api/v2/r6siege/standard/leaderboards/pc/${CURRENT_SEASON}/pvp_ranked/RankPoints?page=4`);
+    const entries = raw?.data?.items || [];
+    if (entries.length > 0) {
+      const last = entries[entries.length - 1];
+      return last?.stats?.rankPoints?.value ?? null;
+    }
+  } catch {}
+  return null;
+}
+
+function parseId(input) {
+  if (!input) return null;
+  input = input.trim();
+  const m = input.match(/\/profile\/ubi\/([^/?]+)/);
+  return m ? decodeURIComponent(m[1]) : input;
+}
+
+// ══════════════════════════════════════════════════
+// Init
+// ══════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+
+goalRP    = parseInt(localStorage.getItem('ss_goalRP')    || '4900');
+goalLabel = localStorage.getItem('ss_goalLabel') || 'Top 100';
+useTop100Mode = (localStorage.getItem('ss_goalMode') || 'top100') === 'top100';
+
+if (isLocked()) {
+  $('searchInput').value    = getLockedPlayer();
+  $('searchInput').disabled = true;
+  $('searchBtn').disabled   = true;
+  $('lockedBadge').style.display = 'inline-flex';
+}
+
+const urlPlayer = new URLSearchParams(location.search).get('player');
+if (urlPlayer) { $('searchInput').value = urlPlayer; doLoad(urlPlayer); }
+else if (isLocked()) doLoad(getLockedPlayer());
+
+$('searchBtn').addEventListener('click', () => { const v = $('searchInput').value.trim(); if (v) doLoad(v); });
+$('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') { const v = $('searchInput').value.trim(); if (v) doLoad(v); }});
+$('refreshBtn').addEventListener('click', () => { if (currentPlayer) doLoad(currentPlayer.username, true); });
+
+// Operator side filter
+document.querySelectorAll('.op-filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.op-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    opFilter = btn.dataset.side;
+    renderOpGrid();
+  });
 });
 
-$('refreshBtn').addEventListener('click', () => {
-  if (currentIdentifier) loadPlayer(currentIdentifier, true);
+// Goal preset buttons
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const val = btn.dataset.rp;
+    if (val === 'CUSTOM') { $('customGoalRow').style.display = 'flex'; useTop100Mode = false; return; }
+    $('customGoalRow').style.display = 'none';
+    if (val === 'TOP100') {
+      useTop100Mode = true;
+      goalRP = top100RP || 4900;
+      goalLabel = 'Top 100';
+      $('top100LiveInfo').style.display = 'block';
+    } else {
+      useTop100Mode = false;
+      goalRP = parseInt(val);
+      goalLabel = `${parseInt(val).toLocaleString()} RP`;
+      $('top100LiveInfo').style.display = 'none';
+    }
+    localStorage.setItem('ss_goalRP', goalRP);
+    localStorage.setItem('ss_goalLabel', goalLabel);
+    localStorage.setItem('ss_goalMode', useTop100Mode ? 'top100' : 'custom');
+    updateGoal();
+  });
 });
 
-// Recent dropdown
-$('searchInput').addEventListener('focus', showRecent);
-$('searchInput').addEventListener('input',  showRecent);
-document.addEventListener('click', e => {
-  if (!e.target.closest('.search-relative')) hideRecent();
-});
+window.applyCustomGoal = () => {
+  const v = parseInt($('customGoalInput').value);
+  if (!v || v < 100) return;
+  goalRP = v; goalLabel = `${v.toLocaleString()} RP`;
+  useTop100Mode = false;
+  localStorage.setItem('ss_goalRP', goalRP);
+  localStorage.setItem('ss_goalLabel', goalLabel);
+  localStorage.setItem('ss_goalMode', 'custom');
+  $('customGoalRow').style.display = 'none';
+  $('top100LiveInfo').style.display = 'none';
+  updateGoal();
+};
 
-// ─── Load ─────────────────────────────────────────────────────────────────────
-async function loadPlayer(input, forceRefresh = false) {
-  const identifier = parseIdentifier(input);
-  if (!identifier) { showError('Could not parse that input. Try a username or tracker URL.'); return; }
+// ══════════════════════════════════════════════════
+// Load player
+// ══════════════════════════════════════════════════
+async function doLoad(input, force = false) {
+  const id = parseId(input);
+  if (!id) { showError('Could not parse that input.'); return; }
+  if (!checkLock(id)) { showError(`This key is locked to "${getLockedPlayer()}". Contact support to change it.`); return; }
 
-  currentIdentifier = identifier;
-  showLoading('Checking cache…');
+  showLoading('Fetching profile…');
+  const TTL = 5 * 60 * 1000;
 
   try {
-    // Player profile
-    let player = forceRefresh ? null : getCachedPlayer(identifier);
+    let player, rpHist;
+    const ck = 'ss_p_' + id.toLowerCase();
+    const rk = 'ss_r_' + id.toLowerCase();
+
+    if (!force) {
+      const cp = localStorage.getItem(ck);
+      const cr = localStorage.getItem(rk);
+      if (cp) { const o = JSON.parse(cp); if (Date.now() - o.ts < TTL) player = o.d; }
+      if (cr) { const o = JSON.parse(cr); if (Date.now() - o.ts < TTL) rpHist = o.d.map(e => ({...e, timestamp: new Date(e.timestamp)})); }
+    }
+
     if (!player) {
-      setLoadingMsg('Fetching profile…');
-      player = await fetchProfile(identifier);
-      cachePlayer(identifier, player);
-      setLastRefresh(identifier);
+      setLoadMsg('Fetching profile…');
+      const raw = await wfetch(`/api/v2/r6siege/standard/profile/ubi/${encodeURIComponent(id)}`);
+      player = parseProfile(raw);
+      localStorage.setItem(ck, JSON.stringify({d: player, ts: Date.now()}));
     }
+
+    if (!rpHist) {
+      setLoadMsg('Fetching RP history…');
+      const raw = await wfetch(`/api/v2/r6siege/standard/profile/ubi/${encodeURIComponent(id)}/stats/overview/rankPoints?localOffset=300`);
+      rpHist = parseRPHist(raw);
+      localStorage.setItem(rk, JSON.stringify({d: rpHist, ts: Date.now()}));
+    }
+
     currentPlayer = player;
+    currentRPHist = rpHist;
+    currentRP = player.ranked?.rp ?? null;
 
-    // RP history
-    let rpHistory = forceRefresh ? null : getCachedRPHistory(identifier);
-    if (!rpHistory) {
-      setLoadingMsg('Fetching RP history…');
-      rpHistory = await fetchRPHistory(identifier);
-      cacheRPHistory(identifier, rpHistory);
+    lockPlayer(player.username);
+    renderDash(player, rpHist);
+    showDash();
+    $('refreshTime').textContent = 'Updated just now';
+
+    // Async: fetch live Top 100, operators, maps
+    if (useTop100Mode) {
+      $('top100LiveInfo').style.display = 'block';
+      $('top100LiveText').textContent = 'Fetching live Top 100 cutoff…';
+      fetchTop100RP().then(rp => {
+        if (rp) {
+          top100RP = rp;
+          if (useTop100Mode) {
+            goalRP = rp;
+            $('top100LiveText').textContent = `Live Top 100 cutoff: ${rp.toLocaleString()} RP`;
+            updateGoal();
+          }
+        } else {
+          $('top100LiveText').textContent = 'Live cutoff unavailable — using estimate';
+        }
+      });
     }
 
-    renderDashboard(player, rpHistory);
-    showDashboard();
-    updateRefreshTime(identifier);
+    loadOpData(id);
+    loadMapData(id);
 
   } catch (err) {
     console.error(err);
-    showError(err.message || 'Could not load player. Check the username and try again.');
+    showError(err.message || 'Could not load player.');
   }
 }
 
-// ─── Render ───────────────────────────────────────────────────────────────────
-function renderDashboard(p, rpHistory) {
-  const r = p.ranked || {};
-  const c = p.career || {};
+// ══════════════════════════════════════════════════
+// Parse profile
+// ══════════════════════════════════════════════════
+function parseProfile(raw) {
+  const d = raw.data;
+  const segs = d.segments || [];
+  const pi = d.platformInfo || {};
+  const meta = d.metadata || {};
+
+  const p = {
+    username: pi.platformUserHandle || pi.platformUserIdentifier || 'Unknown',
+    uuid: pi.platformUserId || '',
+    avatarUrl: pi.avatarUrl || '',
+    clearanceLevel: meta.clearanceLevel || 0,
+    battlepass: meta.battlepassLevel || 0,
+    currentSeason: meta.currentSeason || CURRENT_SEASON,
+  };
+
+  const ov = segs.find(s => s.type === 'overview');
+  if (ov) {
+    const st = ov.stats;
+    p.career = {
+      matchesPlayed: st.matchesPlayed?.value, wins: st.matchesWon?.value,
+      losses: st.matchesLost?.value, winPct: st.winPercentage?.value,
+      kills: st.kills?.value, deaths: st.deaths?.value, kd: st.kdRatio?.value,
+      headshotPct: st.headshotPercentage?.value, timePlayed: st.timePlayed?.value,
+    };
+  }
+
+  const cs = p.currentSeason;
+  const ranked = segs.find(s => s.type === 'season' && s.attributes.season === cs && s.attributes.gamemode === 'pvp_ranked');
+  if (ranked) {
+    const st = ranked.stats;
+    const rp = st.rankPoints || {};
+    const mrp = st.maxRankPoints || {};
+    p.ranked = {
+      season: cs,
+      seasonName: ranked.metadata.seasonName || 'Silent Hunt',
+      seasonShort: ranked.metadata.shortName || 'Y11S1',
+      seasonColor: ranked.metadata.color || '#a0daae',
+      rp: rp.value ?? null,
+      maxRp: mrp.value ?? null,
+      rankName: rp.metadata?.name || '—',
+      rankImage: rp.metadata?.imageUrl || '',
+      leaderboard: rp.rank ?? null,
+      topPosition: st.topRankPosition?.value ?? null,
+      matchesPlayed: st.matchesPlayed?.value,
+      wins: st.matchesWon?.value, losses: st.matchesLost?.value,
+      winPct: st.winPercentage?.value, kills: st.kills?.value,
+      deaths: st.deaths?.value, kd: st.kdRatio?.value,
+      killsPerGame: st.killsPerGame?.value, headshotPct: st.headshotPct?.value,
+      elo: st.elo?.value ?? null,
+    };
+  }
+
+  p.seasonHistory = segs
+    .filter(s => s.type === 'season' && s.attributes.gamemode === 'pvp_ranked')
+    .sort((a, b) => b.attributes.season - a.attributes.season)
+    .map(s => {
+      const st = s.stats;
+      const rp = st.rankPoints || {};
+      const mrp = st.maxRankPoints || {};
+      return {
+        season: s.attributes.season,
+        seasonName: s.metadata.seasonName || '',
+        shortName: s.metadata.shortName || '',
+        color: s.metadata.color || '#888',
+        rp: rp.value ?? null,
+        maxRp: mrp.value ?? null,
+        rankName: rp.metadata?.name || '—',
+        rankImage: rp.metadata?.imageUrl || mrp.metadata?.imageUrl || '',
+        leaderboardPos: rp.metadata?.topRankPosition ?? null,
+        wins: st.matchesWon?.value, losses: st.matchesLost?.value,
+        kd: st.kdRatio?.value, winPct: st.winPercentage?.value,
+      };
+    });
+
+  return p;
+}
+
+function parseRPHist(raw) {
+  return (raw?.data?.history?.data || [])
+    .map(([ts, e]) => ({timestamp: new Date(ts), rp: e.value, rank: e.metadata?.rank || '', color: e.metadata?.color || '#a0daae'}))
+    .sort((a, b) => a.timestamp - b.timestamp);
+}
+
+// ══════════════════════════════════════════════════
+// Operator data + per-map-per-operator insights
+// ══════════════════════════════════════════════════
+
+// Global insight data: mapKey → [ {opName, opKey, badgeUrl, winPct, kd, played} ]
+let mapOpInsights = {};
+
+async function loadOpData(id) {
+  try {
+    const ck  = 'ss_op_' + id.toLowerCase();
+    const TTL = 10 * 60 * 1000;
+    let ops;
+    const cached = localStorage.getItem(ck);
+    if (cached) { const o = JSON.parse(cached); if (Date.now() - o.ts < TTL) ops = o.d; }
+    if (!ops) {
+      const raw = await wfetch(`/api/v2/r6siege/standard/profile/ubi/${encodeURIComponent(id)}/segments/operator`);
+      ops = parseOps(raw);
+      localStorage.setItem(ck, JSON.stringify({d: ops, ts: Date.now()}));
+    }
+    allOps = ops;
+    renderOpGrid();
+    renderOpCompare();
+
+    // Now fetch per-map stats for top 6 operators (parallel)
+    const topOps = allOps.slice(0, 6);
+    await loadMapOpInsights(id, topOps);
+    buildInsights();
+  } catch (err) {
+    console.error('Op load error:', err);
+    $('opGrid').innerHTML = `<div style="color:var(--dim);font-size:12px;font-family:'DM Mono',monospace;grid-column:1/-1">Could not load operator data.</div>`;
+  }
+}
+
+async function loadMapOpInsights(id, topOps) {
+  // For each operator, fetch their per-map breakdown
+  // Endpoint: /segments/map?sessionType=all&season=all&operator={key}
+  // Response: array of {type:"map", attributes:{map, operator, side}, stats:{...}}
+  // We use side=null entries only (combined, not attacker/defender split)
+
+  const TTL = 10 * 60 * 1000;
+  mapOpInsights = {};
+
+  await Promise.all(topOps.map(async (op) => {
+    try {
+      const ck = `ss_mop_${id.toLowerCase()}_${op.key}`;
+      let data;
+      const cached = localStorage.getItem(ck);
+      if (cached) {
+        const o = JSON.parse(cached);
+        if (Date.now() - o.ts < TTL) data = o.d;
+      }
+      if (!data) {
+        const raw = await wfetch(
+          `/api/v2/r6siege/standard/profile/ubi/${encodeURIComponent(id)}/segments/map?sessionType=all&season=all&operator=${encodeURIComponent(op.key)}`
+        );
+        // Keep only side=null entries (the combined total per map)
+        data = (raw?.data || [])
+          .filter(s => s.attributes?.side === null && s.stats?.matchesPlayed?.value > 0)
+          .map(s => ({
+            mapKey:  s.attributes.map,
+            mapName: s.metadata?.mapName || s.attributes.map,
+            mapImg:  s.metadata?.mapImageUrl || '',
+            winPct:  s.stats.winPercentage?.value ?? null,
+            kd:      s.stats.kdRatio?.value ?? null,
+            played:  s.stats.matchesPlayed?.value ?? 0,
+            wins:    s.stats.matchesWon?.value ?? 0,
+          }));
+        localStorage.setItem(ck, JSON.stringify({d: data, ts: Date.now()}));
+      }
+
+      // Index into mapOpInsights keyed by mapKey
+      data.forEach(entry => {
+        if (!mapOpInsights[entry.mapKey]) mapOpInsights[entry.mapKey] = [];
+        mapOpInsights[entry.mapKey].push({
+          opName:   op.name,
+          opKey:    op.key,
+          badgeUrl: op.badgeUrl,
+          winPct:   entry.winPct,
+          kd:       entry.kd,
+          played:   entry.played,
+        });
+      });
+    } catch { /* skip this operator */ }
+  }));
+}
+
+function parseOps(raw) {
+  const segs = raw?.data || [];
+  return segs
+    .filter(s => s.type === 'operator' && (s.stats?.matchesPlayed?.value || 0) > 0)
+    .map(s => {
+      const st = s.stats;
+      const meta = s.metadata || {};
+      const attr = s.attributes || {};
+      const matches = st.matchesPlayed?.value || 0;
+      const wins    = st.matchesWon?.value || 0;
+      const opKey   = attr.operatorName || meta.name || '';
+      return {
+        key:         opKey.toLowerCase().replace(/\s+/g, ''),
+        name:        meta.name || opKey || 'Unknown',
+        badgeUrl:    `https://trackercdn.com/cdn/r6.tracker.network/operators/badges/${opKey.toLowerCase().replace(/\s+/g,'')}.png`,
+        portraitUrl: `https://trackercdn.com/cdn/r6.tracker.network/operators/portrait/${opKey.toLowerCase().replace(/\s+/g,'')}.png`,
+        side:        meta.roleName?.toLowerCase().includes('def') ? 'defender' : 'attacker',
+        kd:          st.kdRatio?.value ?? null,
+        winPct:      matches ? (wins / matches * 100) : null,
+        wins, losses: st.matchesLost?.value || 0, matches,
+        kills:       st.kills?.value || 0,
+        headshotPct: st.headshotPct?.value ?? null,
+      };
+    })
+    .sort((a, b) => b.matches - a.matches);
+}
+
+function renderOpGrid() {
+  const grid = $('opGrid');
+  const ops  = opFilter === 'all' ? allOps : allOps.filter(o => o.side === opFilter);
+  if (!ops.length) { grid.innerHTML = `<div style="color:var(--dim);font-size:12px;font-family:'DM Mono',monospace;grid-column:1/-1;padding:8px 0">No operator data yet.</div>`; return; }
+  grid.innerHTML = ops.slice(0, 24).map(op => {
+    const kdColor = op.kd >= 2 ? 'var(--sc)' : op.kd >= 1 ? 'var(--green)' : 'var(--red)';
+    const wr = op.winPct ?? 0;
+    return `<div class="op-card">
+      <img class="op-badge" src="${op.badgeUrl}" alt="${op.name}" onerror="this.src=''; this.style.display='none'">
+      <div style="flex:1;min-width:0">
+        <div class="op-name">${op.name}</div>
+        <div class="op-side-tag">${op.side}</div>
+        <div class="op-kd-val" style="color:${kdColor}">${op.kd?.toFixed(2) ?? '—'}</div>
+        <div class="op-stats-sub">${op.matches} games · ${wr.toFixed(0)}% WR</div>
+        <div class="op-wr-bar"><div class="op-wr-fill" style="width:${Math.min(100, wr)}%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderOpCompare() {
+  const top = allOps.slice(0, 8);
+  if (!top.length) return;
+
+  // Portrait cards
+  $('opCompareRow').innerHTML = top.map(op => {
+    const kdColor = op.kd >= 2 ? 'var(--sc)' : op.kd >= 1 ? 'var(--green)' : 'var(--red)';
+    return `<div class="op-portrait-card">
+      <img class="op-portrait-img" src="${op.portraitUrl}" alt="${op.name}"
+        onerror="this.src='${op.badgeUrl}';this.style.objectFit='contain';this.style.padding='20px';this.style.background='var(--card2)'">
+      <div class="op-portrait-info">
+        <div class="op-portrait-name">${op.name}</div>
+        <div class="op-portrait-kd" style="color:${kdColor}">${op.kd?.toFixed(2) ?? '—'}</div>
+        <div class="op-portrait-wr">${(op.winPct ?? 0).toFixed(0)}% WR</div>
+        <div class="op-portrait-games">${op.matches} games</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Comparison chart
+  const sc = currentPlayer?.ranked?.seasonColor || '#a0daae';
+  const canvas = $('opCompareChart');
+  const ex = Chart.getChart(canvas); if (ex) ex.destroy();
+
+  new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: top.map(o => o.name),
+      datasets: [
+        {
+          label: 'K/D',
+          data: top.map(o => o.kd ?? 0),
+          backgroundColor: `${sc}aa`,
+          borderColor: sc,
+          borderWidth: 1,
+          borderRadius: 3,
+          yAxisID: 'y',
+        },
+        {
+          label: 'Win %',
+          data: top.map(o => o.winPct ?? 0),
+          backgroundColor: 'rgba(61,220,132,.3)',
+          borderColor: 'var(--green)',
+          borderWidth: 1,
+          borderRadius: 3,
+          yAxisID: 'y2',
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#888', font: { size: 11 } } },
+        tooltip: {
+          backgroundColor: '#1a1a2e',
+          titleColor: '#fff',
+          bodyColor: '#ccc',
+          callbacks: {
+            label: i => i.datasetIndex === 0
+              ? ` K/D: ${i.raw.toFixed(2)}`
+              : ` Win Rate: ${i.raw.toFixed(1)}%`,
+          },
+        },
+      },
+      scales: {
+        x: { ticks: { color: '#555', font: { size: 10 } }, grid: { display: false } },
+        y: {
+          position: 'left',
+          ticks: { color: '#555', callback: v => v.toFixed(1) },
+          grid: { color: '#ffffff08' },
+          title: { display: true, text: 'K/D', color: '#555', font: { size: 10 } },
+        },
+        y2: {
+          position: 'right',
+          ticks: { color: '#555', callback: v => v.toFixed(0) + '%' },
+          grid: { drawOnChartArea: false },
+          title: { display: true, text: 'Win %', color: '#555', font: { size: 10 } },
+        },
+      },
+    },
+  });
+}
+
+// ══════════════════════════════════════════════════
+// Map data
+// ══════════════════════════════════════════════════
+async function loadMapData(id) {
+  try {
+    const ck = 'ss_map_' + id.toLowerCase();
+    const TTL = 10 * 60 * 1000;
+    let maps;
+    const cached = localStorage.getItem(ck);
+    if (cached) { const o = JSON.parse(cached); if (Date.now() - o.ts < TTL) maps = o.d; }
+    if (!maps) {
+      const raw = await wfetch(`/api/v2/r6siege/standard/profile/ubi/${encodeURIComponent(id)}/segments/map`);
+      maps = parseMaps(raw);
+      localStorage.setItem(ck, JSON.stringify({d: maps, ts: Date.now()}));
+    }
+    allMaps = maps;
+    renderMapGrid(maps);
+    buildInsights();
+  } catch {
+    $('mapGrid').innerHTML = `<div style="color:var(--dim);font-size:12px;font-family:'DM Mono',monospace;grid-column:1/-1">Could not load map data.</div>`;
+    $('insightGrid').innerHTML = `<div style="color:var(--dim);font-size:12px;font-family:'DM Mono',monospace;grid-column:1/-1">Could not load map data.</div>`;
+  }
+}
+
+function parseMaps(raw) {
+  const segs = raw?.data || [];
+  return segs
+    .filter(s => s.type === 'map' && (s.stats?.matchesPlayed?.value || 0) > 0)
+    .map(s => {
+      const st = s.stats;
+      const meta = s.metadata || {};
+      const attr = s.attributes || {};
+      const mapKey = attr.mapName || meta.name || '';
+      const wins   = st.matchesWon?.value ?? 0;
+      const played = st.matchesPlayed?.value ?? 0;
+      return {
+        key:      mapKey.toLowerCase().replace(/\s+/g, '-'),
+        name:     meta.name || mapKey || 'Unknown',
+        imageUrl: `https://trackercdn.com/cdn/r6.tracker.network/images/maps/${mapKey.toLowerCase().replace(/\s+/g, '-')}.jpg`,
+        wins, losses: st.matchesLost?.value ?? 0, played,
+        winPct: played ? (wins / played * 100) : 0,
+        kd: st.kdRatio?.value ?? null,
+      };
+    })
+    .sort((a, b) => b.played - a.played);
+}
+
+function renderMapGrid(maps) {
+  $('mapGrid').innerHTML = maps.slice(0, 12).map(m => {
+    const wr = m.winPct.toFixed(0);
+    const wrColor = m.winPct >= 55 ? 'var(--green)' : m.winPct >= 45 ? 'var(--muted)' : 'var(--red)';
+    return `<div class="map-card">
+      <img class="map-img" src="${m.imageUrl}" alt="${m.name}" onerror="this.style.display='none'">
+      <div class="map-info">
+        <div class="map-name">${m.name}</div>
+        <div class="map-wr-bar"><div class="map-wr-fill" style="width:${Math.min(100, m.winPct)}%"></div></div>
+        <div class="map-meta"><span>${m.played} games</span><span style="color:${wrColor};font-weight:600">${wr}% WR</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════
+// Map + Operator Insights (real per-map-per-operator data)
+// ══════════════════════════════════════════════════
+function buildInsights() {
+  if (!allMaps.length) return;
+
+  // Top 5 maps by games played (from player's general map segment)
+  const top5Maps = allMaps.slice(0, 5);
+
+  // If we haven't loaded any cross-reference data yet, show a loading state
+  const hasInsightData = Object.keys(mapOpInsights).length > 0;
+  if (!hasInsightData) {
+    $('insightGrid').innerHTML = `<div style="color:var(--dim);font-size:12px;font-family:'DM Mono',monospace;grid-column:1/-1;padding:8px 0">Loading per-map operator breakdowns…</div>`;
+    return;
+  }
+
+  $('insightGrid').innerHTML = top5Maps.map(m => {
+    const wr       = m.winPct.toFixed(0);
+    const wrColor  = m.winPct >= 55 ? 'var(--green)' : m.winPct >= 45 ? 'var(--muted)' : 'var(--red)';
+
+    // Pull operators this player has played on this specific map
+    // mapKey from allMaps is already the slug (e.g. "bank", "border")
+    const opsOnMap = (mapOpInsights[m.key] || [])
+      .filter(o => o.played >= 3) // require at least 3 games for signal
+      .sort((a, b) => (b.winPct ?? 0) - (a.winPct ?? 0))
+      .slice(0, 4);
+
+    // Fallback: if no per-map data, show overall top ops
+    const displayOps = opsOnMap.length > 0 ? opsOnMap : allOps.slice(0, 4).map(op => ({
+      opName: op.name, opKey: op.key, badgeUrl: op.badgeUrl,
+      winPct: op.winPct, kd: op.kd, played: op.matches,
+    }));
+
+    const labelText = opsOnMap.length > 0
+      ? `Best operators on this map (${opsOnMap.reduce((t, o) => t + o.played, 0)} tracked games)`
+      : 'Top operators overall (no map data yet)';
+
+    return `<div class="insight-card">
+      <div class="insight-map-header">
+        <img class="insight-map-img" src="${m.imageUrl}" alt="${m.name}" onerror="this.style.display='none'">
+        <div class="insight-map-overlay">
+          <span class="insight-map-name">${m.name}</span>
+          <span class="insight-map-wr" style="color:${wrColor}">${wr}% WR · ${m.played} games</span>
+        </div>
+      </div>
+      <div class="insight-body">
+        <div class="insight-label">${labelText}</div>
+        <div class="insight-ops">
+          ${displayOps.map(op => {
+            const wr  = op.winPct != null ? op.winPct.toFixed(0) : '?';
+            const kd  = op.kd != null ? op.kd.toFixed(2) : '?';
+            const col = op.winPct >= 55 ? 'var(--sc)' : op.winPct >= 45 ? 'var(--muted)' : 'var(--red)';
+            return `<div class="insight-op" title="${op.opName} — KD ${kd} · ${wr}% WR · ${op.played} games on this map">
+              <img src="${op.badgeUrl}" alt="${op.opName}" style="width:18px;height:18px;object-fit:contain" onerror="this.style.display='none'">
+              <span>${op.opName}</span>
+              <span class="insight-op-wr" style="color:${col}">${wr}%</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════
+// Render dashboard
+// ══════════════════════════════════════════════════
+function renderDash(p, rpHist) {
+  const r  = p.ranked || {};
+  const c  = p.career || {};
   const sc = r.seasonColor || '#a0daae';
+  document.documentElement.style.setProperty('--sc', sc);
 
-  // Apply season color
-  document.documentElement.style.setProperty('--season-color', sc);
+  $('bannerText').textContent = `${r.seasonShort || 'Y11S1'} · ${(r.seasonName || 'Silent Hunt').toUpperCase()}`;
 
-  // Season banner
-  $('bannerSeason').textContent = `${r.seasonShort || 'Y11S1'} · ${(r.seasonName || 'Silent Hunt').toUpperCase()}`;
-
-  // Player card
   if (p.avatarUrl) $('playerAvatar').src = p.avatarUrl;
-  $('playerName').textContent = p.username || '—';
+  $('playerName').textContent = p.username;
   $('playerMeta').textContent = `CL ${p.clearanceLevel || '—'}  ·  BP ${p.battlepass || '—'}`;
   const badges = $('playerBadges');
   badges.innerHTML = '';
-  if (r.elo) badges.innerHTML += `<span class="badge accent">TRN ELO ${r.elo.toLocaleString()}</span>`;
-  if (r.topPosition && r.topPosition <= 100) badges.innerHTML += `<span class="badge accent">TOP ${r.topPosition}</span>`;
+  if (r.elo)        badges.innerHTML += `<span class="badge accent">TRN ELO ${r.elo.toLocaleString()}</span>`;
+  if (r.topPosition && r.topPosition <= 100) badges.innerHTML += `<span class="badge gold">TOP ${r.topPosition}</span>`;
+  if (isLocked())   badges.innerHTML += `<span class="badge gold">🔒 Key Locked</span>`;
 
-  // Rank card
-  if (r.rankImage) $('rankImage').src = r.rankImage;
-  $('rankName').textContent  = r.rankName  || '—';
-  $('rankRP').textContent    = r.rp != null ? `${r.rp.toLocaleString()} RP` : '—';
-  $('rankSub').textContent   = r.maxRp != null ? `Peak: ${r.maxRp.toLocaleString()} RP` : '';
-  const lbWrap = $('lbChipWrap');
-  lbWrap.innerHTML = '';
-  if (r.leaderboard) {
-    lbWrap.innerHTML = `
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span class="lb-chip-label">Leaderboard</span>
-        <span class="lb-chip">#${r.leaderboard.toLocaleString()}</span>
-      </div>`;
-  }
+  if (r.rankImage) $('rankImg').src = r.rankImage;
+  $('rankName').textContent = r.rankName || '—';
+  // Current rank card SHOWS RP
+  $('rankRP').textContent   = r.rp != null ? `${r.rp.toLocaleString()} RP` : '—';
+  $('rankSub').textContent  = r.maxRp != null ? `Peak: ${r.maxRp.toLocaleString()} RP` : '';
+  $('lbChip').innerHTML     = r.leaderboard ? `<div class="lb-chip">#${r.leaderboard.toLocaleString()} Leaderboard</div>` : '';
 
-  // Season stats
-  const ssRow = $('seasonStatRow');
-  $('seasonStatTitle').textContent = `${r.seasonName || 'Season'} Stats`;
-  ssRow.innerHTML = '';
-  const seasonStats = [
-    { label: 'Matches',    value: r.matchesPlayed, fmt: n => n?.toLocaleString() },
-    { label: 'K/D',        value: r.kd,            fmt: n => n?.toFixed(2), cls: kdClass(r.kd) },
-    { label: 'Win %',      value: r.winPct,        fmt: n => `${n?.toFixed(1)}%`, cls: n => n >= 50 ? 'green' : 'red' },
-    { label: 'Kills/Game', value: r.killsPerGame,  fmt: n => n?.toFixed(2) },
-    { label: 'HS%',        value: r.headshotPct,   fmt: n => `${n?.toFixed(1)}%` },
-    { label: 'First Bloods', value: r.firstBloods, fmt: n => n?.toLocaleString() },
-    { label: 'Clutches',   value: r.clutches,      fmt: n => n?.toLocaleString() },
-    { label: 'Kills',      value: r.kills,         fmt: n => n?.toLocaleString() },
-  ];
-  seasonStats.forEach(({ label, value, fmt, cls }) => {
-    const colorClass = typeof cls === 'function' ? cls(value) : (cls || '');
-    ssRow.innerHTML += `
-      <div class="stat-card">
-        <div class="stat-label">${label}</div>
-        <div class="stat-value ${colorClass}">${value != null ? fmt(value) : '—'}</div>
-      </div>`;
-  });
+  // Season stats — no clutches, no first bloods, no RP
+  $('seasonTitle').textContent = `${r.seasonName || 'Season'} Stats`;
+  $('seasonStats').innerHTML = [
+    { l: 'Matches',    v: r.matchesPlayed, f: n => n?.toLocaleString() },
+    { l: 'K/D',        v: r.kd,           f: n => n?.toFixed(2), c: kdCls },
+    { l: 'Win %',      v: r.winPct,       f: n => `${n?.toFixed(1)}%`, c: n => n >= 50 ? 'green' : 'red' },
+    { l: 'Kills/Game', v: r.killsPerGame, f: n => n?.toFixed(2) },
+    { l: 'HS%',        v: r.headshotPct,  f: n => `${n?.toFixed(1)}%` },
+    { l: 'Kills',      v: r.kills,        f: n => n?.toLocaleString() },
+    { l: 'Wins',       v: r.wins,         f: n => n?.toLocaleString(), c: () => 'green' },
+    { l: 'Losses',     v: r.losses,       f: n => n?.toLocaleString(), c: () => 'red' },
+  ].map(({ l, v, f, c }) => {
+    const cls = typeof c === 'function' ? c(v) : (c || '');
+    return `<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-value ${cls}">${v != null ? f(v) : '—'}</div></div>`;
+  }).join('');
 
   // WL bar
-  renderWinLossBar('wlBar', r.wins || 0, r.losses || 0);
+  const wins = r.wins || 0, losses = r.losses || 0, tot = wins + losses;
+  const pct = tot ? ((wins / tot) * 100).toFixed(1) : 0;
+  $('wlBar').innerHTML = `
+    <div class="wl-track"><div class="wl-fill" style="width:${pct}%"></div></div>
+    <div class="wl-labels"><span class="wl-w">${wins.toLocaleString()}W</span><span class="wl-pct">${pct}%</span><span class="wl-l">${losses.toLocaleString()}L</span></div>`;
+
+  renderRPChart(rpHist.slice(-60), sc);
+  updateGoal();
+  renderRivals();
+  renderSeasonCards(p.seasonHistory);
 
   // Career stats
-  const crRow = $('careerStatRow');
-  crRow.innerHTML = '';
-  const careerStats = [
-    { label: 'Total Matches', value: c.matchesPlayed, fmt: n => n?.toLocaleString() },
-    { label: 'Career K/D',    value: c.kd,            fmt: n => n?.toFixed(2) },
-    { label: 'Career Win%',   value: c.winPct,        fmt: n => `${n?.toFixed(1)}%` },
-    { label: 'Time Played',   value: c.timePlayed,    fmt: formatHours },
-    { label: 'Total Kills',   value: c.kills,         fmt: n => n?.toLocaleString() },
-    { label: 'HS%',           value: c.headshotPct,   fmt: n => `${n?.toFixed(1)}%` },
-  ];
-  careerStats.forEach(({ label, value, fmt }) => {
-    crRow.innerHTML += `
-      <div class="stat-card">
-        <div class="stat-label">${label}</div>
-        <div class="stat-value" style="font-size:20px;">${value != null ? fmt(value) : '—'}</div>
-      </div>`;
-  });
+  $('careerStats').innerHTML = [
+    { l: 'Total Matches', v: c.matchesPlayed, f: n => n?.toLocaleString() },
+    { l: 'Career K/D',   v: c.kd,            f: n => n?.toFixed(2) },
+    { l: 'Career Win%',  v: c.winPct,        f: n => `${n?.toFixed(1)}%` },
+    { l: 'Time Played',  v: c.timePlayed,    f: n => `${Math.floor((n||0)/3600).toLocaleString()}h` },
+    { l: 'Total Kills',  v: c.kills,         f: n => n?.toLocaleString() },
+    { l: 'HS%',          v: c.headshotPct,   f: n => `${n?.toFixed(1)}%` },
+  ].map(({ l, v, f }) =>
+    `<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-value" style="font-size:20px">${v != null ? f(v) : '—'}</div></div>`
+  ).join('');
 
-  // Charts
-  renderRPChart('rpChart', rpHistory, r.rp, sc);
-  renderMultikillChart('mkChart', r.multikills, sc);
-  renderSeasonHistoryChart('historyChart', p.seasonHistory, 12);
-
-  // Season table
-  const tbody = $('seasonTableBody');
-  tbody.innerHTML = '';
-  (p.seasonHistory || []).slice(0, 20).forEach(s => {
-    tbody.innerHTML += `
-      <tr>
-        <td><span class="season-dot" style="background:${s.color}"></span>${s.shortName || s.season}</td>
-        <td>${s.maxRp != null ? s.maxRp.toLocaleString() : '—'}</td>
-        <td style="font-size:10px;color:var(--text-dim)">${s.rankName || '—'}</td>
-        <td style="color:var(--green)">${s.wins ?? '—'}</td>
-        <td style="color:var(--red)">${s.losses ?? '—'}</td>
-        <td>${s.kd != null ? s.kd.toFixed(2) : '—'}</td>
-        <td>${s.winPct != null ? s.winPct.toFixed(1) + '%' : '—'}</td>
-      </tr>`;
-  });
+  // Season log — rank name only, show RP toggle
+  $('seasonTableBody').innerHTML = (p.seasonHistory || []).slice(0, 20).map((s, i) => {
+    const isChamp = s.rankName?.toLowerCase().includes('champion');
+    const rankDisplay = isChamp && s.leaderboardPos
+      ? `Champion · #${s.leaderboardPos.toLocaleString()}`
+      : s.rankName || '—';
+    return `<tr>
+      <td><span class="s-dot" style="background:${s.color}"></span>${s.shortName || s.season}</td>
+      <td style="font-size:10px;color:var(--muted)">${rankDisplay}</td>
+      <td style="color:var(--green)">${s.wins ?? '—'}</td>
+      <td style="color:var(--red)">${s.losses ?? '—'}</td>
+      <td>${s.kd?.toFixed(2) ?? '—'}</td>
+      <td>${s.winPct?.toFixed(1) ?? '—'}%</td>
+      <td>
+        <button class="rp-toggle" onclick="toggleSeasonRP(${i}, this, ${s.maxRp ?? 'null'})">Show RP</button>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
-// ─── UI States ─────────────────────────────────────────────────────────────────
-function showLoading(msg) {
-  $('emptyState').style.display   = 'none';
-  $('errorState').style.display   = 'none';
-  $('dashboard').classList.remove('visible');
-  $('loadingState').style.display = 'flex';
-  setLoadingMsg(msg);
+// ══════════════════════════════════════════════════
+// Season history cards
+// ══════════════════════════════════════════════════
+function renderSeasonCards(history) {
+  if (!history?.length) return;
+  $('seasonCards').innerHTML = history.slice(0, 20).map((s, i) => {
+    const isChamp = s.rankName?.toLowerCase().includes('champion');
+    const tooltip = isChamp && s.leaderboardPos
+      ? `Champion · #${s.leaderboardPos.toLocaleString()}`
+      : s.rankName || '—';
+    const rpLine = s.maxRp != null
+      ? `<button class="rp-toggle" id="sc-rp-${i}" onclick="toggleCardRP(${i}, this, ${s.maxRp})">Show RP</button>`
+      : '';
+    return `<div class="season-card">
+      <div class="season-card-label">${s.shortName || s.season}</div>
+      ${s.rankImage ? `<img class="season-rank-img" src="${s.rankImage}" alt="${s.rankName}" onerror="this.style.display='none'">` : '<div style="height:48px"></div>'}
+      <div class="season-tooltip">${tooltip}</div>
+      <div class="season-card-wins" style="font-size:9px;color:var(--dim);font-family:'DM Mono',monospace">${s.wins ?? '?'}W / ${s.losses ?? '?'}L</div>
+      ${rpLine}
+    </div>`;
+  }).join('');
 }
-function setLoadingMsg(msg) { $('loadingMsg').textContent = msg; }
 
-function showDashboard() {
-  $('loadingState').style.display = 'none';
-  $('dashboard').classList.add('visible');
-  $('refreshBtn').style.display = '';
-}
-
-function showError(msg) {
-  $('loadingState').style.display = 'none';
-  $('dashboard').classList.remove('visible');
-  $('errorState').style.display   = 'flex';
-  $('errorMsg').textContent        = msg;
-}
-
-window.reset = function() {
-  $('errorState').style.display = 'none';
-  $('emptyState').style.display = 'flex';
-  $('searchInput').value        = '';
-  currentIdentifier = null;
+// Toggle RP reveal on season card
+window.toggleCardRP = function(idx, btn, rp) {
+  if (rpVisible[`card_${idx}`]) {
+    btn.textContent = 'Show RP';
+    delete rpVisible[`card_${idx}`];
+  } else {
+    btn.textContent = rp != null ? `${rp.toLocaleString()} RP` : '—';
+    rpVisible[`card_${idx}`] = true;
+  }
 };
 
-function updateRefreshTime(id) {
-  const ts = timeSinceRefresh(id);
-  $('refreshTime').textContent = ts ? `Updated ${ts}` : '';
+// Toggle RP reveal on season table row
+window.toggleSeasonRP = function(idx, btn, rp) {
+  if (rpVisible[`row_${idx}`]) {
+    btn.textContent = 'Show RP';
+    delete rpVisible[`row_${idx}`];
+  } else {
+    btn.textContent = rp != null ? `${rp.toLocaleString()} RP` : '—';
+    rpVisible[`row_${idx}`] = true;
+  }
+};
+
+// ══════════════════════════════════════════════════
+// Goal tracker
+// ══════════════════════════════════════════════════
+function updateGoal() {
+  if (currentRP == null) return;
+  const needed    = Math.max(0, goalRP - currentRP);
+  const pct       = Math.min(100, (currentRP / goalRP * 100)).toFixed(1);
+  const daysLeft  = Math.max(1, Math.ceil((SEASON_END - new Date()) / 86400000));
+  const weeksLeft = Math.max(1, Math.ceil(daysLeft / 7));
+  const wins      = Math.ceil(needed / 4);
+
+  $('goalCurrentLabel').textContent = `Current: ${currentRP.toLocaleString()} RP`;
+  $('goalTargetLabel').textContent  = `Target: ${goalLabel} (${goalRP.toLocaleString()} RP)`;
+  $('goalBarFill').style.width      = `${pct}%`;
+  $('goalPctLabel').textContent     = `${pct}% to goal`;
+  $('paceNeeded').textContent       = needed.toLocaleString();
+  $('paceWins').textContent         = wins.toLocaleString();
+  $('paceDaily').textContent        = (wins / daysLeft).toFixed(1);
+  $('paceDailySub').textContent     = `wins/day · ${daysLeft}d left`;
+  $('paceWeekly').textContent       = (wins / weeksLeft).toFixed(1);
+  $('paceWeeklySub').textContent    = `wins/week · ${weeksLeft}wk left`;
+
+  const hitKey = `hit_${goalRP}`;
+  if (currentRP >= goalRP && !goalHitSent[hitKey]) {
+    goalHitSent[hitKey] = true;
+    celebrateGoal();
+  }
 }
 
-// ─── Recent searches ──────────────────────────────────────────────────────────
-function showRecent() {
-  // Import store dynamically to avoid circular
-  const recent = JSON.parse(localStorage.getItem('ss_recent') || '[]');
-  const list = $('recentList');
-  if (!recent.length) { list.style.display = 'none'; return; }
-  list.innerHTML = recent.slice(0, 5)
-    .map(r => `<div class="recent-item" data-val="${r}">${r}</div>`)
-    .join('');
-  list.style.display = 'block';
-  list.querySelectorAll('.recent-item').forEach(el => {
-    el.addEventListener('click', () => {
-      $('searchInput').value = el.dataset.val;
-      hideRecent();
-      loadPlayer(el.dataset.val);
+function celebrateGoal() {
+  $('catGif').src = CAT_GIFS[Math.floor(Math.random() * CAT_GIFS.length)];
+  $('catOverlay').classList.add('show');
+  try {
+    const ctx = new AudioContext();
+    [523, 659, 784].forEach((f, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = f;
+      g.gain.setValueAtTime(.2, ctx.currentTime + i * .12);
+      g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + i * .12 + .5);
+      o.start(ctx.currentTime + i * .12);
+      o.stop(ctx.currentTime + i * .12 + .5);
     });
+  } catch {}
+  notifyDiscord(`🎉 **GOAL REACHED!** ${currentPlayer?.username} hit **${goalRP.toLocaleString()} RP** (${goalLabel})!`);
+}
+
+// ══════════════════════════════════════════════════
+// Rivals
+// ══════════════════════════════════════════════════
+function saveRivals() { localStorage.setItem('ss_rivals', JSON.stringify(rivals)); }
+
+async function renderRivals() {
+  const grid = $('rivalGrid');
+  if (!rivals.length) {
+    grid.innerHTML = `<div style="color:var(--dim);font-size:12px;font-family:'DM Mono',monospace;padding:4px 0;grid-column:1/-1">No rivals added yet.</div>`;
+    return;
+  }
+  grid.innerHTML = rivals.map((rv, i) => `
+    <div class="rival-card" id="rival-${i}">
+      <img class="rival-avatar" src="${rv.avatarUrl || ''}" alt="" onerror="this.style.opacity='.2'">
+      <div style="flex:1;min-width:0">
+        <div class="rival-name">${rv.username}</div>
+        <div class="rival-rank-name" id="rrank-${i}">
+          ${rv.rankImage ? `<img class="rival-rank-img" src="${rv.rankImage}" alt="">` : ''}
+          <span>${rv.rankName || '—'}</span>
+        </div>
+        <div class="rival-delta ${getDeltaCls(rv.rp)}" id="rdelta-${i}">${getDeltaText(rv.rp)}</div>
+      </div>
+      <button class="rival-remove" onclick="removeRival(${i})">✕</button>
+    </div>`
+  ).join('');
+
+  rivals.forEach((rv, i) => {
+    const ck = 'ss_p_' + rv.username.toLowerCase();
+    const c  = localStorage.getItem(ck);
+    if (!c || Date.now() - JSON.parse(c).ts > 5 * 60 * 1000) refreshRival(rv.username, i);
   });
 }
-function hideRecent() { $('recentList').style.display = 'none'; }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-function kdClass(kd) {
-  if (kd == null) return '';
-  if (kd >= 2.0) return 'accent';
-  if (kd >= 1.0) return 'green';
-  return 'red';
+async function refreshRival(username, idx) {
+  try {
+    const raw = await wfetch(`/api/v2/r6siege/standard/profile/ubi/${encodeURIComponent(username)}`);
+    const p   = parseProfile(raw);
+    if (!rivals[idx]) return;
+    rivals[idx] = {
+      username:  p.username,
+      avatarUrl: p.avatarUrl,
+      rp:        p.ranked?.rp ?? null,
+      rankName:  p.ranked?.rankName ?? '—',
+      rankImage: p.ranked?.rankImage ?? '',
+    };
+    saveRivals();
+    const dlEl = $(`rdelta-${idx}`);
+    const rkEl = $(`rrank-${idx}`);
+    if (dlEl) { dlEl.textContent = getDeltaText(rivals[idx].rp); dlEl.className = `rival-delta ${getDeltaCls(rivals[idx].rp)}`; }
+    if (rkEl) rkEl.innerHTML = `${rivals[idx].rankImage ? `<img class="rival-rank-img" src="${rivals[idx].rankImage}" alt="">` : ''}<span>${rivals[idx].rankName}</span>`;
+  } catch {}
 }
 
-function formatHours(seconds) {
-  if (seconds == null) return '—';
-  const h = Math.floor(seconds / 3600);
-  return `${h.toLocaleString()}h`;
+const getDeltaText = rp => rp == null || currentRP == null ? '' : currentRP > rp ? `+${(currentRP-rp).toLocaleString()} RP ahead` : currentRP < rp ? `${(currentRP-rp).toLocaleString()} RP behind` : 'Tied';
+const getDeltaCls  = rp => rp == null || currentRP == null ? '' : currentRP >= rp ? 'ahead' : 'behind';
+
+window.addRival = async () => {
+  const v = $('rivalInput').value.trim();
+  if (!v) return;
+  const u = parseId(v);
+  if (rivals.some(r => r.username.toLowerCase() === u.toLowerCase())) { showToast('Already in watchlist'); return; }
+  rivals.push({ username: u, avatarUrl: '', rp: null, rankName: 'Loading…', rankImage: '' });
+  saveRivals();
+  $('rivalInput').value = '';
+  renderRivals();
+};
+
+window.removeRival = idx => { rivals.splice(idx, 1); saveRivals(); renderRivals(); };
+
+// ══════════════════════════════════════════════════
+// Discord
+// ══════════════════════════════════════════════════
+async function notifyDiscord(msg) {
+  if (!DISCORD_WEBHOOK || DISCORD_WEBHOOK.includes('YOUR_DISCORD')) return;
+  try { await fetch(DISCORD_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: msg }) }); }
+  catch {}
 }
+
+window.notifyGoalProgress = () => {
+  if (!currentPlayer || currentRP == null) return;
+  const r = currentPlayer.ranked || {};
+  const needed = Math.max(0, goalRP - currentRP);
+  const pct    = Math.min(100, (currentRP / goalRP * 100)).toFixed(1);
+  notifyDiscord([
+    `📊 **SiegeScope Update — ${currentPlayer.username}**`,
+    `🏆 Rank: **${r.rankName}** · ${r.leaderboard ? `#${r.leaderboard} Leaderboard` : ''}`,
+    `🎯 Goal: **${goalLabel}** — **${pct}% complete** · ${needed.toLocaleString()} RP to go`,
+    `📈 Est. wins needed: **${Math.ceil(needed / 4).toLocaleString()}** at +4 RP/win`,
+    `📅 ${r.seasonName} · ${r.wins}W/${r.losses}L · ${r.winPct?.toFixed(1)}% WR`,
+  ].join('\n'));
+  showToast('Discord update sent!', 'success');
+};
+
+// ══════════════════════════════════════════════════
+// Charts
+// ══════════════════════════════════════════════════
+function renderRPChart(data, sc) {
+  const c = $('rpChart'); const ex = Chart.getChart(c); if (ex) ex.destroy();
+  if (!data?.length) return;
+  const labels = data.map(d => d.timestamp.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+  const values = data.map(d => d.rp);
+  const roll   = values.map((_, i) => i < 4 ? null : Math.round(values.slice(i-4,i+1).reduce((a,v)=>a+v,0)/5));
+  new Chart(c, {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'Rank Points', data: values, borderColor: sc, backgroundColor: `${sc}22`, pointBackgroundColor: data.map(d=>d.color||sc), pointRadius: 3, pointHoverRadius: 5, tension: 0.3, fill: true, borderWidth: 2 },
+      { label: '5-Match Trend', data: roll, borderColor: '#ffffff44', borderDash: [4,4], pointRadius: 0, tension: 0.4, borderWidth: 1.5, fill: false },
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { labels: { color: '#888', font: { size: 10 } } },
+        tooltip: { backgroundColor: '#1a1a2e', borderColor: sc, borderWidth: 1, titleColor: '#fff', bodyColor: '#ccc',
+          callbacks: { label: i => ` ${i.dataset.label}: ${i.raw?.toLocaleString() ?? '—'} RP` } },
+      },
+      scales: {
+        x: { ticks: { color: '#555', maxTicksLimit: 8, maxRotation: 0 }, grid: { color: '#ffffff08' } },
+        y: { ticks: { color: '#555', callback: v => v.toLocaleString() }, grid: { color: '#ffffff08' } },
+      },
+    },
+  });
+}
+
+// ══════════════════════════════════════════════════
+// UI helpers
+// ══════════════════════════════════════════════════
+function showLoading(m) { $('emptyState').style.display='none'; $('errorState').style.display='none'; $('dashboard').classList.remove('visible'); $('loadingState').style.display='flex'; setLoadMsg(m); }
+function setLoadMsg(m)  { $('loadingMsg').textContent = m; }
+function showDash()     { $('loadingState').style.display='none'; $('dashboard').classList.add('visible'); $('refreshBtn').style.display=''; }
+function showError(m)   { $('loadingState').style.display='none'; $('dashboard').classList.remove('visible'); $('errorState').style.display='flex'; $('errorMsg').textContent=m; }
+window.resetDash = () => { $('errorState').style.display='none'; $('emptyState').style.display='flex'; };
+
+function showToast(msg, type='error') {
+  const t = document.createElement('div');
+  t.className = `toast ${type}`; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 3500);
+}
+
+function kdCls(kd) { return kd == null ? '' : kd >= 2 ? 'accent' : kd >= 1 ? 'green' : 'red'; }
 </script>
 </body>
 </html>
