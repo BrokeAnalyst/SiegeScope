@@ -7,17 +7,12 @@
 
 const WORKER_BASE = 'https://siegescope-proxy.millezbiz.workers.dev';
 const TRN_BASE = 'https://api.tracker.gg';
-
 // ─── Internal fetch helper ───────────────────────────────────────────────────
 
 async function workerFetch(path) {
   const url = `${WORKER_BASE}/?url=${encodeURIComponent(TRN_BASE + path)}`;
   const res = await fetch(url);
-
-  if (!res.ok) {
-    throw new Error(`Worker fetch failed: ${res.status} for ${path}`);
-  }
-
+  if (!res.ok) throw new Error(`Worker fetch failed: ${res.status} for ${path}`);
   return res.json();
 }
 
@@ -25,24 +20,21 @@ async function workerFetch(path) {
 
 /**
  * Fetch full player profile + season history.
- * Returns a normalized player object with prediction included.
+ * Returns a normalized player object with rpHistory + prediction.
  */
 export async function fetchProfile(identifier) {
-  if (!identifier) throw new Error('Invalid identifier');
-
   const encoded = encodeURIComponent(identifier);
 
-  const [profileRaw, historyRaw] = await Promise.all([
-    workerFetch(`/api/v2/r6siege/standard/profile/ubi/${encoded}`),
-    workerFetch(
-      `/api/v2/r6siege/standard/profile/ubi/${encoded}/stats/overview/rankPoints?localOffset=300`
-    ),
-  ]);
+  const raw = await workerFetch(`/api/v2/r6siege/standard/profile/ubi/${encoded}`);
+  const historyRaw = await workerFetch(
+    `/api/v2/r6siege/standard/profile/ubi/${encoded}/stats/overview/rankPoints?localOffset=300`
+  );
 
-  const player = parseProfile(profileRaw);
-  const history = parseRPHistory(historyRaw);
+  const player = parseProfile(raw);
+  const rpHistory = parseRPHistory(historyRaw);
 
-  player.prediction = computePrediction(player, history);
+  player.rpHistory = rpHistory;
+  player.prediction = computePrediction(player, rpHistory);
 
   return player;
 }
@@ -52,111 +44,10 @@ export async function fetchProfile(identifier) {
  * Returns array of { timestamp, rp, rank, color } sorted oldest→newest.
  */
 export async function fetchRPHistory(identifier) {
-  if (!identifier) return [];
-
   const raw = await workerFetch(
     `/api/v2/r6siege/standard/profile/ubi/${encodeURIComponent(identifier)}/stats/overview/rankPoints?localOffset=300`
   );
-
   return parseRPHistory(raw);
-}
-
-// ─── Prediction ──────────────────────────────────────────────────────────────
-
-function computePrediction(player, history, targetRP = 5000, matchesPerDay = 5) {
-  const currentRP = player?.ranked?.rp ?? null;
-  const winRate = (player?.ranked?.winPct ?? 0) / 100;
-
-  if (currentRP === null || history.length < 5) {
-    return {
-      status: 'insufficient_data',
-      currentRP,
-      targetRP,
-      rpRemaining: currentRP !== null ? Math.max(0, targetRP - currentRP) : null,
-      expectedRP: null,
-      matchesNeeded: null,
-      matchesPerDay,
-      daysNeeded: null,
-      avgGain: null,
-      avgLoss: null,
-      confidence: 'low',
-    };
-  }
-
-  const gains = [];
-  const losses = [];
-
-  for (let i = 1; i < history.length; i++) {
-    const prev = history[i - 1]?.rp ?? null;
-    const curr = history[i]?.rp ?? null;
-
-    if (prev === null || curr === null) continue;
-
-    const delta = curr - prev;
-
-    if (delta > 0) gains.push(delta);
-    if (delta < 0) losses.push(Math.abs(delta));
-  }
-
-  const avgGain = gains.length
-    ? gains.reduce((sum, value) => sum + value, 0) / gains.length
-    : 0;
-
-  const avgLoss = losses.length
-    ? losses.reduce((sum, value) => sum + value, 0) / losses.length
-    : 0;
-
-  const expectedRP = (winRate * avgGain) - ((1 - winRate) * avgLoss);
-  const rpRemaining = Math.max(0, targetRP - currentRP);
-
-  if (rpRemaining === 0) {
-    return {
-      status: 'goal_reached',
-      currentRP,
-      targetRP,
-      rpRemaining: 0,
-      expectedRP,
-      matchesNeeded: 0,
-      matchesPerDay,
-      daysNeeded: 0,
-      avgGain,
-      avgLoss,
-      confidence: history.length > 30 ? 'high' : 'low',
-    };
-  }
-
-  if (expectedRP <= 0) {
-    return {
-      status: 'stuck',
-      currentRP,
-      targetRP,
-      rpRemaining,
-      expectedRP,
-      matchesNeeded: null,
-      matchesPerDay,
-      daysNeeded: null,
-      avgGain,
-      avgLoss,
-      confidence: history.length > 30 ? 'high' : 'low',
-    };
-  }
-
-  const matchesNeeded = rpRemaining / expectedRP;
-  const daysNeeded = matchesPerDay > 0 ? matchesNeeded / matchesPerDay : null;
-
-  return {
-    status: 'climbing',
-    currentRP,
-    targetRP,
-    rpRemaining,
-    expectedRP,
-    matchesNeeded,
-    matchesPerDay,
-    daysNeeded,
-    avgGain,
-    avgLoss,
-    confidence: history.length > 30 ? 'high' : 'low',
-  };
 }
 
 // ─── Parsers ─────────────────────────────────────────────────────────────────
@@ -176,11 +67,11 @@ function parseProfile(raw) {
     clearanceLevel: meta.clearanceLevel || 0,
     battlepass: meta.battlepassLevel || 0,
     currentSeason: meta.currentSeason || 41,
-    nameHistory: (meta.nameChanges || []).map((n) => n.name),
+    nameHistory: (meta.nameChanges || []).map(n => n.name),
   };
 
   // Career overview segment
-  const overview = segments.find((s) => s.type === 'overview');
+  const overview = segments.find(s => s.type === 'overview');
   if (overview) {
     const st = overview.stats || {};
     player.career = {
@@ -193,7 +84,7 @@ function parseProfile(raw) {
       kd: val(st.kdRatio),
       killsPerMatch: val(st.killsPerMatch),
       headshotPct: val(st.headshotPercentage),
-      timePlayed: val(st.timePlayed),
+      timePlayed: val(st.timePlayed), // seconds
       assists: val(st.assists),
     };
   }
@@ -201,17 +92,15 @@ function parseProfile(raw) {
   // Current season ranked segment
   const currentSeason = player.currentSeason;
   const ranked = segments.find(
-    (s) =>
-      s.type === 'season' &&
-      s.attributes?.season === currentSeason &&
-      s.attributes?.gamemode === 'pvp_ranked'
+    s => s.type === 'season' &&
+         s.attributes?.season === currentSeason &&
+         s.attributes?.gamemode === 'pvp_ranked'
   );
 
   if (ranked) {
     const st = ranked.stats || {};
     const rp = st.rankPoints || {};
     const mrp = st.maxRankPoints || {};
-
     player.ranked = {
       season: currentSeason,
       seasonName: ranked.metadata?.seasonName || 'Silent Hunt',
@@ -248,13 +137,12 @@ function parseProfile(raw) {
 
   // Season history — ranked only, per season, newest first
   player.seasonHistory = segments
-    .filter((s) => s.type === 'season' && s.attributes?.gamemode === 'pvp_ranked')
-    .sort((a, b) => (b.attributes?.season ?? 0) - (a.attributes?.season ?? 0))
-    .map((s) => {
+    .filter(s => s.type === 'season' && s.attributes?.gamemode === 'pvp_ranked')
+    .sort((a, b) => (b.attributes?.season || 0) - (a.attributes?.season || 0))
+    .map(s => {
       const st = s.stats || {};
       const rp = st.rankPoints || {};
       const mrp = st.maxRankPoints || {};
-
       return {
         season: s.attributes?.season ?? null,
         seasonName: s.metadata?.seasonName || '',
@@ -277,14 +165,11 @@ function parseProfile(raw) {
 
 function parseRPHistory(raw) {
   const history = raw?.data?.history?.data || [];
-
   // Each entry: [isoTimestamp, {value, metadata:{rank, color, imageUrl}}]
   return history
-    .map((item) => {
+    .map(item => {
       if (!Array.isArray(item) || item.length < 2) return null;
-
       const [ts, entry] = item;
-
       return {
         timestamp: new Date(ts),
         rp: entry?.value ?? null,
@@ -294,7 +179,105 @@ function parseRPHistory(raw) {
       };
     })
     .filter(Boolean)
-    .sort((a, b) => a.timestamp - b.timestamp);
+    .sort((a, b) => a.timestamp - b.timestamp); // oldest first for chart
+}
+
+// ─── Prediction ──────────────────────────────────────────────────────────────
+
+function computePrediction(player, history, targetRP = 5000, matchesPerDay = 5) {
+  const currentRP = player?.ranked?.rp ?? null;
+  const winRate = (player?.ranked?.winPct ?? 0) / 100;
+
+  if (currentRP === null || history.length < 5) {
+    return {
+      status: 'insufficient_data',
+      currentRP,
+      targetRP,
+      rpRemaining: currentRP === null ? null : Math.max(0, targetRP - currentRP),
+      expectedRP: null,
+      matchesNeeded: null,
+      matchesPerDay,
+      daysNeeded: null,
+      avgGain: null,
+      avgLoss: null,
+      confidence: 'low',
+    };
+  }
+
+  const gains = [];
+  const losses = [];
+
+  for (let i = 1; i < history.length; i++) {
+    const prev = history[i - 1]?.rp;
+    const curr = history[i]?.rp;
+
+    if (prev == null || curr == null) continue;
+
+    const delta = curr - prev;
+    if (delta > 0) gains.push(delta);
+    if (delta < 0) losses.push(Math.abs(delta));
+  }
+
+  const avgGain = gains.length
+    ? gains.reduce((sum, value) => sum + value, 0) / gains.length
+    : 0;
+
+  const avgLoss = losses.length
+    ? losses.reduce((sum, value) => sum + value, 0) / losses.length
+    : 0;
+
+  const expectedRP = (winRate * avgGain) - ((1 - winRate) * avgLoss);
+  const rpRemaining = Math.max(0, targetRP - currentRP);
+  const confidence = history.length > 30 ? 'high' : 'low';
+
+  if (rpRemaining === 0) {
+    return {
+      status: 'goal_reached',
+      currentRP,
+      targetRP,
+      rpRemaining: 0,
+      expectedRP,
+      matchesNeeded: 0,
+      matchesPerDay,
+      daysNeeded: 0,
+      avgGain,
+      avgLoss,
+      confidence,
+    };
+  }
+
+  if (expectedRP <= 0) {
+    return {
+      status: 'stuck',
+      currentRP,
+      targetRP,
+      rpRemaining,
+      expectedRP,
+      matchesNeeded: null,
+      matchesPerDay,
+      daysNeeded: null,
+      avgGain,
+      avgLoss,
+      confidence,
+    };
+  }
+
+  const matchesNeeded = rpRemaining / expectedRP;
+  const daysNeeded = matchesPerDay > 0 ? matchesNeeded / matchesPerDay : null;
+
+  return {
+    status: 'climbing',
+    currentRP,
+    targetRP,
+    rpRemaining,
+    expectedRP,
+    matchesNeeded,
+    matchesPerDay,
+    daysNeeded,
+    avgGain,
+    avgLoss,
+    confidence,
+  };
 }
 
 // ─── Utility ─────────────────────────────────────────────────────────────────
