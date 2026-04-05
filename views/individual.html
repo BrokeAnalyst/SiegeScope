@@ -482,26 +482,40 @@ async function doLoad(input, force) {
     var ck = 'ss_p_' + id.toLowerCase(), rk = 'ss_rh_' + id.toLowerCase();
     var p = null, rh = null;
     if (!force) {
-      var cp = localStorage.getItem(ck);
-      if (cp) { var o = JSON.parse(cp); if (Date.now() - o.ts < TTL) p = o.d; }
-      var cr = localStorage.getItem(rk);
-      if (cr) { var o2 = JSON.parse(cr); if (Date.now() - o2.ts < TTL) rh = o2.d.map(function(e){ return Object.assign({}, e, {ts: new Date(e.ts)}); }); }
+  var cp = localStorage.getItem(ck);
+  if (cp) {
+    var o = JSON.parse(cp);
+    if (Date.now() - o.ts < TTL) p = o.d;
+  }
+
+  var cr = localStorage.getItem(rk);
+  if (cr) {
+    var o2 = JSON.parse(cr);
+    if (Date.now() - o2.ts < TTL) {
+      rh = o2.d.map(function(e) {
+        return Object.assign({}, e, { ts: new Date(e.ts) });
+      });
     }
-    if (!p || !rh) {
-      ge('loadMsg').textContent = 'Fetching profile…';
-      var profileRaw = await fetchProfile(id);
-      
-      if (!p) {
-        p = adapterPlayer(profileRaw);
-        localStorage.setItem(ck, JSON.stringify({d: p, ts: Date.now()}));
-      }
-      
-      if (!rh) {
-        rh = adapterRankHistory(profileRaw.rpHistory || []);
-        localStorage.setItem(rk, JSON.stringify({d: rh, ts: Date.now()}));
-      }
-    }
-    player = p;
+  }
+}
+
+if (!p || !rh) {
+  ge('loadMsg').textContent = 'Fetching profile…';
+  var profileRaw = await fetchProfile(id);
+  console.log('profileRaw', profileRaw);
+
+  if (!p) {
+    p = adapterPlayer(profileRaw);
+    localStorage.setItem(ck, JSON.stringify({ d: p, ts: Date.now() }));
+  }
+
+  if (!rh) {
+    rh = adapterRankHistory(profileRaw.rpHistory || []);
+    localStorage.setItem(rk, JSON.stringify({ d: rh, ts: Date.now() }));
+  }
+}
+
+player = p;
     curRankIdx = rIdx(p.ranked ? p.ranked.rankName : null);
     curRP      = p.ranked ? (p.ranked.rp !== undefined ? p.ranked.rp : null) : null;
     setLock(p.username);
@@ -658,7 +672,6 @@ function parseRankHist(raw) {
 
 function adapterPlayer(p) {
   if (!p.ranked) p.ranked = {};
-  // Map r6fetch.js structure to custom structure for rendering
   return {
     username: p.username || 'Unknown',
     avatarUrl: p.avatarUrl || '',
@@ -684,7 +697,9 @@ function adapterPlayer(p) {
       winPct: p.ranked.winPct,
       kd: p.ranked.kd,
       kpg: p.ranked.killsPerGame,
-      hsPct: p.ranked.headshotPct
+      hsPct: p.ranked.headshotPct,
+      firstBloods: p.ranked.firstBloods,
+      clutches: p.ranked.clutches
     },
     career: p.career || {},
     history: p.seasonHistory || []
