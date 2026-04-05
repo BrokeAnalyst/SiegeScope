@@ -473,7 +473,7 @@ else if (getLocked()) doLoad(getLocked());
 
 // ══════════ LOAD PLAYER ══════════
 async function doLoad(input, force) {
-  var id = parseId(input);
+  var id = parseIdentifier(input);
   if (!id) { showErr('Could not parse input.'); return; }
   if (!checkLock(id)) { showErr('Key locked to "' + getLocked() + '".'); return; }
   showLoad('Fetching profile…');
@@ -487,26 +487,23 @@ async function doLoad(input, force) {
       var cr = localStorage.getItem(rk);
       if (cr) { var o2 = JSON.parse(cr); if (Date.now() - o2.ts < TTL) rh = o2.d.map(function(e){ return Object.assign({}, e, {ts: new Date(e.ts)}); }); }
     }
-    if (!p) {
+    if (!p || !rh) {
       ge('loadMsg').textContent = 'Fetching profile…';
-      var raw = await wfetch('/api/v2/r6siege/standard/profile/ubi/' + encodeURIComponent(id));
-      p = parseProfile(raw);
-      localStorage.setItem(ck, JSON.stringify({d: p, ts: Date.now()}));
-    }
-    if (!rh) {
-      ge('loadMsg').textContent = 'Fetching rank history…';
-      try {
-        var raw2 = await wfetch('/api/v2/r6siege/standard/profile/ubi/' + encodeURIComponent(id) + '/stats/overview/rankPoints?localOffset=300');
-        rh = parseRankHist(raw2);
+      var profileRaw = await fetchProfile(id);
+      
+      if (!p) {
+        p = adapterPlayer(profileRaw);
+        localStorage.setItem(ck, JSON.stringify({d: p, ts: Date.now()}));
+      }
+      
+      if (!rh) {
+        rh = adapterRankHistory(profileRaw.rpHistory || []);
         localStorage.setItem(rk, JSON.stringify({d: rh, ts: Date.now()}));
-      } catch(e2) { rh = []; }
+      }
     }
     player = p;
     curRankIdx = rIdx(p.ranked ? p.ranked.rankName : null);
     curRP      = p.ranked ? (p.ranked.rp !== undefined ? p.ranked.rp : null) : null;
-    // Store rank history and run prediction from r6fetch logic
-    p.rpHistory  = rh;
-    p.prediction = computePrediction(p, rh);
     setLock(p.username);
     renderDash(p, rh);
     showDash();
@@ -518,13 +515,6 @@ async function doLoad(input, force) {
     console.error(e);
     showErr(e.message || 'Could not load player.');
   }
-}
-
-function parseId(v) {
-  if (!v) return null;
-  v = v.trim();
-  var m = v.match(/\/profile\/ubi\/([^/?]+)/);
-  return m ? decodeURIComponent(m[1]) : v;
 }
 
 // ══════════ PARSE PROFILE ══════════
@@ -662,6 +652,55 @@ function parseRankHist(raw) {
     })
     .filter(function(item){ return item !== null; })
     .sort(function(a, b){ return a.ts - b.ts; });
+}
+
+// ══════════ ADAPTERS - Convert r6fetch.js objects to HTML-expected format ══════════
+
+function adapterPlayer(p) {
+  if (!p.ranked) p.ranked = {};
+  // Map r6fetch.js structure to custom structure for rendering
+  return {
+    username: p.username || 'Unknown',
+    avatarUrl: p.avatarUrl || '',
+    cl: p.clearanceLevel || 0,
+    bp: p.battlepass || 0,
+    curSeason: p.currentSeason || CUR_SEASON,
+    prediction: p.prediction || {},
+    ranked: {
+      season: p.ranked.season || p.currentSeason || CUR_SEASON,
+      seasonName: p.ranked.seasonName || 'Silent Hunt',
+      seasonShort: p.ranked.seasonShort || 'Y11S1',
+      seasonColor: p.ranked.seasonColor || '#a0daae',
+      rankName: p.ranked.rankName || '—',
+      rankImage: p.ranked.rankImage || '',
+      rp: p.ranked.rp !== undefined ? p.ranked.rp : null,
+      peakName: p.ranked.rankName || '—',
+      peakImage: p.ranked.rankImage || '',
+      lbPos: p.ranked.topPosition || null,
+      lbRank: p.ranked.leaderboard || null,
+      matches: p.ranked.matchesPlayed,
+      wins: p.ranked.wins,
+      losses: p.ranked.losses,
+      winPct: p.ranked.winPct,
+      kd: p.ranked.kd,
+      kpg: p.ranked.killsPerGame,
+      hsPct: p.ranked.headshotPct
+    },
+    career: p.career || {},
+    history: p.seasonHistory || []
+  };
+}
+
+function adapterRankHistory(rh) {
+  if (!Array.isArray(rh)) return [];
+  return rh.map(function(item){
+    return {
+      ts: item.timestamp instanceof Date ? item.timestamp : new Date(item.timestamp),
+      rankName: item.rank || '',
+      rp: item.rp,
+      color: item.color || '#a0daae'
+    };
+  });
 }
 
 // ── Prediction — from r6fetch.js computePrediction ──
@@ -1169,8 +1208,8 @@ function renderRivals() {
 
 async function refreshRival(username, i) {
   try {
-    var raw = await wfetch('/api/v2/r6siege/standard/profile/ubi/' + encodeURIComponent(username));
-    var p2  = parseProfile(raw);
+    var profileRaw = await fetchProfile(username);
+    var p2 = adapterPlayer(profileRaw);
     if (!rivals[i]) return;
     rivals[i] = { username: p2.username, avatarUrl: p2.avatarUrl, rankName: (p2.ranked && p2.ranked.rankName) || '—', rankImage: (p2.ranked && p2.ranked.rankImage) || '', rankIdx: rIdx(p2.ranked && p2.ranked.rankName), rp: (p2.ranked && p2.ranked.rp !== undefined) ? p2.ranked.rp : null };
     saveRivals();
@@ -1185,7 +1224,7 @@ async function refreshRival(username, i) {
 
 function addRival() {
   var v = ge('rivalInput').value.trim(); if (!v) return;
-  var u = parseId(v); if (!u) { toast('Could not parse username.', 'err'); return; }
+  var u = parseIdentifier(v); if (!u) { toast('Could not parse username.', 'err'); return; }
   if (rivals.some(function(r){ return r.username.toLowerCase() === u.toLowerCase(); })) { toast('Already in watchlist', 'err'); return; }
   rivals.push({username: u, avatarUrl: '', rankName: 'Loading…', rankImage: '', rankIdx: null, rp: null});
   saveRivals(); ge('rivalInput').value = ''; renderRivals();

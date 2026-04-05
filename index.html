@@ -490,20 +490,19 @@ async function doLoad(input, force) {
       var cr = localStorage.getItem(rk);
       if (cr) { var o2 = JSON.parse(cr); if (Date.now() - o2.ts < TTL) rh = o2.d.map(function(e){ return Object.assign({}, e, {ts: new Date(e.ts)}); }); }
     }
-    if (!p) {
+    if (!p || !rh) {
       ge('loadMsg').textContent = 'Fetching profile…';
-      var pRaw = await fetchProfile(id);
-      p = adapterPlayer(pRaw);
-      localStorage.setItem(ck, JSON.stringify({d: p, ts: Date.now()}));
-    }
-    if (!rh) {
-      ge('loadMsg').textContent = 'Processing rank history…';
-      try {
-        var pRaw = await fetchProfile(id);
-        var rpHistoryRaw = pRaw.rpHistory || [];
-        rh = adapterRankHistory(rpHistoryRaw);
+      var profileRaw = await fetchProfile(id);
+      
+      if (!p) {
+        p = adapterPlayer(profileRaw);
+        localStorage.setItem(ck, JSON.stringify({d: p, ts: Date.now()}));
+      }
+      
+      if (!rh) {
+        rh = adapterRankHistory(profileRaw.rpHistory || []);
         localStorage.setItem(rk, JSON.stringify({d: rh, ts: Date.now()}));
-      } catch(e2) { rh = []; }
+      }
     }
     player = p;
     curRankIdx = rIdx(p.ranked ? p.ranked.rankName : null);
