@@ -438,7 +438,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 // ══════════════════════════════════════════════════
 // IMPORTS
 // ══════════════════════════════════════════════════
-import { fetchProfile, fetchRPHistory, parseIdentifier } from '../assets/js/r6fetch.js';
+import { fetchProfile, parseIdentifier } from '../assets/js/r6fetch.js';
 
 // ══════════════════════════════════════════════════
 // CONFIG
@@ -571,10 +571,11 @@ async function doLoad(input, force=false) {
       localStorage.setItem(ck,JSON.stringify({d:p,ts:Date.now()}));
     }
     if (!rh) {
-      ge('loadMsg').textContent='Fetching rank history…';
+      ge('loadMsg').textContent='Processing rank history…';
       try {
-        const rhRaw = await fetchRPHistory(id);
-        rh = adapterRankHistory(rhRaw);
+        const pRaw = await fetchProfile(id);
+        const rpHistoryRaw = pRaw.rpHistory || [];
+        rh = adapterRankHistory(rpHistoryRaw);
         localStorage.setItem(rk,JSON.stringify({d:rh,ts:Date.now()}));
       }
       catch { rh=[]; }
