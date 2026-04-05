@@ -6,7 +6,7 @@
  */
 
 const WORKER_BASE = 'https://siegescope-proxy.millezbiz.workers.dev';
-const TRN_BASE = 'https://api.tracker.gg';
+const TRN_BASE = 'https://r6.tracker.network';
 // ─── Internal fetch helper ───────────────────────────────────────────────────
 
 async function workerFetch(path) {
