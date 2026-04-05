@@ -7,6 +7,7 @@
 
 const WORKER_BASE = 'https://siegescope-proxy.millezbiz.workers.dev';
 const TRN_BASE = 'https://r6.tracker.network';
+
 // ─── Internal fetch helper ───────────────────────────────────────────────────
 
 async function workerFetch(path) {
@@ -84,7 +85,7 @@ function parseProfile(raw) {
       kd: val(st.kdRatio),
       killsPerMatch: val(st.killsPerMatch),
       headshotPct: val(st.headshotPercentage),
-      timePlayed: val(st.timePlayed), // seconds
+      timePlayed: val(st.timePlayed),
       assists: val(st.assists),
     };
   }
@@ -165,7 +166,6 @@ function parseProfile(raw) {
 
 function parseRPHistory(raw) {
   const history = raw?.data?.history?.data || [];
-  // Each entry: [isoTimestamp, {value, metadata:{rank, color, imageUrl}}]
   return history
     .map(item => {
       if (!Array.isArray(item) || item.length < 2) return null;
@@ -179,7 +179,7 @@ function parseRPHistory(raw) {
       };
     })
     .filter(Boolean)
-    .sort((a, b) => a.timestamp - b.timestamp); // oldest first for chart
+    .sort((a, b) => a.timestamp - b.timestamp);
 }
 
 // ─── Prediction ──────────────────────────────────────────────────────────────
@@ -297,10 +297,8 @@ export function parseIdentifier(input) {
   if (!input) return null;
   input = input.trim();
 
-  // Full tracker URL
   const urlMatch = input.match(/\/profile\/ubi\/([^/]+)/);
   if (urlMatch) return decodeURIComponent(urlMatch[1]);
 
-  // Already a clean identifier
   return input;
 }
