@@ -336,7 +336,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 </div>
 </div>
 <a href="https://deerflow.tech" target="_blank" class="deerflow">✦ Deerflow</a>
-<script>
+<script type="module">
+// ══════════════════════════════════════════════════
+// IMPORTS
+// ══════════════════════════════════════════════════
+import { fetchProfile, fetchRPHistory, parseIdentifier } from './assets/js/r6fetch.js';
+
 // ══════════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════════
@@ -471,7 +476,7 @@ else if (getLocked()) doLoad(getLocked());
 
 // ══════════ LOAD PLAYER ══════════
 async function doLoad(input, force) {
-  var id = parseId(input);
+  var id = parseIdentifier(input);
   if (!id) { showErr('Could not parse input.'); return; }
   if (!checkLock(id)) { showErr('Key locked to "' + getLocked() + '".'); return; }
   showLoad('Fetching profile…');
@@ -487,15 +492,15 @@ async function doLoad(input, force) {
     }
     if (!p) {
       ge('loadMsg').textContent = 'Fetching profile…';
-      var raw = await wfetch('/api/v2/r6siege/standard/profile/ubi/' + encodeURIComponent(id));
-      p = parseProfile(raw);
+      var pRaw = await fetchProfile(id);
+      p = adapterPlayer(pRaw);
       localStorage.setItem(ck, JSON.stringify({d: p, ts: Date.now()}));
     }
     if (!rh) {
       ge('loadMsg').textContent = 'Fetching rank history…';
       try {
-        var raw2 = await wfetch('/api/v2/r6siege/standard/profile/ubi/' + encodeURIComponent(id) + '/stats/overview/rankPoints?localOffset=300');
-        rh = parseRankHist(raw2);
+        var rhRaw = await fetchRPHistory(id);
+        rh = adapterRankHistory(rhRaw);
         localStorage.setItem(rk, JSON.stringify({d: rh, ts: Date.now()}));
       } catch(e2) { rh = []; }
     }
@@ -506,8 +511,8 @@ async function doLoad(input, force) {
     renderDash(p, rh);
     showDash();
     ge('refreshTime').textContent = 'Updated just now';
-    loadOps(id);
-    loadMaps(id);
+    loadOps(p.username);
+    loadMaps(p.username);
     fetchLeaderboard();
   } catch(e) {
     console.error(e);
@@ -520,6 +525,62 @@ function parseId(v) {
   v = v.trim();
   var m = v.match(/\/profile\/ubi\/([^/?]+)/);
   return m ? decodeURIComponent(m[1]) : v;
+}
+
+// ══════════ ADAPTERS - Convert r6fetch.js objects to HTML-expected format ══════════
+function adapterPlayer(p) {
+  if (!p.ranked) p.ranked = {};
+  // Map r6fetch.js structure to custom structure for renderDash compatibility
+  return {
+    username: p.username || 'Unknown',
+    avatarUrl: p.avatarUrl || '',
+    cl: p.clearanceLevel || 0,
+    bp: p.battlepass || 0,
+    curSeason: p.currentSeason || CUR_SEASON,
+    prediction: p.prediction || {},
+    ranked: {
+      season: p.ranked.season || p.currentSeason || CUR_SEASON,
+      seasonName: p.ranked.seasonName || 'Silent Hunt',
+      seasonShort: p.ranked.seasonShort || 'Y11S1',
+      seasonColor: p.ranked.seasonColor || '#a0daae',
+      rankName: p.ranked.rankName || '—',
+      rankImage: p.ranked.rankImage || '',
+      rp: p.ranked.rp !== undefined ? p.ranked.rp : null,
+      peakName: p.ranked.rankName || '—',
+      peakImage: p.ranked.rankImage || '',
+      lbPos: p.ranked.topPosition || null,
+      lbRank: p.ranked.leaderboard || null,
+      matches: p.ranked.matchesPlayed,
+      wins: p.ranked.wins,
+      losses: p.ranked.losses,
+      winPct: p.ranked.winPct,
+      kd: p.ranked.kd,
+      kpg: p.ranked.killsPerGame,
+      hsPct: p.ranked.headshotPct
+    },
+    career: p.career || {},
+    history: p.seasonHistory || []
+  };
+}
+
+function adapterRankHistory(rh) {
+  if (!Array.isArray(rh)) return [];
+  return rh.map(function(item){
+    return {
+      ts: item.timestamp instanceof Date ? item.timestamp : new Date(item.timestamp),
+      rankName: item.rank || '',
+      rp: item.rp,
+      color: item.color || '#a0daae'
+    };
+  });
+}
+
+// ══════════ FETCH - Keep wfetch for leaderboard and other direct API calls ══════════
+async function wfetch(path) {
+  var url = 'https://siegescope-proxy.millezbiz.workers.dev' + '/?url=' + encodeURIComponent('https://api.tracker.gg' + path);
+  var r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
 }
 
 // ══════════ PARSE PROFILE ══════════
@@ -797,15 +858,43 @@ function updateGoal() {
     ? '✓ Goal reached — you are ' + cName
     : cName + ' → ' + gName + ' (' + ranksAway + ' rank' + (ranksAway !== 1 ? 's' : '') + ' away)';
 
-  var WINS_PER_RANK = 25;
-  var winsNeeded = ranksAway * WINS_PER_RANK;
+  // Use prediction data if available, otherwise fallback to estimation
   var daysLeft   = Math.max(1, Math.ceil((SEASON_END - new Date()) / 86400000));
   var weeksLeft  = Math.max(1, Math.ceil(daysLeft / 7));
+  var winsNeeded = 0, paceDaily = 0, paceWeekly = 0;
+
+  if (player && player.prediction && player.prediction.status === 'climbing') {
+    // Use prediction-based calculation
+    var pred = player.prediction;
+    if (curRankIdx < goalIdx) {
+      // Calculate matches/wins needed to reach goal
+      var rankDelta = Math.max(0, goalIdx - curRankIdx);
+      var estimatedRPPerRank = 1000; // conservative estimate for cross-rank climbing
+      var rpTarget = curRP + (rankDelta * estimatedRPPerRank);
+      var rpNeeded = rpTarget - (pred.currentRP || 0);
+      if (rpNeeded > 0 && pred.expectedRP > 0) {
+        winsNeeded = Math.ceil(rpNeeded / pred.expectedRP);
+        paceDaily = (winsNeeded / daysLeft).toFixed(1);
+        paceWeekly = (winsNeeded / weeksLeft).toFixed(1);
+      } else {
+        winsNeeded = Math.ceil(pred.matchesNeeded || 0);
+        paceDaily = (pred.matchesNeeded / pred.matchesPerDay / daysLeft).toFixed(1);
+        paceWeekly = (pred.matchesNeeded / pred.matchesPerDay / weeksLeft).toFixed(1);
+      }
+    }
+  } else {
+    // Fallback to estimation
+    var WINS_PER_RANK = 25;
+    winsNeeded = ranksAway * WINS_PER_RANK;
+    paceDaily = (winsNeeded / daysLeft).toFixed(1);
+    paceWeekly = (winsNeeded / weeksLeft).toFixed(1);
+  }
+
   ge('paceRanks').textContent  = ranksAway;
-  ge('paceWins').textContent   = ranksAway === 0 ? '✓' : '~' + winsNeeded;
-  ge('paceDaily').textContent  = ranksAway === 0 ? '✓' : (winsNeeded / daysLeft).toFixed(1);
+  ge('paceWins').textContent   = ranksAway === 0 ? '✓' : '~' + Math.ceil(winsNeeded);
+  ge('paceDaily').textContent  = ranksAway === 0 ? '✓' : paceDaily;
   ge('paceDailySub').textContent  = 'wins/day · ' + daysLeft + 'd';
-  ge('paceWeekly').textContent = ranksAway === 0 ? '✓' : (winsNeeded / weeksLeft).toFixed(1);
+  ge('paceWeekly').textContent = ranksAway === 0 ? '✓' : paceWeekly;
   ge('paceWeeklySub').textContent = 'wins/wk · ' + weeksLeft + 'wk';
 
   var hitKey = 'hit_' + goalIdx;
@@ -991,8 +1080,8 @@ function renderRivals() {
 
 async function refreshRival(username, i) {
   try {
-    var raw = await wfetch('/api/v2/r6siege/standard/profile/ubi/' + encodeURIComponent(username));
-    var p2  = parseProfile(raw);
+    var p2Raw = await fetchProfile(username);
+    var p2 = adapterPlayer(p2Raw);
     if (!rivals[i]) return;
     rivals[i] = { username: p2.username, avatarUrl: p2.avatarUrl, rankName: (p2.ranked && p2.ranked.rankName) || '—', rankImage: (p2.ranked && p2.ranked.rankImage) || '', rankIdx: rIdx(p2.ranked && p2.ranked.rankName), rp: (p2.ranked && p2.ranked.rp !== undefined) ? p2.ranked.rp : null };
     saveRivals();
