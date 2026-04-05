@@ -336,10 +336,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 </div>
 </div>
 <a href="https://deerflow.tech" target="_blank" class="deerflow">✦ Deerflow</a>
-<script>
+<script type="module">
 // ══════════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════════
+import { fetchProfile, parseIdentifier } from '../assets/js/r6fetch.js';
+
 const WORKER       = 'https://siegescope-proxy.millezbiz.workers.dev';
 const DISCORD_HOOK = 'YOUR_DISCORD_WEBHOOK_URL_HERE';
 const CUR_SEASON   = 41;
