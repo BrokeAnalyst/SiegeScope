@@ -11,41 +11,29 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --sc:#a0daae;--bg:#08090f;--mid:#0d0f1c;--card:#111422;--card2:#161928;
-  --border:#ffffff0d;--borderl:#ffffff18;--text:#e8eaf0;--muted:#8890a4;--dim:#4a5066;
-  --red:#ff4466;--green:#3ddc84;--gold:#f5c842;--r:8px;--rl:14px;
-}
+:root{--sc:#a0daae;--bg:#08090f;--mid:#0d0f1c;--card:#111422;--card2:#161928;--border:#ffffff0d;--borderl:#ffffff18;--text:#e8eaf0;--muted:#8890a4;--dim:#4a5066;--red:#ff4466;--green:#3ddc84;--gold:#f5c842;--r:8px;--rl:14px;}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
 .topbar{display:flex;align-items:center;gap:10px;padding:10px 20px;background:var(--mid);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
 .logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--sc);flex-shrink:0}
 .search-input{flex:1;max-width:340px;background:var(--card);border:1px solid var(--borderl);border-radius:var(--r);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:7px 12px;outline:none;transition:border-color .2s}
-.search-input:focus{border-color:var(--sc)}
-.search-input::placeholder{color:var(--dim)}
-.search-input:disabled{opacity:.4;cursor:not-allowed}
-.btn{padding:7px 14px;border-radius:var(--r);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:opacity .15s,transform .1s}
-.btn:active{transform:scale(.97)}
-.btn-primary{background:var(--sc);color:#0a1a0f}
-.btn-ghost{background:var(--card2);color:var(--muted);border:1px solid var(--borderl)}
+.search-input:focus{border-color:var(--sc)}.search-input::placeholder{color:var(--dim)}.search-input:disabled{opacity:.4;cursor:not-allowed}
+.btn{padding:7px 14px;border-radius:var(--r);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:transform .1s}
+.btn:active{transform:scale(.97)}.btn-primary{background:var(--sc);color:#0a1a0f}.btn-ghost{background:var(--card2);color:var(--muted);border:1px solid var(--borderl)}
 .topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center}
 .refresh-time{font-size:11px;color:var(--dim);font-family:'DM Mono',monospace}
 .locked-badge{font-size:10px;font-family:'DM Mono',monospace;padding:3px 8px;border-radius:20px;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.25);color:var(--gold);display:none}
 .state{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:60px 24px;text-align:center;gap:12px;min-height:60vh}
-.state-icon{font-size:48px}.state-title{font-size:18px;font-weight:600}
-.state-sub{font-size:13px;color:var(--muted);max-width:340px;line-height:1.6}
+.state-icon{font-size:48px}.state-title{font-size:18px;font-weight:600}.state-sub{font-size:13px;color:var(--muted);max-width:340px;line-height:1.6}
 .spinner{width:36px;height:36px;border:3px solid var(--borderl);border-top-color:var(--sc);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-/* Tabs */
 .tab-bar{display:none;gap:0;padding:0 20px;background:var(--mid);border-bottom:1px solid var(--border)}
 .tab-bar.show{display:flex}
 .tab-btn{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;padding:10px 16px;border:none;background:none;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s}
 .tab-btn.active{color:var(--sc);border-bottom-color:var(--sc)}
 .tab-panel{display:none;flex-direction:column;gap:14px;padding:16px 20px 60px}
 .tab-panel.active{display:flex}
-/* Season banner */
 .season-banner{display:flex;align-items:center;gap:10px;padding:8px 14px;background:rgba(160,218,174,.07);border:1px solid rgba(160,218,174,.18);border-radius:var(--r);font-size:11px;color:var(--sc);font-family:'DM Mono',monospace}
 .season-banner .dim{color:var(--muted)}
-/* Hero */
 .hero-row{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start}
 .player-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:16px;display:flex;gap:14px;align-items:center}
 .player-avatar{width:64px;height:64px;border-radius:50%;border:2px solid var(--sc);object-fit:cover;background:var(--card2);flex-shrink:0}
@@ -54,50 +42,42 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .player-badges{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
 .badge{font-size:10px;font-family:'DM Mono',monospace;padding:2px 7px;border-radius:20px;background:var(--card2);border:1px solid var(--borderl);color:var(--muted)}
 .badge.gold{background:rgba(245,200,66,.1);border-color:rgba(245,200,66,.25);color:var(--gold)}
-.rank-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:16px;display:flex;flex-direction:column;gap:0}
+.rank-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:16px;display:flex;flex-direction:column}
 .rank-card-top{display:flex;align-items:center;gap:16px}
 .rank-img{width:72px;height:72px;object-fit:contain;filter:drop-shadow(0 0 10px var(--sc));flex-shrink:0}
 .rank-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);font-family:'DM Mono',monospace}
 .rank-name{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--sc);line-height:1}
 .rank-sub{font-size:11px;color:var(--dim);font-family:'DM Mono',monospace;margin-top:2px}
-.lb-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:rgba(160,218,174,.1);border:1px solid rgba(160,218,174,.25);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:var(--sc);margin-top:6px}
-/* Next rank progress (RP shown only here) */
+.lb-chip{display:inline-flex;padding:3px 10px;border-radius:20px;background:rgba(160,218,174,.1);border:1px solid rgba(160,218,174,.25);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:var(--sc);margin-top:6px}
 .rank-next-bar{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
 .rank-next-label{display:flex;justify-content:space-between;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-family:'DM Mono',monospace;margin-bottom:5px}
 .rank-next-track{height:4px;border-radius:2px;background:var(--card2);overflow:hidden;margin-bottom:4px}
 .rank-next-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--sc),#6fd68a);transition:width .6s ease}
 .rank-next-rp{font-size:10px;font-family:'DM Mono',monospace;color:var(--dim);text-align:right}
-/* Stats */
 .stat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:3px}
 .stat-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);font-family:'DM Mono',monospace}
 .stat-value{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;line-height:1}
 .sv-sc{color:var(--sc)}.sv-green{color:var(--green)}.sv-red{color:var(--red)}
-/* WL bar */
 .wl-track{height:5px;border-radius:3px;background:var(--red);overflow:hidden;margin-bottom:5px}
 .wl-fill{height:100%;background:var(--green);border-radius:3px}
 .wl-labels{display:flex;justify-content:space-between;font-size:11px;font-family:'DM Mono',monospace}
 .wl-w{color:var(--green)}.wl-l{color:var(--red)}.wl-pct{color:var(--muted)}
-/* Cards / sections */
 .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .section-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:18px}
 .chart-wrap{position:relative;height:220px}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-/* Stat sub-tabs (Season / Career) */
 .stat-sub-tabs{display:flex;gap:6px;margin-bottom:12px}
 .stat-sub-btn{padding:3px 12px;border-radius:20px;border:1px solid var(--borderl);background:var(--card2);color:var(--muted);font-size:10px;font-family:'DM Mono',monospace;cursor:pointer;transition:all .15s}
 .stat-sub-btn.active{background:rgba(160,218,174,.1);border-color:rgba(160,218,174,.3);color:var(--sc)}
 .stat-sub-panel{display:none}.stat-sub-panel.active{display:grid}
-/* Trajectory legend */
 .traj-legend{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;font-size:10px;font-family:'DM Mono',monospace;color:var(--dim)}
 .traj-legend span{display:flex;align-items:center;gap:5px}
 .leg-line{display:inline-block;width:14px;height:2px;vertical-align:middle}
-/* Rank Goal Tracker */
 .goal-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:18px}
-.goal-select{width:100%;background:var(--card2);border:1px solid var(--borderl);border-radius:var(--r);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:8px 12px;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;transition:border-color .2s;margin-bottom:14px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238890a4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
-.goal-select:focus{border-color:var(--sc)}
-.goal-select option{background:var(--card2);color:var(--text)}
+.goal-select{width:100%;background:var(--card2);border:1px solid var(--borderl);border-radius:var(--r);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:8px 12px;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;transition:border-color .2s;margin-bottom:14px}
+.goal-select:focus{border-color:var(--sc)}.goal-select option{background:var(--card2);color:var(--text)}
 .goal-display{display:flex;align-items:center;gap:12px;margin-bottom:12px}
 .goal-from,.goal-to{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:68px}
 .goal-from img,.goal-to img{width:44px;height:44px;object-fit:contain}
@@ -117,6 +97,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .pace-sub{font-size:10px;color:var(--dim);font-family:'DM Mono',monospace}
 .season-end-row{display:flex;justify-content:flex-end;margin-top:8px;font-size:10px;font-family:'DM Mono',monospace;color:var(--dim)}
 .season-end-row strong{color:var(--gold)}
+/* Champion widget */
+.champ-input{width:70px;background:var(--card2);border:1px solid var(--borderl);border-radius:var(--r);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:6px 10px;outline:none;transition:border-color .2s}
+.champ-input:focus{border-color:var(--sc)}
 /* Rivals */
 .rival-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-bottom:10px}
 .rival-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;gap:10px;align-items:center;position:relative;transition:border-color .2s}
@@ -136,10 +119,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 /* Season history */
 .hist-collapse-btn{display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);padding:0;transition:color .15s}
 .hist-collapse-btn:hover{color:var(--muted)}
-.hist-arrow{transition:transform .2s;font-size:11px;display:inline-block}
+.hist-arrow{transition:transform .2s;display:inline-block}
 .hist-arrow.open{transform:rotate(90deg)}
 .hist-wrap{overflow:hidden;max-height:0;transition:max-height .4s ease}
-.hist-wrap.open{max-height:1200px}
+.hist-wrap.open{max-height:1400px}
 .season-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:12px}
 .season-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--r);padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:border-color .2s;position:relative}
 .season-card:hover,.season-card.active{border-color:var(--borderl)}
@@ -150,15 +133,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .season-card:hover .season-tooltip{opacity:1}
 .season-log-drawer{overflow:hidden;max-height:0;transition:max-height .3s ease;margin-top:8px}
 .season-log-drawer.open{max-height:400px}
-/* Tables */
 .s-table{width:100%;border-collapse:collapse;font-size:12px}
 .s-table th{text-align:left;padding:5px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);font-family:'DM Mono',monospace;border-bottom:1px solid var(--border)}
 .s-table td{padding:7px 8px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;color:var(--muted)}
-.s-table tr:last-child td{border-bottom:none}
-.s-table tr:hover td{background:var(--card2)}
+.s-table tr:last-child td{border-bottom:none}.s-table tr:hover td{background:var(--card2)}
 .s-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle}
 .rank-cell{display:flex;align-items:center;gap:6px}.rank-cell img{width:18px;height:18px;object-fit:contain}
-/* Operators */
 .op-filter{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
 .op-filter-btn{padding:3px 10px;border-radius:20px;border:1px solid var(--borderl);background:var(--card2);color:var(--muted);font-size:10px;font-family:'DM Mono',monospace;cursor:pointer;transition:all .15s}
 .op-filter-btn.active{background:rgba(160,218,174,.1);border-color:rgba(160,218,174,.3);color:var(--sc)}
@@ -166,33 +146,24 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .op-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;display:flex;gap:10px;align-items:center;transition:border-color .2s}
 .op-card:hover{border-color:var(--borderl)}
 .op-badge{width:36px;height:36px;object-fit:contain;flex-shrink:0}
-.op-name{font-size:12px;font-weight:600;color:var(--text)}
-.op-side-tag{font-size:9px;font-family:'DM Mono',monospace;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
-.op-kd-val{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;line-height:1}
-.op-stats-sub{font-size:10px;color:var(--dim);font-family:'DM Mono',monospace}
-.op-wr-bar{height:3px;border-radius:2px;background:var(--red);overflow:hidden;margin-top:3px}
-.op-wr-fill{height:100%;background:var(--green);border-radius:2px}
-.op-compare-wrap{overflow-x:auto;padding-bottom:4px}
-.op-compare-row{display:flex;gap:10px;min-width:max-content}
+.op-name{font-size:12px;font-weight:600;color:var(--text)}.op-side-tag{font-size:9px;font-family:'DM Mono',monospace;color:var(--dim);text-transform:uppercase}
+.op-kd-val{font-family:'Bebas Neue',sans-serif;font-size:18px;line-height:1}.op-stats-sub{font-size:10px;color:var(--dim);font-family:'DM Mono',monospace}
+.op-wr-bar{height:3px;border-radius:2px;background:var(--red);overflow:hidden;margin-top:3px}.op-wr-fill{height:100%;background:var(--green);border-radius:2px}
+.op-compare-wrap{overflow-x:auto;padding-bottom:4px}.op-compare-row{display:flex;gap:10px;min-width:max-content}
 .op-portrait-card{width:120px;background:var(--card2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;flex-shrink:0;transition:border-color .2s}
 .op-portrait-card:hover{border-color:var(--borderl)}
 .op-portrait-img{width:100%;height:140px;object-fit:cover;object-position:top;display:block}
 .op-portrait-info{padding:8px}
 .op-portrait-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px}
-.op-portrait-kd{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;line-height:1}
-.op-portrait-wr{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted)}
-.op-portrait-games{font-size:10px;font-family:'DM Mono',monospace;color:var(--dim)}
-/* Maps */
+.op-portrait-kd{font-family:'Bebas Neue',sans-serif;font-size:20px;line-height:1}
+.op-portrait-wr{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted)}.op-portrait-games{font-size:10px;font-family:'DM Mono',monospace;color:var(--dim)}
 .map-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:8px}
 .map-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .2s}
 .map-card:hover{border-color:var(--borderl)}
 .map-img{width:100%;height:65px;object-fit:cover;display:block;opacity:.65}
-.map-info{padding:8px 10px}
-.map-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px}
-.map-wr-bar{height:3px;border-radius:2px;background:var(--red);overflow:hidden;margin-bottom:4px}
-.map-wr-fill{height:100%;border-radius:2px;background:var(--green)}
+.map-info{padding:8px 10px}.map-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px}
+.map-wr-bar{height:3px;border-radius:2px;background:var(--red);overflow:hidden;margin-bottom:4px}.map-wr-fill{height:100%;border-radius:2px;background:var(--green)}
 .map-meta{display:flex;justify-content:space-between;font-size:10px;font-family:'DM Mono',monospace;color:var(--dim)}
-/* Insights */
 .insight-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
 .insight-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .2s}
 .insight-card:hover{border-color:var(--borderl)}
@@ -201,22 +172,18 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .insight-map-overlay{position:absolute;inset:0;display:flex;align-items:flex-end;padding:8px 10px;background:linear-gradient(transparent,rgba(0,0,0,.8))}
 .insight-map-name{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;color:#fff}
 .insight-map-wr{font-size:10px;font-family:'DM Mono',monospace;margin-left:auto}
-.insight-body{padding:10px}
-.insight-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);font-family:'DM Mono',monospace;margin-bottom:6px}
+.insight-body{padding:10px}.insight-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);font-family:'DM Mono',monospace;margin-bottom:6px}
 .insight-ops{display:flex;gap:5px;flex-wrap:wrap}
 .insight-op{display:flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:3px 8px;font-size:11px;font-family:'DM Mono',monospace;color:var(--muted)}
 .insight-op img{width:16px;height:16px;object-fit:contain}
-/* Cat overlay */
 .cat-overlay{position:fixed;inset:0;background:#000000bb;z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;cursor:pointer}
 .cat-overlay.show{display:flex}
 .cat-overlay img{width:280px;border-radius:var(--rl);border:3px solid var(--sc)}
 .cat-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:3px;color:var(--sc)}
 .cat-sub{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace}
-/* Toast */
 .toast{position:fixed;bottom:20px;right:20px;background:#0a1e12;border:1px solid var(--green);color:var(--green);border-radius:var(--r);padding:10px 16px;font-size:12px;font-family:'DM Mono',monospace;z-index:9998;animation:slideIn .3s ease}
 .toast.err{background:#1e0a12;border-color:var(--red);color:var(--red)}
 @keyframes slideIn{from{transform:translateY(16px);opacity:0}}
-/* Skeleton */
 .sk{background:linear-gradient(90deg,var(--card2) 25%,var(--border) 50%,var(--card2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--r)}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .deerflow{position:fixed;bottom:14px;left:14px;font-size:10px;font-family:'DM Mono',monospace;color:var(--dim);opacity:.4;text-decoration:none;transition:opacity .2s}
@@ -245,35 +212,21 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
   <button class="tab-btn active" data-tab="overview">Overview</button>
   <button class="tab-btn" data-tab="operators">Operators &amp; Maps</button>
 </nav>
-<div class="state" id="stateEmpty"><div class="state-icon">🎯</div><div class="state-title">Enter a Player</div><div class="state-sub">Paste a username or full R6 Tracker URL to load their dashboard.</div></div>
+<div class="state" id="stateEmpty"><div class="state-icon">🎯</div><div class="state-title">Enter a Player</div><div class="state-sub">Paste a username or full R6 Tracker URL.</div></div>
 <div class="state" id="stateLoad" style="display:none"><div class="spinner"></div><div class="state-title">Loading…</div><div class="state-sub" id="loadMsg">Fetching profile</div></div>
 <div class="state" id="stateErr" style="display:none"><div class="state-icon">⚠️</div><div class="state-title">Error</div><div class="state-sub" id="errMsg"></div><button class="btn btn-ghost" onclick="resetUI()">Try Again</button></div>
 
-<!-- TAB 1: OVERVIEW -->
 <div class="tab-panel active" id="tab-overview">
-  <div class="season-banner">
-    <span id="bannerText">Y11S1 · SILENT HUNT</span>
-    <span class="dim">·</span>
-    <span class="dim" id="bannerDate">Season countdown</span>
-  </div>
+  <div class="season-banner"><span id="bannerText">Y11S1 · SILENT HUNT</span><span class="dim">·</span><span class="dim" id="bannerDate">Season countdown</span></div>
   <div class="hero-row">
     <div class="player-card">
       <img class="player-avatar" id="playerAvatar" src="" alt="avatar" onerror="this.style.display='none'">
-      <div>
-        <div class="player-name" id="playerName">—</div>
-        <div class="player-meta" id="playerMeta"></div>
-        <div class="player-badges" id="playerBadges"></div>
-      </div>
+      <div><div class="player-name" id="playerName">—</div><div class="player-meta" id="playerMeta"></div><div class="player-badges" id="playerBadges"></div></div>
     </div>
     <div class="rank-card">
       <div class="rank-card-top">
         <img class="rank-img" id="rankImg" src="" alt="rank" onerror="this.style.display='none'">
-        <div>
-          <div class="rank-label">Current Rank</div>
-          <div class="rank-name" id="rankName">—</div>
-          <div class="rank-sub" id="rankSub"></div>
-          <div id="lbChip"></div>
-        </div>
+        <div><div class="rank-label">Current Rank</div><div class="rank-name" id="rankName">—</div><div class="rank-sub" id="rankSub"></div><div id="lbChip"></div></div>
       </div>
       <div class="rank-next-bar" id="rankNextBar" style="display:none">
         <div class="rank-next-label"><span>Progress to next rank</span><span id="rankNextName">—</span></div>
@@ -282,7 +235,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
       </div>
     </div>
   </div>
-  <!-- Season Stats + Career sub-tabs -->
   <div class="card">
     <div class="section-head"><div class="section-title" id="seasonTitle">Season Stats</div></div>
     <div class="stat-sub-tabs">
@@ -292,39 +244,23 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
     <div class="stat-sub-panel active" id="subSeason" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px"></div>
     <div class="stat-sub-panel" id="subCareer" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px"></div>
   </div>
-  <div class="card">
-    <div class="section-head" style="margin-bottom:8px"><div class="section-title">Win / Loss</div></div>
-    <div id="wlBar"></div>
-  </div>
-  <!-- Rank Trajectory + Prediction -->
+  <div class="card"><div class="section-head" style="margin-bottom:8px"><div class="section-title">Win / Loss</div></div><div id="wlBar"></div></div>
   <div class="card">
     <div class="section-head"><div class="section-title">Rank Trajectory &amp; Prediction</div></div>
     <div class="chart-wrap"><canvas id="rankChart"></canvas></div>
     <div class="traj-legend">
-      <span><span class="leg-line" id="legActual" style="background:var(--sc)"></span>Actual rank</span>
-      <span><span class="leg-line" id="legPred" style="background:var(--gold);border-top:1px dashed var(--gold)"></span>Predicted</span>
-      <span id="predMethodText" style="color:var(--dim)">Trend: linear regression on last 10 data points</span>
+      <span><span class="leg-line" style="background:var(--sc)"></span>Actual rank</span>
+      <span><span class="leg-line" style="background:var(--gold)"></span>Predicted</span>
+      <span id="predMethodText" style="color:var(--dim)">Trend: linear regression</span>
     </div>
   </div>
-  <!-- Rank Goal -->
   <div class="goal-card">
-    <div class="section-head">
-      <div class="section-title">Rank Goal Tracker</div>
-      <button class="btn btn-ghost" onclick="sendDiscordUpdate()" style="font-size:11px;padding:5px 10px">📢 Discord</button>
-    </div>
+    <div class="section-head"><div class="section-title">Rank Goal Tracker</div><button class="btn btn-ghost" onclick="sendDiscordUpdate()" style="font-size:11px;padding:5px 10px">📢 Discord</button></div>
     <select class="goal-select" id="goalSelect"></select>
     <div class="goal-display">
-      <div class="goal-from">
-        <img id="goalFromImg" src="" alt="" onerror="this.style.display='none'">
-        <div class="goal-rank-label">Current</div>
-        <div class="goal-rank-name" id="goalFromName">—</div>
-      </div>
+      <div class="goal-from"><img id="goalFromImg" src="" alt="" onerror="this.style.display='none'"><div class="goal-rank-label">Current</div><div class="goal-rank-name" id="goalFromName">—</div></div>
       <div class="goal-arrow">→</div>
-      <div class="goal-to">
-        <img id="goalToImg" src="" alt="" onerror="this.style.display='none'">
-        <div class="goal-rank-label">Goal</div>
-        <div class="goal-rank-name" id="goalToName">—</div>
-      </div>
+      <div class="goal-to"><img id="goalToImg" src="" alt="" onerror="this.style.display='none'"><div class="goal-rank-label">Goal</div><div class="goal-rank-name" id="goalToName">—</div></div>
       <div class="goal-bar-wrap">
         <div class="goal-bar-track"><div class="goal-bar-fill" id="goalBarFill" style="width:0%"></div></div>
         <div class="goal-bar-label" id="goalBarLabel">Select a goal rank above</div>
@@ -339,73 +275,44 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
     </div>
     <div class="season-end-row">Season ends <strong id="countdownText">—</strong></div>
   </div>
-  <!-- Champion Leaderboard Tracker (only visible for Champion players) -->
+
+  <!-- Champion leaderboard tracker — only visible for Champion players -->
   <div class="card" id="champWidget" style="display:none">
-    <div class="section-head">
-      <div class="section-title">Champion Leaderboard</div>
-    </div>
-    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap">
-      <div>
-        <div class="stat-label">Your Position</div>
-        <div class="stat-value sv-sc" id="champCurrentPos">—</div>
-      </div>
-      <div style="color:var(--dim);font-size:18px">→</div>
-      <div>
-        <div class="stat-label">Goal Position</div>
-        <div class="stat-value" style="color:var(--gold)" id="champGoalDisplay">#<span id="champGoalPos">—</span></div>
-      </div>
+    <div class="section-head"><div class="section-title">Champion Leaderboard</div></div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px;flex-wrap:wrap">
+      <div><div class="stat-label">Your Position</div><div class="stat-value sv-sc" id="champCurrentPos" style="font-size:32px">—</div></div>
+      <div style="color:var(--dim);font-size:22px">→</div>
+      <div><div class="stat-label">Goal Position</div><div class="stat-value" style="color:var(--gold);font-size:32px" id="champGoalDisp">—</div></div>
       <div style="display:flex;gap:6px;align-items:center;margin-left:auto">
         <span style="font-size:11px;color:var(--dim);font-family:'DM Mono',monospace">Target #</span>
-        <input id="champGoalInput" type="number" min="1" max="100" placeholder="e.g. 5"
-          style="width:70px;background:var(--card2);border:1px solid var(--borderl);border-radius:var(--r);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:6px 10px;outline:none;"
-          onkeydown="if(event.key==='Enter')setChampGoal()">
+        <input class="champ-input" id="champGoalInput" type="number" min="1" max="100" placeholder="e.g. 5" onkeydown="if(event.key==='Enter')setChampGoal()">
         <button class="btn btn-ghost" onclick="setChampGoal()" style="font-size:12px;padding:6px 12px">Set</button>
       </div>
     </div>
-    <div style="margin-bottom:8px">
-      <div class="goal-bar-track"><div class="goal-bar-fill" id="champBar" style="width:0%;background:linear-gradient(90deg,var(--gold),#f5a623)"></div></div>
-      <div class="goal-bar-label" id="champBarLabel" style="margin-top:5px">—</div>
-    </div>
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;color:var(--muted);margin:14px 0 8px">Live Top 20</div>
-    <div style="overflow-x:auto;max-height:300px;overflow-y:auto">
-      <table class="s-table">
-        <thead><tr><th>#</th><th>Player</th><th>RP</th></tr></thead>
-        <tbody id="lbTableBody"></tbody>
-      </table>
+    <div class="goal-bar-track" style="margin-bottom:6px"><div class="goal-bar-fill" id="champBar" style="width:0%;background:linear-gradient(90deg,var(--gold),#f5a623)"></div></div>
+    <div class="goal-bar-label" id="champBarLabel" style="margin-bottom:14px">—</div>
+    <div class="section-title" style="margin-bottom:8px">Live Top 20</div>
+    <div style="overflow-x:auto;max-height:320px;overflow-y:auto">
+      <table class="s-table"><thead><tr><th>#</th><th>Player</th><th>RP</th></tr></thead><tbody id="lbTableBody"></tbody></table>
     </div>
   </div>
 
-  <!-- Rivals -->
   <div class="card">
     <div class="section-head"><div class="section-title">Rival Watchlist</div></div>
     <div class="rival-grid" id="rivalGrid"></div>
-    <div class="rival-add-row">
-      <input class="rival-add-input" id="rivalInput" placeholder="Add rival — username or tracker URL…">
-      <button class="btn btn-ghost" onclick="addRival()" style="font-size:12px">+ Add</button>
-    </div>
+    <div class="rival-add-row"><input class="rival-add-input" id="rivalInput" placeholder="Add rival — username or tracker URL…"><button class="btn btn-ghost" onclick="addRival()" style="font-size:12px">+ Add</button></div>
   </div>
-  <!-- Season History (collapsible) + log drawer -->
   <div class="card">
-    <div class="section-head">
-      <div class="section-title">Season History</div>
-      <button class="hist-collapse-btn" onclick="toggleHist()">
-        <span class="hist-arrow" id="histArrow">▶</span>
-        <span id="histLabel">Show</span>
-      </button>
-    </div>
+    <div class="section-head"><div class="section-title">Season History</div><button class="hist-collapse-btn" onclick="toggleHist()"><span class="hist-arrow" id="histArrow">▶</span><span id="histLabel">Show</span></button></div>
     <div class="hist-wrap" id="histWrap">
       <div class="season-cards" id="seasonCards"></div>
       <div class="season-log-drawer" id="seasonLogDrawer">
-        <table class="s-table">
-          <thead><tr><th>Season</th><th>Rank</th><th>Peak</th><th>W</th><th>L</th><th>KD</th><th>Win%</th></tr></thead>
-          <tbody id="seasonLog"></tbody>
-        </table>
+        <table class="s-table"><thead><tr><th>Season</th><th>Rank</th><th>Peak</th><th>W</th><th>L</th><th>KD</th><th>Win%</th></tr></thead><tbody id="seasonLog"></tbody></table>
       </div>
     </div>
   </div>
 </div>
 
-<!-- TAB 2: OPERATORS & MAPS -->
 <div class="tab-panel" id="tab-operators">
   <div class="card">
     <div class="section-head"><div class="section-title">Top Operator Comparison</div></div>
@@ -414,16 +321,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
   </div>
   <div class="card">
     <div class="section-head"><div class="section-title">All Operators</div></div>
-    <div class="op-filter" id="opFilter">
-      <button class="op-filter-btn active" data-side="all">All</button>
-      <button class="op-filter-btn" data-side="attacker">Attackers</button>
-      <button class="op-filter-btn" data-side="defender">Defenders</button>
-    </div>
+    <div class="op-filter" id="opFilter"><button class="op-filter-btn active" data-side="all">All</button><button class="op-filter-btn" data-side="attacker">Attackers</button><button class="op-filter-btn" data-side="defender">Defenders</button></div>
     <div class="op-grid" id="opGrid"><div class="sk" style="height:70px"></div><div class="sk" style="height:70px"></div><div class="sk" style="height:70px"></div></div>
   </div>
   <div class="card">
     <div class="section-head"><div class="section-title">Map + Operator Insights</div></div>
-    <div style="font-size:11px;color:var(--dim);font-family:'DM Mono',monospace;margin-bottom:12px">Top 5 maps — best operators on each (real per-map data, ≥3 games).</div>
+    <div style="font-size:11px;color:var(--dim);font-family:'DM Mono',monospace;margin-bottom:12px">Top 5 maps — best operators on each (real per-map data, min 3 games).</div>
     <div class="insight-grid" id="insightGrid"><div class="sk" style="height:140px"></div><div class="sk" style="height:140px"></div><div class="sk" style="height:140px"></div></div>
   </div>
   <div class="card">
@@ -433,679 +336,1036 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 </div>
 </div>
 <a href="https://deerflow.tech" target="_blank" class="deerflow">✦ Deerflow</a>
-
-<script type="module">
-// ══════════════════════════════════════════════════
-// IMPORTS
-// ══════════════════════════════════════════════════
-import { fetchProfile, parseIdentifier } from '../assets/js/r6fetch.js';
-
+<script>
 // ══════════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════════
 const WORKER       = 'https://siegescope-proxy.millezbiz.workers.dev';
 const DISCORD_HOOK = 'YOUR_DISCORD_WEBHOOK_URL_HERE';
 const CUR_SEASON   = 41;
-// Season end: R6 Tracker shows 64d 7h from Apr 5 2026 → Jun 8 2026
 const SEASON_END   = new Date('2026-06-08T00:00:00Z');
+const CAT_GIFS     = ['https://media.tenor.com/s97GWDnLxfMAAAAC/cat-happy.gif','https://media.tenor.com/IKtAWZKdDkEAAAAC/cat-dance.gif','https://media.tenor.com/X85HIbIPQhYAAAAC/cat-party.gif'];
 
-const CAT_GIFS = [
-  'https://media.tenor.com/s97GWDnLxfMAAAAC/cat-happy.gif',
-  'https://media.tenor.com/IKtAWZKdDkEAAAAC/cat-dance.gif',
-  'https://media.tenor.com/X85HIbIPQhYAAAAC/cat-party.gif',
-];
+const RANKS = ['Copper V','Copper IV','Copper III','Copper II','Copper I','Bronze V','Bronze IV','Bronze III','Bronze II','Bronze I','Silver V','Silver IV','Silver III','Silver II','Silver I','Gold V','Gold IV','Gold III','Gold II','Gold I','Platinum V','Platinum IV','Platinum III','Platinum II','Platinum I','Diamond V','Diamond IV','Diamond III','Diamond II','Diamond I','Champion'];
+const SLUGS = ['copper-v','copper-iv','copper-iii','copper-ii','copper-i','bronze-v','bronze-iv','bronze-iii','bronze-ii','bronze-i','silver-v','silver-iv','silver-iii','silver-ii','silver-i','gold-v','gold-iv','gold-iii','gold-ii','gold-i','platinum-v','platinum-iv','platinum-iii','platinum-ii','platinum-i','diamond-v','diamond-iv','diamond-iii','diamond-ii','diamond-i','champion'];
+const CDN   = 'https://trackercdn.com/cdn/r6.tracker.network/ranks/v3/';
+const rImg  = function(i){ return CDN + (SLUGS[i] || 'unranked') + '.png'; };
+const rIdx  = function(name){ if (!name) return -1; var n = name.toLowerCase(); return RANKS.findIndex(function(r){ return r.toLowerCase() === n; }); };
 
-// Rank ladder: index 0 = Copper V (lowest), index 30 = Champion (highest)
-const RANKS = [
-  'Copper V','Copper IV','Copper III','Copper II','Copper I',
-  'Bronze V','Bronze IV','Bronze III','Bronze II','Bronze I',
-  'Silver V','Silver IV','Silver III','Silver II','Silver I',
-  'Gold V','Gold IV','Gold III','Gold II','Gold I',
-  'Platinum V','Platinum IV','Platinum III','Platinum II','Platinum I',
-  'Diamond V','Diamond IV','Diamond III','Diamond II','Diamond I',
-  'Champion'
-];
-const SLUGS = [
-  'copper-v','copper-iv','copper-iii','copper-ii','copper-i',
-  'bronze-v','bronze-iv','bronze-iii','bronze-ii','bronze-i',
-  'silver-v','silver-iv','silver-iii','silver-ii','silver-i',
-  'gold-v','gold-iv','gold-iii','gold-ii','gold-i',
-  'platinum-v','platinum-iv','platinum-iii','platinum-ii','platinum-i',
-  'diamond-v','diamond-iv','diamond-iii','diamond-ii','diamond-i',
-  'champion'
-];
-const CDN = 'https://trackercdn.com/cdn/r6.tracker.network/ranks/v3/';
-const rImg = i => `${CDN}${SLUGS[i]||'unranked'}.png`;
-const rIdx = name => { if (!name) return -1; const n=name.toLowerCase(); return RANKS.findIndex(r=>r.toLowerCase()===n); };
-
-// Approximate RP floor per rank level (used only for within-tier progress bar)
-// Source: community-documented RP thresholds per rank division
+// RP floor per rank level for within-tier progress bar only
 const RP_FLOOR = [0,100,200,300,400,500,700,900,1100,1300,1500,1800,2100,2400,2700,3000,3400,3800,4200,4600,5000,5500,6000,6500,7000,7600,8200,8800,9400,10000,10800];
 
 // ══════════ STATE ══════════
-let player     = null;
-let curRankIdx = -1;
-let curRP      = null;
-let goalIdx    = parseInt(localStorage.getItem('ss_goalIdx') ?? '30');
+var player             = null;
+var curRankIdx         = -1;
+var curRP              = null;
+var goalIdx            = parseInt(localStorage.getItem('ss_goalIdx') || '30');
+var rivals             = JSON.parse(localStorage.getItem('ss_rivals') || '[]');
+var allOps             = [];
+var allMaps            = [];
+var opFilter           = 'all';
+var mapOpData          = {};
+var goalHit            = {};
+var histOpen           = false;
+var activeSeasonCard   = null;
+var champGoalPos       = parseInt(localStorage.getItem('ss_champGoal') || '100');
+var playerChampPos     = null;
+var liveLeaderboard    = [];
+
 if (goalIdx < 0 || goalIdx > 30) goalIdx = 30;
-let rivals     = JSON.parse(localStorage.getItem('ss_rivals') || '[]');
-let allOps     = [];
-let allMaps    = [];
-let opFilter   = 'all';
-let mapOpData  = {};
-let goalHit    = {};
-let histOpen   = false;
-let activeSeasonCard = null;
-// Champion leaderboard tracking
-let champGoalPosition = parseInt(localStorage.getItem('ss_champGoal') || '100'); // target champion position
-let playerChampPosition = null;   // player's current champion leaderboard position
-let liveLeaderboard = [];         // top 100 items from leaderboard API
 
 // ══════════ LOCK ══════════
-const getLocked = () => localStorage.getItem('ss_locked');
-const checkLock = u => !getLocked() || getLocked() === u.toLowerCase().trim();
-const setLock   = u => { if (!getLocked()) localStorage.setItem('ss_locked', u.toLowerCase().trim()); };
-if (getLocked()) { ge('searchInput').value=getLocked(); ge('searchInput').disabled=true; ge('searchBtn').disabled=true; ge('lockedBadge').style.display='inline-flex'; }
+function getLocked() { return localStorage.getItem('ss_locked'); }
+function checkLock(u) { return !getLocked() || getLocked() === u.toLowerCase().trim(); }
+function setLock(u)   { if (!getLocked()) localStorage.setItem('ss_locked', u.toLowerCase().trim()); }
+
+if (getLocked()) {
+  document.getElementById('searchInput').value    = getLocked();
+  document.getElementById('searchInput').disabled = true;
+  document.getElementById('searchBtn').disabled   = true;
+  document.getElementById('lockedBadge').style.display = 'inline-flex';
+}
+
+// ══════════ HELPERS ══════════
+function ge(id) { return document.getElementById(id); }
+function toast(msg, type) {
+  var t = document.createElement('div');
+  t.className = 'toast' + (type ? ' ' + type : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 3000);
+}
 
 // ══════════ FETCH ══════════
 async function wfetch(path) {
-  const r = await fetch(`${WORKER}/?url=${encodeURIComponent('https://api.tracker.gg'+path)}`);
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  return r.json();
-}
-
-// ══════════ DOM ══════════
-function ge(id) { return document.getElementById(id); }
-function toast(msg, type='') { const t=document.createElement('div'); t.className=`toast ${type}`; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
-
-// ══════════ INIT ══════════
-updateCountdown();
-setInterval(updateCountdown, 60000);
-buildGoalSelect();
-
-const urlP = new URLSearchParams(location.search).get('player');
-if (urlP) { ge('searchInput').value=urlP; doLoad(urlP); }
-else if (getLocked()) doLoad(getLocked());
-
-ge('searchBtn').addEventListener('click', ()=>{ const v=ge('searchInput').value.trim(); if(v) doLoad(v); });
-ge('searchInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){const v=ge('searchInput').value.trim(); if(v) doLoad(v);} });
-ge('refreshBtn').addEventListener('click', ()=>{ if(player) doLoad(player.username,true); });
-ge('rivalInput').addEventListener('keydown', e=>{ if(e.key==='Enter') addRival(); });
-document.querySelectorAll('.tab-btn').forEach(btn=>{ btn.addEventListener('click',()=>{ document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active')); btn.classList.add('active'); ge('tab-'+btn.dataset.tab).classList.add('active'); }); });
-document.querySelectorAll('.op-filter-btn').forEach(btn=>{ btn.addEventListener('click',()=>{ document.querySelectorAll('.op-filter-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); opFilter=btn.dataset.side; renderOpGrid(); }); });
-document.querySelectorAll('.stat-sub-btn').forEach(btn=>{ btn.addEventListener('click',()=>{ document.querySelectorAll('.stat-sub-btn').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.stat-sub-panel').forEach(p=>p.classList.remove('active')); btn.classList.add('active'); ge('sub'+btn.dataset.sub).classList.add('active'); }); });
-ge('goalSelect').addEventListener('change', ()=>{ goalIdx=parseInt(ge('goalSelect').value); localStorage.setItem('ss_goalIdx',goalIdx); updateGoal(); });
-
-function updateCountdown() {
-  const diff = SEASON_END - new Date();
-  const banEl=ge('bannerDate'), cdEl=ge('countdownText');
-  if (diff <= 0) { if(banEl)banEl.textContent='Season ended'; if(cdEl)cdEl.textContent='Ended'; return; }
-  const d=Math.floor(diff/86400000), h=Math.floor((diff%86400000)/3600000);
-  if(banEl) banEl.textContent=`Ends in ${d}d ${h}h`;
-  if(cdEl)  cdEl.innerHTML=`in <strong style="color:var(--gold)">${d}d ${h}h</strong>`;
-}
-
-function buildGoalSelect() {
-  ge('goalSelect').innerHTML = RANKS.map((name,i)=>`<option value="${i}" ${i===goalIdx?'selected':''}>${name}</option>`).join('');
-}
-
-// ══════════ LOAD PLAYER ══════════
-async function doLoad(input, force=false) {
-  const id = parseIdentifier(input);
-  if (!id) { showErr('Could not parse input.'); return; }
-  if (!checkLock(id)) { showErr(`Key locked to "${getLocked()}".`); return; }
-
-  showLoad('Fetching profile…');
-  const TTL = 5*60*1000;
-  try {
-    const ck='ss_p_'+id.toLowerCase(), rk='ss_rh_'+id.toLowerCase();
-    let p, rh;
-    if (!force) {
-      const cp=localStorage.getItem(ck); if(cp){const o=JSON.parse(cp);if(Date.now()-o.ts<TTL)p=o.d;}
-      const cr=localStorage.getItem(rk); if(cr){const o=JSON.parse(cr);if(Date.now()-o.ts<TTL)rh=o.d.map(e=>({...e,ts:new Date(e.ts)}));}
-    }
-    if (!p) {
-      ge('loadMsg').textContent='Fetching profile…';
-      const pRaw = await fetchProfile(id);
-      p = adapterPlayer(pRaw);
-      localStorage.setItem(ck,JSON.stringify({d:p,ts:Date.now()}));
-    }
-    if (!rh) {
-      ge('loadMsg').textContent='Processing rank history…';
-      try {
-        const pRaw = await fetchProfile(id);
-        const rpHistoryRaw = pRaw.rpHistory || [];
-        rh = adapterRankHistory(rpHistoryRaw);
-        localStorage.setItem(rk,JSON.stringify({d:rh,ts:Date.now()}));
-      }
-      catch { rh=[]; }
-    }
-    player=p; curRankIdx=rIdx(p.ranked?.rankName); curRP=p.ranked?.rp??null;
-    setLock(p.username);
-    renderDash(p, rh);
-    showDash();
-    ge('refreshTime').textContent='Updated just now';
-    loadOps(p.username); loadMaps(p.username);
-    // Fetch leaderboard async — shows Champion tracker if player is Champion
-    fetchLeaderboard();
-  } catch(e) { console.error(e); showErr(e.message||'Could not load player.'); }
-}
-
-function parseId(v) {
-  if (!v) return null; v=v.trim();
-  const m=v.match(/\/profile\/ubi\/([^/?]+)/);
-  return m?decodeURIComponent(m[1]):v;
-}
-
-// ══════════ ADAPTERS - Convert r6fetch.js objects to expected format ══════════
-function adapterPlayer(p) {
-  if (!p.ranked) p.ranked = {};
-  return {
-    username: p.username || 'Unknown',
-    avatarUrl: p.avatarUrl || '',
-    cl: p.clearanceLevel || 0,
-    bp: p.battlepass || 0,
-    curSeason: p.currentSeason || CUR_SEASON,
-    prediction: p.prediction || {},
-    ranked: {
-      season: p.ranked.season || p.currentSeason || CUR_SEASON,
-      seasonName: p.ranked.seasonName || 'Silent Hunt',
-      seasonShort: p.ranked.seasonShort || 'Y11S1',
-      seasonColor: p.ranked.seasonColor || '#a0daae',
-      rankName: p.ranked.rankName || '—',
-      rankImage: p.ranked.rankImage || '',
-      rp: p.ranked.rp !== undefined ? p.ranked.rp : null,
-      peakName: p.ranked.rankName || '—',
-      peakImage: p.ranked.rankImage || '',
-      lbPos: p.ranked.topPosition || null,
-      lbRank: p.ranked.leaderboard || null,
-      matches: p.ranked.matchesPlayed,
-      wins: p.ranked.wins,
-      losses: p.ranked.losses,
-      winPct: p.ranked.winPct,
-      kd: p.ranked.kd,
-      kpg: p.ranked.killsPerGame,
-      hsPct: p.ranked.headshotPct
-    },
-    career: p.career || {},
-    history: p.seasonHistory || []
-  };
-}
-
-function adapterRankHistory(rh) {
-  if (!Array.isArray(rh)) return [];
-  return rh.map(item => ({
-    ts: item.timestamp instanceof Date ? item.timestamp : new Date(item.timestamp),
-    rankName: item.rank || '',
-    rp: item.rp,
-    color: item.color || '#a0daae'
-  }));
-}
-
-// ══════════ FETCH - Keep wfetch for leaderboard and other direct API calls ══════════
-async function wfetch(path) {
-  const url = 'https://siegescope-proxy.millezbiz.workers.dev' + '/?url=' + encodeURIComponent('https://api.tracker.gg' + path);
-  const r = await fetch(url);
+  var url = WORKER + '/?url=' + encodeURIComponent('https://api.tracker.gg' + path);
+  var r = await fetch(url);
   if (!r.ok) throw new Error('HTTP ' + r.status);
   return r.json();
 }
 
-// ══════════ PARSE ══════════
+// ══════════ COUNTDOWN ══════════
+function updateCountdown() {
+  var diff = SEASON_END - new Date();
+  var banEl = ge('bannerDate'), cdEl = ge('countdownText');
+  if (diff <= 0) {
+    if (banEl) banEl.textContent = 'Season ended';
+    if (cdEl)  cdEl.textContent  = 'Ended';
+    return;
+  }
+  var d = Math.floor(diff / 86400000), h = Math.floor((diff % 86400000) / 3600000);
+  if (banEl) banEl.textContent = 'Ends in ' + d + 'd ' + h + 'h';
+  if (cdEl)  cdEl.textContent  = 'in ' + d + 'd ' + h + 'h';
+}
+updateCountdown();
+setInterval(updateCountdown, 60000);
+
+// ══════════ GOAL SELECT ══════════
+function buildGoalSelect() {
+  ge('goalSelect').innerHTML = RANKS.map(function(name, i){
+    return '<option value="' + i + '"' + (i === goalIdx ? ' selected' : '') + '>' + name + '</option>';
+  }).join('');
+}
+buildGoalSelect();
+
+// ══════════ INIT EVENT LISTENERS ══════════
+ge('searchBtn').addEventListener('click', function(){ var v = ge('searchInput').value.trim(); if (v) doLoad(v); });
+ge('searchInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') { var v = ge('searchInput').value.trim(); if (v) doLoad(v); }});
+ge('refreshBtn').addEventListener('click', function(){ if (player) doLoad(player.username, true); });
+ge('rivalInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') addRival(); });
+ge('goalSelect').addEventListener('change', function(){
+  goalIdx = parseInt(ge('goalSelect').value);
+  localStorage.setItem('ss_goalIdx', goalIdx);
+  updateGoal();
+});
+
+document.querySelectorAll('.tab-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    ge('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+document.querySelectorAll('.op-filter-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.op-filter-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    opFilter = btn.dataset.side;
+    renderOpGrid();
+  });
+});
+document.querySelectorAll('.stat-sub-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.stat-sub-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.stat-sub-panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    ge('sub' + btn.dataset.sub).classList.add('active');
+  });
+});
+
+// Auto-load from URL param or locked player
+var urlP = new URLSearchParams(location.search).get('player');
+if (urlP) { ge('searchInput').value = urlP; doLoad(urlP); }
+else if (getLocked()) doLoad(getLocked());
+
+// ══════════ LOAD PLAYER ══════════
+async function doLoad(input, force) {
+  var id = parseId(input);
+  if (!id) { showErr('Could not parse input.'); return; }
+  if (!checkLock(id)) { showErr('Key locked to "' + getLocked() + '".'); return; }
+  showLoad('Fetching profile…');
+  var TTL = 5 * 60 * 1000;
+  try {
+    var ck = 'ss_p_' + id.toLowerCase(), rk = 'ss_rh_' + id.toLowerCase();
+    var p = null, rh = null;
+    if (!force) {
+      var cp = localStorage.getItem(ck);
+      if (cp) { var o = JSON.parse(cp); if (Date.now() - o.ts < TTL) p = o.d; }
+      var cr = localStorage.getItem(rk);
+      if (cr) { var o2 = JSON.parse(cr); if (Date.now() - o2.ts < TTL) rh = o2.d.map(function(e){ return Object.assign({}, e, {ts: new Date(e.ts)}); }); }
+    }
+    if (!p) {
+      ge('loadMsg').textContent = 'Fetching profile…';
+      var raw = await wfetch('/api/v2/r6siege/standard/profile/ubi/' + encodeURIComponent(id));
+      p = parseProfile(raw);
+      localStorage.setItem(ck, JSON.stringify({d: p, ts: Date.now()}));
+    }
+    if (!rh) {
+      ge('loadMsg').textContent = 'Fetching rank history…';
+      try {
+        var raw2 = await wfetch('/api/v2/r6siege/standard/profile/ubi/' + encodeURIComponent(id) + '/stats/overview/rankPoints?localOffset=300');
+        rh = parseRankHist(raw2);
+        localStorage.setItem(rk, JSON.stringify({d: rh, ts: Date.now()}));
+      } catch(e2) { rh = []; }
+    }
+    player = p;
+    curRankIdx = rIdx(p.ranked ? p.ranked.rankName : null);
+    curRP      = p.ranked ? (p.ranked.rp !== undefined ? p.ranked.rp : null) : null;
+    // Store rank history and run prediction from r6fetch logic
+    p.rpHistory  = rh;
+    p.prediction = computePrediction(p, rh);
+    setLock(p.username);
+    renderDash(p, rh);
+    showDash();
+    ge('refreshTime').textContent = 'Updated just now';
+    loadOps(id);
+    loadMaps(id);
+    fetchLeaderboard();
+  } catch(e) {
+    console.error(e);
+    showErr(e.message || 'Could not load player.');
+  }
+}
+
+function parseId(v) {
+  if (!v) return null;
+  v = v.trim();
+  var m = v.match(/\/profile\/ubi\/([^/?]+)/);
+  return m ? decodeURIComponent(m[1]) : v;
+}
+
+// ══════════ PARSE PROFILE ══════════
+// Based on r6fetch.js — uses val() helper for safe stat extraction,
+// pulls all fields including firstBloods, clutches, multikills, elo.
+
+function val(stat) {
+  return (stat && stat.value !== undefined) ? stat.value : null;
+}
+
 function parseProfile(raw) {
-  const d=raw.data, segs=d.segments||[], pi=d.platformInfo||{}, meta=d.metadata||{};
-  const p={username:pi.platformUserHandle||pi.platformUserIdentifier||'Unknown',avatarUrl:pi.avatarUrl||'',cl:meta.clearanceLevel||0,bp:meta.battlepassLevel||0,curSeason:meta.currentSeason||CUR_SEASON};
-  const ov=segs.find(s=>s.type==='overview');
-  if(ov){const st=ov.stats;p.career={matches:st.matchesPlayed?.value,wins:st.matchesWon?.value,kd:st.kdRatio?.value,winPct:st.winPercentage?.value,kills:st.kills?.value,hsPct:st.headshotPercentage?.value,time:st.timePlayed?.value};}
-  const cs=p.curSeason;
-  const rs=segs.find(s=>s.type==='season'&&s.attributes.season===cs&&s.attributes.gamemode==='pvp_ranked');
-  if(rs){const st=rs.stats,rp=st.rankPoints||{},mp=st.maxRankPoints||{};
-    p.ranked={season:cs,seasonName:rs.metadata.seasonName||'Silent Hunt',seasonShort:rs.metadata.shortName||'Y11S1',seasonColor:rs.metadata.color||'#a0daae',
-      rankName:rp.metadata?.name||'—',rankImage:rp.metadata?.imageUrl||'',rp:rp.value??null,
-      peakName:mp.metadata?.name||'—',peakImage:mp.metadata?.imageUrl||'',
-      lbPos:st.topRankPosition?.value??null,lbRank:rp.rank??null,
-      matches:st.matchesPlayed?.value,wins:st.matchesWon?.value,losses:st.matchesLost?.value,winPct:st.winPercentage?.value,kd:st.kdRatio?.value,kpg:st.killsPerGame?.value,hsPct:st.headshotPct?.value};}
-  p.history=segs.filter(s=>s.type==='season'&&s.attributes.gamemode==='pvp_ranked').sort((a,b)=>b.attributes.season-a.attributes.season)
-    .map(s=>{const st=s.stats,rp=st.rankPoints||{},mp=st.maxRankPoints||{};
-      return{season:s.attributes.season,short:s.metadata.shortName||'',color:s.metadata.color||'#888',rankName:rp.metadata?.name||'—',rankImg:rp.metadata?.imageUrl||mp.metadata?.imageUrl||'',rankRp:rp.value??null,peakName:mp.metadata?.name||'—',lbPos:rp.metadata?.topRankPosition??null,wins:st.matchesWon?.value,losses:st.matchesLost?.value,kd:st.kdRatio?.value,winPct:st.winPercentage?.value};});
+  var d        = (raw && raw.data) ? raw.data : {};
+  var segments = d.segments || [];
+  var platform = d.platformInfo || {};
+  var meta     = d.metadata || {};
+
+  var p = {
+    username:      platform.platformUserHandle || platform.platformUserIdentifier || 'Unknown',
+    uuid:          platform.platformUserId || '',
+    avatarUrl:     platform.avatarUrl || '',
+    cl:            meta.clearanceLevel || 0,
+    bp:            meta.battlepassLevel || 0,
+    curSeason:     meta.currentSeason || CUR_SEASON,
+    nameHistory:   (meta.nameChanges || []).map(function(n){ return n.name; })
+  };
+
+  // Career overview
+  var overview = segments.find(function(s){ return s.type === 'overview'; });
+  if (overview) {
+    var st = overview.stats || {};
+    p.career = {
+      matches:     val(st.matchesPlayed),
+      wins:        val(st.matchesWon),
+      losses:      val(st.matchesLost),
+      winPct:      val(st.winPercentage),
+      kills:       val(st.kills),
+      deaths:      val(st.deaths),
+      kd:          val(st.kdRatio),
+      kpg:         val(st.killsPerMatch) || val(st.killsPerGame),
+      hsPct:       val(st.headshotPercentage),
+      time:        val(st.timePlayed),
+      assists:     val(st.assists)
+    };
+  }
+
+  // Current season ranked segment
+  var cs = p.curSeason;
+  var ranked = segments.find(function(s){
+    return s.type === 'season' && s.attributes && s.attributes.season === cs && s.attributes.gamemode === 'pvp_ranked';
+  });
+  if (ranked) {
+    var st2 = ranked.stats || {};
+    var rp  = st2.rankPoints    || {};
+    var mp  = st2.maxRankPoints || {};
+    p.ranked = {
+      season:       cs,
+      seasonName:   (ranked.metadata && ranked.metadata.seasonName) || 'Silent Hunt',
+      seasonShort:  (ranked.metadata && ranked.metadata.shortName)  || 'Y11S1',
+      seasonColor:  (ranked.metadata && ranked.metadata.color)      || '#a0daae',
+      rp:           rp.value !== undefined ? rp.value : null,
+      maxRp:        mp.value !== undefined ? mp.value : null,
+      rankName:     (rp.metadata && rp.metadata.name)     || '—',
+      rankImage:    (rp.metadata && rp.metadata.imageUrl) || '',
+      peakName:     (mp.metadata && mp.metadata.name)     || '—',
+      peakImage:    (mp.metadata && mp.metadata.imageUrl) || '',
+      lbRank:       rp.rank || null,
+      lbPos:        val(st2.topRankPosition),
+      matches:      val(st2.matchesPlayed),
+      wins:         val(st2.matchesWon),
+      losses:       val(st2.matchesLost),
+      winPct:       val(st2.winPercentage),
+      kd:           val(st2.kdRatio),
+      kpg:          val(st2.killsPerGame),
+      hsPct:        val(st2.headshotPct) !== null ? val(st2.headshotPct) : val(st2.headshotPercentage),
+      kills:        val(st2.kills),
+      deaths:       val(st2.deaths),
+      firstBloods:  val(st2.firstBloods),
+      clutches:     val(st2.clutches),
+      elo:          (st2.elo && st2.elo.value !== undefined) ? st2.elo.value : null,
+      multikills: {
+        k1: val(st2.kills1K),
+        k2: val(st2.kills2K),
+        k3: val(st2.kills3K),
+        k4: val(st2.kills4K),
+        k5: val(st2.kills5K)
+      }
+    };
+  }
+
+  // Season history — ranked only, newest first
+  p.history = segments
+    .filter(function(s){ return s.type === 'season' && s.attributes && s.attributes.gamemode === 'pvp_ranked'; })
+    .sort(function(a, b){ return (b.attributes.season || 0) - (a.attributes.season || 0); })
+    .map(function(s){
+      var st3 = s.stats || {};
+      var rp2 = st3.rankPoints    || {};
+      var mp2 = st3.maxRankPoints || {};
+      return {
+        season:   s.attributes.season || null,
+        short:    (s.metadata && s.metadata.shortName)  || '',
+        color:    (s.metadata && s.metadata.color)      || '#888',
+        rankName: (rp2.metadata && rp2.metadata.name)   || '—',
+        rankImg:  (rp2.metadata && rp2.metadata.imageUrl) || (mp2.metadata && mp2.metadata.imageUrl) || '',
+        rankRp:   rp2.value !== undefined ? rp2.value : null,
+        peakName: (mp2.metadata && mp2.metadata.name)   || '—',
+        lbPos:    (rp2.metadata && rp2.metadata.topRankPosition) || null,
+        wins:     val(st3.matchesWon),
+        losses:   val(st3.matchesLost),
+        kd:       val(st3.kdRatio),
+        winPct:   val(st3.winPercentage),
+        kills:    val(st3.kills)
+      };
+    });
+
   return p;
 }
 
+// Parse RP history — from r6fetch.js
+// Each item is [isoTimestamp, {value, metadata:{rank, color, imageUrl}}]
 function parseRankHist(raw) {
-  return (raw?.data?.history?.data||[]).map(([ts,e])=>({ts:new Date(ts),rankName:e.metadata?.rank||'',rp:e.value??null,color:e.metadata?.color||'#a0daae'})).sort((a,b)=>a.ts-b.ts);
+  var history = (raw && raw.data && raw.data.history && raw.data.history.data) || [];
+  return history
+    .map(function(item){
+      if (!Array.isArray(item) || item.length < 2) return null;
+      var ts    = item[0];
+      var entry = item[1];
+      if (!entry) return null;
+      return {
+        ts:       new Date(ts),
+        rp:       entry.value !== undefined ? entry.value : null,
+        rankName: (entry.metadata && entry.metadata.rank)     || '',
+        color:    (entry.metadata && entry.metadata.color)    || '#a0daae',
+        image:    (entry.metadata && entry.metadata.imageUrl) || ''
+      };
+    })
+    .filter(function(item){ return item !== null; })
+    .sort(function(a, b){ return a.ts - b.ts; });
 }
 
-// ══════════ RENDER DASHBOARD ══════════
+// ── Prediction — from r6fetch.js computePrediction ──
+// Uses actual RP gain/loss history to predict matches needed & days to goal.
+// Better than rank-index regression because it works in real RP space.
+function computePrediction(player, history) {
+  var currentRP = player && player.ranked ? player.ranked.rp : null;
+  var winRate   = (player && player.ranked && player.ranked.winPct != null)
+                  ? player.ranked.winPct / 100 : 0;
+
+  // Target RP is the RP floor of the goal rank
+  var targetRP = (goalIdx >= 0 && goalIdx < RP_FLOOR.length) ? RP_FLOOR[goalIdx] : 5000;
+
+  var result = { status: 'insufficient_data', currentRP: currentRP, targetRP: targetRP,
+    rpRemaining: null, expectedRpPerMatch: null, matchesNeeded: null, daysNeeded: null,
+    avgGain: null, avgLoss: null, confidence: 'low' };
+
+  if (currentRP === null || !history || history.length < 5) return result;
+
+  // Build gain/loss arrays from consecutive RP history points
+  var gains = [], losses = [];
+  for (var i = 1; i < history.length; i++) {
+    var prev  = history[i - 1] ? history[i - 1].rp : null;
+    var curr  = history[i]     ? history[i].rp     : null;
+    if (prev === null || curr === null) continue;
+    var delta = curr - prev;
+    if (delta > 0) gains.push(delta);
+    else if (delta < 0) losses.push(Math.abs(delta));
+  }
+
+  var avgGain = gains.length  ? gains.reduce(function(s,v){ return s+v; },0)  / gains.length  : 0;
+  var avgLoss = losses.length ? losses.reduce(function(s,v){ return s+v; },0) / losses.length : 0;
+
+  // Expected RP per match = (winRate × avgGain) − (lossRate × avgLoss)
+  var expectedRpPerMatch = (winRate * avgGain) - ((1 - winRate) * avgLoss);
+  var rpRemaining        = Math.max(0, targetRP - currentRP);
+  var confidence         = history.length > 30 ? 'high' : history.length > 15 ? 'medium' : 'low';
+
+  result.avgGain          = avgGain;
+  result.avgLoss          = avgLoss;
+  result.expectedRpPerMatch = expectedRpPerMatch;
+  result.rpRemaining      = rpRemaining;
+  result.confidence       = confidence;
+
+  if (rpRemaining === 0) {
+    result.status         = 'goal_reached';
+    result.matchesNeeded  = 0;
+    result.daysNeeded     = 0;
+    return result;
+  }
+  if (expectedRpPerMatch <= 0) {
+    result.status = 'stuck'; // negative trend — player is losing more than gaining
+    return result;
+  }
+
+  result.status        = 'climbing';
+  result.matchesNeeded = Math.ceil(rpRemaining / expectedRpPerMatch);
+  // Estimate matches/day from history timestamps
+  var matchesPerDay = 5; // fallback
+  if (history.length >= 2) {
+    var spanMs  = history[history.length-1].ts - history[0].ts;
+    var spanDays = spanMs / 86400000;
+    if (spanDays > 0) matchesPerDay = Math.max(1, history.length / spanDays);
+  }
+  result.matchesPerDay = matchesPerDay;
+  result.daysNeeded    = result.matchesNeeded / matchesPerDay;
+  return result;
+}
+
+// ══════════ RENDER ══════════
 function renderDash(p, rh) {
-  const r=p.ranked||{}, sc=r.seasonColor||'#a0daae';
-  document.documentElement.style.setProperty('--sc',sc);
-  ge('bannerText').textContent=`${r.seasonShort||'Y11S1'} · ${(r.seasonName||'Silent Hunt').toUpperCase()}`;
-  if(p.avatarUrl) ge('playerAvatar').src=p.avatarUrl;
-  ge('playerName').textContent=p.username;
-  ge('playerMeta').textContent=`CL ${p.cl||'—'} · BP ${p.bp||'—'}`;
-  const bEl=ge('playerBadges'); bEl.innerHTML='';
-  if(r.lbPos&&r.lbPos<=100) bEl.innerHTML+=`<span class="badge gold">TOP ${r.lbPos}</span>`;
-  if(getLocked()) bEl.innerHTML+=`<span class="badge gold">🔒 Locked</span>`;
-  if(r.rankImage) ge('rankImg').src=r.rankImage;
-  ge('rankName').textContent=r.rankName||'—';
-  ge('rankSub').textContent=r.peakName&&r.peakName!==r.rankName?`Peak: ${r.peakName}`:'';
-  ge('lbChip').innerHTML=r.lbRank?`<div class="lb-chip">#${r.lbRank.toLocaleString()} Leaderboard</div>`:'';
+  var r = p.ranked || {}, sc = r.seasonColor || '#a0daae';
+  document.documentElement.style.setProperty('--sc', sc);
+  ge('bannerText').textContent = (r.seasonShort || 'Y11S1') + ' · ' + (r.seasonName || 'Silent Hunt').toUpperCase();
+  if (p.avatarUrl) ge('playerAvatar').src = p.avatarUrl;
+  ge('playerName').textContent = p.username;
+  ge('playerMeta').textContent = 'CL ' + (p.cl || '—') + ' · BP ' + (p.bp || '—');
+  var bEl = ge('playerBadges'); bEl.innerHTML = '';
+  if (r.lbPos && r.lbPos <= 100) bEl.innerHTML += '<span class="badge gold">TOP ' + r.lbPos + '</span>';
+  if (getLocked()) bEl.innerHTML += '<span class="badge gold">🔒 Locked</span>';
 
-  // Next rank progress bar (RP shown ONLY here — "X RP to next rank")
-  const ci=rIdx(r.rankName);
-  if(ci>=0&&ci<30&&r.rp!=null) {
-    const nextName=RANKS[ci+1];
-    const floor=RP_FLOOR[ci]||0, ceil=RP_FLOOR[ci+1]||(floor+500);
-    const pct=Math.min(100,Math.max(0,((r.rp-floor)/(ceil-floor))*100));
-    const toNext=Math.max(0,ceil-r.rp);
-    ge('rankNextBar').style.display='block';
-    ge('rankNextName').textContent=nextName;
-    ge('rankNextFill').style.width=`${pct.toFixed(1)}%`;
-    ge('rankNextRp').textContent=`${toNext.toLocaleString()} RP to ${nextName}`;
-  } else ge('rankNextBar').style.display='none';
+  if (r.rankImage) ge('rankImg').src = r.rankImage;
+  ge('rankName').textContent = r.rankName || '—';
+  ge('rankSub').textContent  = (r.peakName && r.peakName !== r.rankName) ? 'Peak: ' + r.peakName : '';
+  ge('lbChip').innerHTML     = r.lbRank ? '<div class="lb-chip">#' + r.lbRank.toLocaleString() + ' Leaderboard</div>' : '';
 
-  ge('seasonTitle').textContent=`${r.seasonName||'Season'} Stats`;
+  // RP progress bar to next rank (only RP display location 1)
+  var ci = rIdx(r.rankName);
+  if (ci >= 0 && ci < 30 && r.rp !== null && r.rp !== undefined) {
+    var nextName = RANKS[ci + 1];
+    var floor = RP_FLOOR[ci] || 0, ceil = RP_FLOOR[ci + 1] || (floor + 500);
+    var pct  = Math.min(100, Math.max(0, ((r.rp - floor) / (ceil - floor)) * 100));
+    var toNext = Math.max(0, ceil - r.rp);
+    ge('rankNextBar').style.display = 'block';
+    ge('rankNextName').textContent  = nextName;
+    ge('rankNextFill').style.width  = pct.toFixed(1) + '%';
+    ge('rankNextRp').textContent    = toNext.toLocaleString() + ' RP to ' + nextName;
+  } else {
+    ge('rankNextBar').style.display = 'none';
+  }
 
-  // Season stats — 2 rows, no Losses stat
-  ge('subSeason').innerHTML=[
-    {l:'Matches',v:r.matches,f:n=>n?.toLocaleString()},
-    {l:'K/D',    v:r.kd,    f:n=>n?.toFixed(2),c:kdC},
-    {l:'Win %',  v:r.winPct,f:n=>`${n?.toFixed(1)}%`,c:n=>n>=50?'sv-green':'sv-red'},
-    {l:'Kills/G',v:r.kpg,  f:n=>n?.toFixed(2)},
-    {l:'HS%',    v:r.hsPct, f:n=>`${n?.toFixed(1)}%`},
-    {l:'Wins',   v:r.wins,  f:n=>n?.toLocaleString(),c:()=>'sv-green'},
-  ].map(({l,v,f,c})=>`<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-value ${typeof c==='function'?c(v):''}">${v!=null?f(v):'—'}</div></div>`).join('');
+  ge('seasonTitle').textContent = (r.seasonName || 'Season') + ' Stats';
 
-  const c=p.career||{};
-  ge('subCareer').innerHTML=[
-    {l:'Total Matches',v:c.matches,f:n=>n?.toLocaleString()},
-    {l:'Career K/D',  v:c.kd,    f:n=>n?.toFixed(2)},
-    {l:'Career Win%', v:c.winPct,f:n=>`${n?.toFixed(1)}%`},
-    {l:'Time Played', v:c.time,  f:n=>`${Math.floor((n||0)/3600).toLocaleString()}h`},
-    {l:'Total Kills', v:c.kills, f:n=>n?.toLocaleString()},
-    {l:'HS%',         v:c.hsPct, f:n=>`${n?.toFixed(1)}%`},
-  ].map(({l,v,f})=>`<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-value" style="font-size:22px">${v!=null?f(v):'—'}</div></div>`).join('');
+  var statDefs = [
+    {l:'Matches', v:r.matches, f:function(n){ return n.toLocaleString(); }},
+    {l:'K/D',     v:r.kd,     f:function(n){ return n.toFixed(2); }, c:kdC},
+    {l:'Win %',   v:r.winPct, f:function(n){ return n.toFixed(1) + '%'; }, c:function(n){ return n >= 50 ? 'sv-green' : 'sv-red'; }},
+    {l:'Kills/G', v:r.kpg,   f:function(n){ return n.toFixed(2); }},
+    {l:'HS%',     v:r.hsPct,  f:function(n){ return n.toFixed(1) + '%'; }},
+    {l:'Wins',       v:r.wins,       f:function(n){ return n.toLocaleString(); }, c:function(){ return 'sv-green'; }},
+    {l:'First Bloods', v:r.firstBloods, f:function(n){ return n.toLocaleString(); }},
+    {l:'Clutches',     v:r.clutches,    f:function(n){ return n.toLocaleString(); }}
+  ];
+  ge('subSeason').innerHTML = statDefs.map(function(d){
+    var cls = typeof d.c === 'function' ? d.c(d.v) : '';
+    return '<div class="stat-card"><div class="stat-label">' + d.l + '</div><div class="stat-value ' + cls + '">' + (d.v !== null && d.v !== undefined ? d.f(d.v) : '—') + '</div></div>';
+  }).join('');
 
-  const W=r.wins||0,L=r.losses||0,T=W+L,pct=T?(W/T*100).toFixed(1):0;
-  ge('wlBar').innerHTML=`<div class="wl-track"><div class="wl-fill" style="width:${pct}%"></div></div><div class="wl-labels"><span class="wl-w">${W.toLocaleString()}W</span><span class="wl-pct">${pct}%</span><span class="wl-l">${L.toLocaleString()}L</span></div>`;
+  var c = p.career || {};
+  var careerDefs = [
+    {l:'Total Matches', v:c.matches, f:function(n){ return n.toLocaleString(); }},
+    {l:'Career K/D',   v:c.kd,     f:function(n){ return n.toFixed(2); }},
+    {l:'Career Win%',  v:c.winPct, f:function(n){ return n.toFixed(1) + '%'; }},
+    {l:'Time Played',  v:c.time,   f:function(n){ return Math.floor(n / 3600).toLocaleString() + 'h'; }},
+    {l:'Total Kills',  v:c.kills,  f:function(n){ return n.toLocaleString(); }},
+    {l:'HS%',          v:c.hsPct,  f:function(n){ return n.toFixed(1) + '%'; }}
+  ];
+  ge('subCareer').innerHTML = careerDefs.map(function(d){
+    return '<div class="stat-card"><div class="stat-label">' + d.l + '</div><div class="stat-value" style="font-size:22px">' + (d.v !== null && d.v !== undefined ? d.f(d.v) : '—') + '</div></div>';
+  }).join('');
+
+  var W = r.wins || 0, L = r.losses || 0, T = W + L, pct2 = T ? (W / T * 100).toFixed(1) : 0;
+  ge('wlBar').innerHTML = '<div class="wl-track"><div class="wl-fill" style="width:' + pct2 + '%"></div></div><div class="wl-labels"><span class="wl-w">' + W.toLocaleString() + 'W</span><span class="wl-pct">' + pct2 + '%</span><span class="wl-l">' + L.toLocaleString() + 'L</span></div>';
 
   renderRankChart(rh, sc);
   updateGoal();
   renderRivals();
   renderSeasonCards(p.history);
 
-  // Season log table
-  ge('seasonLog').innerHTML=(p.history||[]).slice(0,20).map(s=>{
-    const isC=s.rankName?.toLowerCase().includes('champion');
-    const label=isC&&s.lbPos?`Champion #${s.lbPos.toLocaleString()}`:s.rankName||'—';
-    const rpStr=s.rankRp!=null?` · ${s.rankRp.toLocaleString()} RP`:'';
-    return `<tr><td><span class="s-dot" style="background:${s.color}"></span>${s.short||s.season}</td><td><div class="rank-cell">${s.rankImg?`<img src="${s.rankImg}" alt="">`:''}<span>${label}${rpStr}</span></div></td><td>${s.peakName||'—'}</td><td style="color:var(--green)">${s.wins??'—'}</td><td style="color:var(--red)">${s.losses??'—'}</td><td>${s.kd?.toFixed(2)??'—'}</td><td>${s.winPct?.toFixed(1)??'—'}%</td></tr>`;
+  ge('seasonLog').innerHTML = (p.history || []).slice(0, 20).map(function(s){
+    var isC   = s.rankName && s.rankName.toLowerCase().indexOf('champion') >= 0;
+    var label = isC && s.lbPos ? 'Champion #' + s.lbPos.toLocaleString() : (s.rankName || '—');
+    var rpStr = s.rankRp !== null && s.rankRp !== undefined ? ' · ' + s.rankRp.toLocaleString() + ' RP' : '';
+    return '<tr><td><span class="s-dot" style="background:' + s.color + '"></span>' + (s.short || s.season) + '</td>'
+      + '<td><div class="rank-cell">' + (s.rankImg ? '<img src="' + s.rankImg + '" alt="">' : '') + '<span>' + label + rpStr + '</span></div></td>'
+      + '<td>' + (s.peakName || '—') + '</td>'
+      + '<td style="color:var(--green)">' + (s.wins !== undefined && s.wins !== null ? s.wins : '—') + '</td>'
+      + '<td style="color:var(--red)">'   + (s.losses !== undefined && s.losses !== null ? s.losses : '—') + '</td>'
+      + '<td>' + (s.kd    ? s.kd.toFixed(2)    : '—') + '</td>'
+      + '<td>' + (s.winPct ? s.winPct.toFixed(1) : '—') + '%</td></tr>';
   }).join('');
 }
 
-// ══════════ RANK TRAJECTORY + PREDICTION CHART ══════════
-//
-// PREDICTION CALCULATION EXPLAINED:
-// 1. Extract the last N data points (up to 20) where rank index is known.
-// 2. Run a linear regression (least-squares) on those points to get slope & intercept.
-//    This is more accurate than a naive "last point minus first point" slope because it
-//    accounts for all points, not just the endpoints, and is resistant to outliers.
-// 3. Project forward using the regression line. X-axis = point index, Y = rank level.
-// 4. We convert from "data-point index" space to "date" space using the avg interval
-//    between the last few data points (more reliable than using first→last span / count).
-// 5. We cap the prediction at the season end date and clamp rank between 0–30.
-// 6. The legend shows the method so users understand what they're seeing.
-//
+// ══════════ RANK CHART + PREDICTION ══════════
 function renderRankChart(hist, sc) {
-  const c=ge('rankChart'); const ex=Chart.getChart(c); if(ex) ex.destroy();
-  const predEl=ge('predMethodText');
-  if (!hist?.length) { if(predEl)predEl.textContent='No history data'; return; }
+  var canvas = ge('rankChart');
+  var existing = Chart.getChart(canvas);
+  if (existing) existing.destroy();
+  var predEl = ge('predMethodText');
+  if (!hist || !hist.length) { if (predEl) predEl.textContent = 'No history data'; return; }
 
-  // Build actual data
-  const labels = hist.map(d=>{const ts=d.ts instanceof Date?d.ts:new Date(d.ts); return ts.toLocaleDateString('en-US',{month:'short',day:'numeric'});});
-  const values = hist.map(d=>{const i=rIdx(d.rankName);return i>=0?i:null;});
+  var labels = hist.map(function(d){
+    var ts = d.ts instanceof Date ? d.ts : new Date(d.ts);
+    return ts.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+  });
+  var values = hist.map(function(d){ var i = rIdx(d.rankName); return i >= 0 ? i : null; });
 
-  // ── PREDICTION: least-squares linear regression ──
-  const predLabels=[], predValues=[];
-  const validPts = values.map((v,i)=>v!=null?{x:i,y:v}:null).filter(Boolean);
+  // Least-squares linear regression on last 20 valid points
+  var validPts = [];
+  values.forEach(function(v, i){ if (v !== null) validPts.push({x: i, y: v}); });
 
+  var predLabels = [], predValues = [];
   if (validPts.length >= 3) {
-    // Take last 20 valid points for regression (recent form matters most)
-    const pts = validPts.slice(-20);
-    const n = pts.length;
-    // Re-index so x starts at 0 for numerical stability
-    const x0 = pts[0].x;
-    const xs  = pts.map(p=>p.x-x0);
-    const ys  = pts.map(p=>p.y);
-    const sumX  = xs.reduce((a,b)=>a+b,0);
-    const sumY  = ys.reduce((a,b)=>a+b,0);
-    const sumXY = xs.reduce((a,x,i)=>a+x*ys[i],0);
-    const sumXX = xs.reduce((a,x)=>a+x*x,0);
-    const slope     = (n*sumXY - sumX*sumY) / (n*sumXX - sumX*sumX);
-    const intercept = (sumY - slope*sumX) / n;
+    var pts = validPts.slice(-20);
+    var n   = pts.length;
+    var x0  = pts[0].x;
+    var xs  = pts.map(function(p){ return p.x - x0; });
+    var ys  = pts.map(function(p){ return p.y; });
+    var sumX  = xs.reduce(function(a,b){ return a+b; }, 0);
+    var sumY  = ys.reduce(function(a,b){ return a+b; }, 0);
+    var sumXY = xs.reduce(function(a,x,i){ return a + x * ys[i]; }, 0);
+    var sumXX = xs.reduce(function(a,x){ return a + x * x; }, 0);
+    var denom = n * sumXX - sumX * sumX;
+    var slope = denom !== 0 ? (n * sumXY - sumX * sumY) / denom : 0;
+    var intercept = (sumY - slope * sumX) / n;
 
-    // Avg ms per data point using last 5 intervals (recent pacing)
-    const recentHist = hist.filter(d=>{const ts=d.ts instanceof Date?d.ts:new Date(d.ts); return !isNaN(ts.getTime());});
-    let msPerPoint = 0;
-    if (recentHist.length >= 2) {
-      const lastFew = recentHist.slice(-6);
-      const intervals = [];
-      for (let i=1;i<lastFew.length;i++) {
-        const dt=(lastFew[i].ts instanceof Date?lastFew[i].ts:new Date(lastFew[i].ts)).getTime()-(lastFew[i-1].ts instanceof Date?lastFew[i-1].ts:new Date(lastFew[i-1].ts)).getTime();
-        if (dt>0) intervals.push(dt);
+    // Average ms per data point using last 5 intervals
+    var validHist = hist.filter(function(d){ var ts = d.ts instanceof Date ? d.ts : new Date(d.ts); return !isNaN(ts.getTime()); });
+    var msPerPoint = 0;
+    if (validHist.length >= 2) {
+      var lastFew = validHist.slice(-6), intervals = [];
+      for (var i = 1; i < lastFew.length; i++) {
+        var dt = (lastFew[i].ts instanceof Date ? lastFew[i].ts : new Date(lastFew[i].ts)).getTime()
+               - (lastFew[i-1].ts instanceof Date ? lastFew[i-1].ts : new Date(lastFew[i-1].ts)).getTime();
+        if (dt > 0) intervals.push(dt);
       }
-      if (intervals.length) msPerPoint=intervals.reduce((a,b)=>a+b,0)/intervals.length;
+      if (intervals.length) msPerPoint = intervals.reduce(function(a,b){ return a+b; }, 0) / intervals.length;
     }
 
-    const lastTs = (hist[hist.length-1].ts instanceof Date?hist[hist.length-1].ts:new Date(hist[hist.length-1].ts)).getTime();
-    const msToEnd = Math.max(0, SEASON_END.getTime()-lastTs);
-    const stepsToEnd = msPerPoint>0 ? Math.min(40, Math.ceil(msToEnd/msPerPoint)) : 0;
-    const lastRelX = pts[pts.length-1].x - x0; // x coordinate of last actual point in regression space
-    let lastPredY = values[values.length-1] ?? ys[ys.length-1];
+    var lastTs = (hist[hist.length-1].ts instanceof Date ? hist[hist.length-1].ts : new Date(hist[hist.length-1].ts)).getTime();
+    var msToEnd    = Math.max(0, SEASON_END.getTime() - lastTs);
+    var stepsToEnd = msPerPoint > 0 ? Math.min(40, Math.ceil(msToEnd / msPerPoint)) : 0;
+    var lastRelX   = pts[pts.length-1].x - x0;
 
-    for (let step=1; step<=stepsToEnd; step++) {
-      const relX = lastRelX + step;
-      const predY = intercept + slope*relX;
-      const clamped = Math.min(30, Math.max(0, Math.round(predY*10)/10));
-      const predDate = new Date(lastTs + step*msPerPoint);
-      predLabels.push(predDate.toLocaleDateString('en-US',{month:'short',day:'numeric'}));
+    for (var step = 1; step <= stepsToEnd; step++) {
+      var predY    = intercept + slope * (lastRelX + step);
+      var clamped  = Math.min(30, Math.max(0, Math.round(predY * 10) / 10));
+      var predDate = new Date(lastTs + step * msPerPoint);
+      predLabels.push(predDate.toLocaleDateString('en-US', {month:'short', day:'numeric'}));
       predValues.push(clamped);
     }
 
-    // Update legend with method info
-    const direction = slope>0.02?'↗ improving':slope<-0.02?'↘ declining':'→ stable';
-    if(predEl) predEl.textContent=`Linear regression · ${n} pts · ${direction}`;
+    var dir = slope > 0.02 ? '↗ improving' : slope < -0.02 ? '↘ declining' : '→ stable';
+    // Also show RP-based prediction summary if available
+    if (player && player.prediction && player.prediction.status === 'climbing') {
+      var pred = player.prediction;
+      var predTxt = 'Regression: ' + dir + ' · RP model: ~' + Math.ceil(pred.matchesNeeded) + ' matches to goal (' + pred.confidence + ' confidence)';
+      if (predEl) predEl.textContent = predTxt;
+    } else {
+      if (predEl) predEl.textContent = 'Linear regression · ' + n + ' pts · ' + dir;
+    }
   } else {
-    if(predEl) predEl.textContent='Need ≥3 data points for prediction';
+    if (predEl) predEl.textContent = 'Need ≥3 data points for prediction';
   }
 
-  const allLabels=[...labels,...predLabels];
-  const actualData=[...values];
-  const predData=[...Array(values.length).fill(null),...predValues];
-  if(values.length>0&&predValues.length>0) predData[values.length-1]=values[values.length-1];
+  var allLabels  = labels.concat(predLabels);
+  var actualData = values.slice();
+  var predData   = values.map(function(){ return null; }).concat(predValues);
+  if (values.length > 0 && predValues.length > 0) predData[values.length - 1] = values[values.length - 1];
 
-  new Chart(c,{
-    type:'line',
-    data:{labels:allLabels,datasets:[
-      {label:'Rank Level',data:actualData,borderColor:sc,backgroundColor:`${sc}18`,pointBackgroundColor:hist.map(d=>d.color||sc),pointRadius:3,pointHoverRadius:5,tension:0.35,fill:true,borderWidth:2},
-      {label:'Prediction',data:predData,borderColor:'#f5c842',borderDash:[5,4],backgroundColor:'rgba(245,200,66,.05)',pointRadius:0,tension:0.35,fill:false,borderWidth:1.5},
+  new Chart(canvas, {
+    type: 'line',
+    data: { labels: allLabels, datasets: [
+      { label:'Rank Level', data:actualData, borderColor:sc, backgroundColor:sc+'18', pointBackgroundColor:hist.map(function(d){ return d.color||sc; }), pointRadius:3, pointHoverRadius:5, tension:0.35, fill:true, borderWidth:2 },
+      { label:'Prediction', data:predData, borderColor:'#f5c842', borderDash:[5,4], backgroundColor:'rgba(245,200,66,.05)', pointRadius:0, tension:0.35, fill:false, borderWidth:1.5 }
     ]},
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      interaction:{intersect:false,mode:'index'},
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{intersect:false, mode:'index'},
       plugins:{
         legend:{display:false},
         tooltip:{
-          backgroundColor:'#1a1a2e',borderColor:sc,borderWidth:1,titleColor:'#fff',bodyColor:'#aaa',
+          backgroundColor:'#1a1a2e', borderColor:sc, borderWidth:1, titleColor:'#fff', bodyColor:'#aaa',
           callbacks:{
-            title:items=>allLabels[items[0].dataIndex]||'',
-            label:item=>{
-              const idx=item.raw; if(idx==null) return '';
-              const name=RANKS[Math.round(idx)]||'Unknown';
-              // Rank trajectory tooltip: show rank level + RP (approved hover display)
-              if(item.datasetIndex===0&&hist[item.dataIndex]?.rp!=null)
-                return ` ${name} — ${hist[item.dataIndex].rp.toLocaleString()} RP`;
-              return ` ${name}${item.datasetIndex===1?' (predicted)':''}`;
-            },
-          },
-        },
+            title: function(items){ return allLabels[items[0].dataIndex] || ''; },
+            label: function(item){
+              var idx = item.raw; if (idx === null || idx === undefined) return '';
+              var name = RANKS[Math.round(idx)] || 'Unknown';
+              // Tooltip shows rank name + RP (approved: trajectory hover)
+              if (item.datasetIndex === 0 && hist[item.dataIndex] && hist[item.dataIndex].rp !== null) {
+                return ' ' + name + ' — ' + hist[item.dataIndex].rp.toLocaleString() + ' RP';
+              }
+              return ' ' + name + (item.datasetIndex === 1 ? ' (predicted)' : '');
+            }
+          }
+        }
       },
       scales:{
-        x:{ticks:{color:'#4a5066',maxTicksLimit:8,font:{family:'DM Mono',size:10}},grid:{color:'#ffffff06'}},
-        y:{min:0,max:30,ticks:{color:'#4a5066',stepSize:5,callback:v=>RANKS[v]?.split(' ')[0]||'',font:{family:'DM Mono',size:10}},grid:{color:'#ffffff06'}},
-      },
-    },
+        x:{ ticks:{color:'#4a5066', maxTicksLimit:8, font:{family:'DM Mono',size:10}}, grid:{color:'#ffffff06'} },
+        y:{ min:0, max:30, ticks:{color:'#4a5066', stepSize:5, callback:function(v){ return RANKS[v] ? RANKS[v].split(' ')[0] : ''; }, font:{family:'DM Mono',size:10}}, grid:{color:'#ffffff06'} }
+      }
+    }
   });
 }
 
-// ══════════ RANK GOAL TRACKER ══════════
+// ══════════ GOAL TRACKER ══════════
 function updateGoal() {
-  if(curRankIdx<0) return;
-  const gName=RANKS[goalIdx], cName=RANKS[curRankIdx];
-  ge('goalFromImg').src=rImg(curRankIdx); ge('goalFromName').textContent=cName;
-  ge('goalToImg').src=rImg(goalIdx);     ge('goalToName').textContent=gName;
+  if (curRankIdx < 0) return;
+  var gName = RANKS[goalIdx], cName = RANKS[curRankIdx];
+  ge('goalFromImg').src = rImg(curRankIdx); ge('goalFromName').textContent = cName;
+  ge('goalToImg').src   = rImg(goalIdx);    ge('goalToName').textContent   = gName;
+  var ranksAway = Math.max(0, goalIdx - curRankIdx);
+  var pct = goalIdx === 0 ? 100 : curRankIdx >= goalIdx ? 100 : Math.max(0, curRankIdx / goalIdx * 100);
+  ge('goalBarFill').style.width = pct.toFixed(1) + '%';
 
-  const ranksAway=Math.max(0,goalIdx-curRankIdx);
-  const pct=goalIdx===0?100:curRankIdx>=goalIdx?100:Math.max(0,(curRankIdx/goalIdx)*100);
-  ge('goalBarFill').style.width=`${pct.toFixed(1)}%`;
+  // RP hint only when within same tier (approved RP display location 4)
+  var sameTier = Math.floor(goalIdx / 5) === Math.floor(curRankIdx / 5) && Math.abs(goalIdx - curRankIdx) <= 1;
+  var rh = ge('goalRpHint');
+  if (sameTier && curRP !== null && curRP !== undefined) {
+    var goalFloor = RP_FLOOR[goalIdx] || 0, rpAway = Math.max(0, goalFloor - curRP);
+    rh.textContent = rpAway > 0 ? '~' + rpAway.toLocaleString() + ' RP to next level' : 'Within striking distance!';
+  } else { rh.textContent = ''; }
 
-  // RP hint only when within same tier (approved RP display location)
-  const sameTier=Math.floor(goalIdx/5)===Math.floor(curRankIdx/5)&&Math.abs(goalIdx-curRankIdx)<=1;
-  const rh=ge('goalRpHint');
-  if(sameTier&&curRP!=null){
-    const goalFloor=RP_FLOOR[goalIdx]||0;
-    const rpAway=Math.max(0,goalFloor-curRP);
-    rh.textContent=rpAway>0?`~${rpAway.toLocaleString()} RP to next level`:'Within striking distance!';
-  } else rh.textContent='';
+  ge('goalBarLabel').textContent = curRankIdx >= goalIdx
+    ? '✓ Goal reached — you are ' + cName
+    : cName + ' → ' + gName + ' (' + ranksAway + ' rank' + (ranksAway !== 1 ? 's' : '') + ' away)';
 
-  ge('goalBarLabel').textContent=curRankIdx>=goalIdx?`✓ Goal reached — you are ${cName}`:`${cName} → ${gName} (${ranksAway} rank${ranksAway!==1?'s':''} away)`;
+  var daysLeft   = Math.max(1, Math.ceil((SEASON_END - new Date()) / 86400000));
+  var weeksLeft  = Math.max(1, Math.ceil(daysLeft / 7));
 
-  // Use prediction data if available, otherwise fallback to estimation
-  const daysLeft=Math.max(1,Math.ceil((SEASON_END-new Date())/86400000));
-  const weeksLeft=Math.max(1,Math.ceil(daysLeft/7));
-  let winsNeeded=0, paceDaily=0, paceWeekly=0;
+  // Use computePrediction result if available, fall back to rank-based estimate
+  var pred = player ? player.prediction : null;
+  var matchesNeeded, dailyLabel, weeklyLabel;
 
-  if(player?.prediction?.status==='climbing'){
-    const pred=player.prediction;
-    if(curRankIdx<goalIdx){
-      const rankDelta=Math.max(0,goalIdx-curRankIdx);
-      const estimatedRPPerRank=1000;
-      const rpTarget=curRP+(rankDelta*estimatedRPPerRank);
-      const rpNeeded=rpTarget-(pred.currentRP||0);
-      if(rpNeeded>0&&pred.expectedRP>0){
-        winsNeeded=Math.ceil(rpNeeded/pred.expectedRP);
-        paceDaily=(winsNeeded/daysLeft).toFixed(1);
-        paceWeekly=(winsNeeded/weeksLeft).toFixed(1);
-      } else {
-        winsNeeded=Math.ceil(pred.matchesNeeded||0);
-        paceDaily=(pred.matchesNeeded/pred.matchesPerDay/daysLeft).toFixed(1);
-        paceWeekly=(pred.matchesNeeded/pred.matchesPerDay/weeksLeft).toFixed(1);
-      }
-    }
+  if (pred && pred.status === 'climbing' && ranksAway > 0) {
+    // Scale matches by how many ranks are still away vs total goal distance
+    var totalRanks = Math.max(1, goalIdx - (rIdx(player && player.ranked ? player.ranked.rankName : '') || 0) + ranksAway);
+    matchesNeeded  = Math.ceil(pred.matchesNeeded * (ranksAway / Math.max(1, goalIdx)));
+    dailyLabel     = 'matches/day (RP model)';
+    weeklyLabel    = 'matches/wk (RP model)';
+  } else if (pred && pred.status === 'stuck') {
+    ge('paceRanks').textContent     = ranksAway;
+    ge('paceWins').textContent      = '⚠';
+    ge('paceDaily').textContent     = '⚠';
+    ge('paceDailySub').textContent  = 'losing more than winning';
+    ge('paceWeekly').textContent    = '⚠';
+    ge('paceWeeklySub').textContent = 'improve win rate first';
+    var hitKey = 'hit_' + goalIdx;
+    if (curRankIdx >= goalIdx && !goalHit[hitKey]) { goalHit[hitKey] = true; celebrate(gName); }
+    return;
   } else {
-    const WINS_PER_RANK=25;
-    winsNeeded=ranksAway*WINS_PER_RANK;
-    paceDaily=(winsNeeded/daysLeft).toFixed(1);
-    paceWeekly=(winsNeeded/weeksLeft).toFixed(1);
+    var WINS_PER_RANK = 25;
+    matchesNeeded = ranksAway * WINS_PER_RANK;
+    dailyLabel    = 'wins/day (est.)';
+    weeklyLabel   = 'wins/wk (est.)';
   }
 
-  ge('paceRanks').textContent=ranksAway;
-  ge('paceWins').textContent=ranksAway===0?'✓':`~${Math.ceil(winsNeeded)}`;
-  ge('paceDaily').textContent=ranksAway===0?'✓':paceDaily;
-  ge('paceDailySub').textContent=`wins/day · ${daysLeft}d`;
-  ge('paceWeekly').textContent=ranksAway===0?'✓':paceWeekly;
-  ge('paceWeeklySub').textContent=`wins/wk · ${weeksLeft}wk`;
+  ge('paceRanks').textContent     = ranksAway;
+  ge('paceWins').textContent      = ranksAway === 0 ? '✓' : '~' + matchesNeeded.toLocaleString();
+  ge('paceDaily').textContent     = ranksAway === 0 ? '✓' : (matchesNeeded / daysLeft).toFixed(1);
+  ge('paceDailySub').textContent  = dailyLabel + ' · ' + daysLeft + 'd left';
+  ge('paceWeekly').textContent    = ranksAway === 0 ? '✓' : (matchesNeeded / weeksLeft).toFixed(1);
+  ge('paceWeeklySub').textContent = weeklyLabel + ' · ' + weeksLeft + 'wk left';
 
-  const hitKey=`hit_${goalIdx}`;
-  if(curRankIdx>=goalIdx&&!goalHit[hitKey]){goalHit[hitKey]=true;celebrate(gName);}
+  var hitKey = 'hit_' + goalIdx;
+  if (curRankIdx >= goalIdx && !goalHit[hitKey]) { goalHit[hitKey] = true; celebrate(gName); }
 }
 
 function celebrate(name) {
-  ge('catGif').src=CAT_GIFS[Math.floor(Math.random()*CAT_GIFS.length)];
+  ge('catGif').src = CAT_GIFS[Math.floor(Math.random() * CAT_GIFS.length)];
   ge('catOverlay').classList.add('show');
-  try{const ctx=new AudioContext();[[523,0],[659,.12],[784,.24],[1047,.4]].forEach(([f,d])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=f;g.gain.setValueAtTime(.18,ctx.currentTime+d);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+d+.5);o.start(ctx.currentTime+d);o.stop(ctx.currentTime+d+.6);});}catch{}
-  discord(`🎉 **RANK GOAL REACHED!** ${player?.username} hit **${name}**!`);
+  try {
+    var ctx = new AudioContext();
+    [[523,0],[659,0.12],[784,0.24],[1047,0.4]].forEach(function(pair){
+      var f = pair[0], d = pair[1];
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0.18, ctx.currentTime + d);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + d + 0.5);
+      o.start(ctx.currentTime + d); o.stop(ctx.currentTime + d + 0.6);
+    });
+  } catch(e) {}
+  discordSend('🎉 **RANK GOAL REACHED!** ' + (player ? player.username : '') + ' hit **' + name + '**!');
 }
-
-// ══════════ SEASON HISTORY ══════════
-function toggleHist() {
-  histOpen=!histOpen;
-  ge('histWrap').classList.toggle('open',histOpen);
-  ge('histArrow').classList.toggle('open',histOpen);
-  ge('histLabel').textContent=histOpen?'Hide':'Show';
-}
-
-function renderSeasonCards(hist) {
-  ge('seasonCards').innerHTML=(hist||[]).slice(0,20).map(s=>{
-    const isC=s.rankName?.toLowerCase().includes('champion');
-    const tip=isC&&s.lbPos?`${s.short} · Champion #${s.lbPos.toLocaleString()}`:`${s.short} · ${s.peakName||s.rankName}`;
-    return `<div class="season-card" onclick="toggleSeasonLog('${s.season}',this)"><div class="season-card-label">${s.short||s.season}</div>${s.rankImg?`<img class="season-rank-img" src="${s.rankImg}" alt="${s.rankName}" onerror="this.style.display='none'">`:''}<div class="season-card-wins">${s.wins??'?'}W/${s.losses??'?'}L</div><div class="season-tooltip">${tip}</div></div>`;
-  }).join('');
-}
-
-function toggleSeasonLog(season, cardEl) {
-  const drawer=ge('seasonLogDrawer');
-  if(activeSeasonCard===cardEl&&drawer.classList.contains('open')){drawer.classList.remove('open');cardEl.classList.remove('active');activeSeasonCard=null;return;}
-  if(activeSeasonCard) activeSeasonCard.classList.remove('active');
-  activeSeasonCard=cardEl; cardEl.classList.add('active'); drawer.classList.add('open');
-  ge('seasonLog').querySelectorAll('tr').forEach(r=>{r.style.display=r.textContent.includes(String(season))||r.style.display===''?'':'none';});
-  // Show only the clicked season's row
-  ge('seasonLog').querySelectorAll('tr').forEach(r=>{r.style.display='none';});
-  const rows=ge('seasonLog').querySelectorAll('tr');
-  // Find row with matching season short or season number
-  rows.forEach(r=>{if(r.textContent.includes(String(season))) r.style.display='';});
-  // If nothing matched, show all
-  const shown=[...rows].filter(r=>r.style.display!=='none');
-  if(!shown.length) rows.forEach(r=>r.style.display='');
-}
-
-// ══════════ RIVALS ══════════
-function saveRivals(){localStorage.setItem('ss_rivals',JSON.stringify(rivals));}
-
-function getDelta(rv) {
-  if(curRankIdx<0||rv.rankIdx==null||rv.rankIdx<0) return {cls:'',text:'Rank unknown'};
-  const diff=curRankIdx-rv.rankIdx;
-  // Same rank level: use RP comparison (approved RP display location)
-  if(diff===0&&curRP!=null&&rv.rp!=null){const rd=curRP-rv.rp;if(rd>0)return{cls:'d-ahead',text:`+${rd.toLocaleString()} RP ahead`};if(rd<0)return{cls:'d-behind',text:`${Math.abs(rd).toLocaleString()} RP behind`};return{cls:'d-tied',text:'Same rank & RP'};}
-  // Both Champion: RP comparison (approved)
-  if(rv.rankIdx===30&&curRankIdx===30&&curRP!=null&&rv.rp!=null){const rd=curRP-rv.rp;if(rd>0)return{cls:'d-ahead',text:`+${rd.toLocaleString()} RP ahead`};if(rd<0)return{cls:'d-behind',text:`${Math.abs(rd).toLocaleString()} RP behind`};return{cls:'d-tied',text:'Same RP'};}
-  if(diff>0) return{cls:'d-ahead', text:`+${diff} rank${diff>1?'s':''} ahead`};
-  if(diff<0) return{cls:'d-behind',text:`${Math.abs(diff)} rank${Math.abs(diff)>1?'s':''} behind`};
-  return{cls:'d-tied',text:'Same rank'};
-}
-
-function renderRivals() {
-  const grid=ge('rivalGrid');
-  if(!rivals.length){grid.innerHTML=`<div style="color:var(--dim);font-size:11px;font-family:'DM Mono',monospace;padding:4px 0;grid-column:1/-1">No rivals added yet.</div>`;return;}
-  grid.innerHTML=rivals.map((rv,i)=>{const d=getDelta(rv);return`<div class="rival-card" id="rv-${i}"><img class="rival-avatar" src="${rv.avatarUrl||''}" alt="" onerror="this.style.opacity='.15'"><div style="flex:1;min-width:0"><div class="rival-name">${rv.username}</div><div class="rival-rank-row">${rv.rankImage?`<img class="rival-rank-img" src="${rv.rankImage}" alt="">`:''}<span class="rival-rank-name">${rv.rankName||'—'}</span></div><div class="rival-delta ${d.cls}">${d.text}</div></div><button class="rival-remove" onclick="removeRival(${i})">✕</button></div>`;}).join('');
-  rivals.forEach((rv,i)=>{const ck='ss_p_'+rv.username.toLowerCase();const c=localStorage.getItem(ck);if(!c||Date.now()-JSON.parse(c).ts>5*60*1000)refreshRival(rv.username,i);});
-}
-
-async function refreshRival(username,i) {
-  try{
-    const pRaw=await fetchProfile(username);
-    const p=adapterPlayer(pRaw);
-    if(!rivals[i])return;
-    rivals[i]={username:p.username,avatarUrl:p.avatarUrl,rankName:p.ranked?.rankName??'—',rankImage:p.ranked?.rankImage??'',rankIdx:rIdx(p.ranked?.rankName),rp:p.ranked?.rp??null};
-    saveRivals();
-    const card=ge(`rv-${i}`);
-    if(!card){renderRivals();return;}
-    card.querySelector('.rival-rank-row').innerHTML=`${rivals[i].rankImage?`<img class="rival-rank-img" src="${rivals[i].rankImage}" alt="">`:''}<span class="rival-rank-name">${rivals[i].rankName}</span>`;
-    const dl=card.querySelector('.rival-delta');
-    const d=getDelta(rivals[i]);
-    dl.textContent=d.text;
-    dl.className=`rival-delta ${d.cls}`;
-    if(rivals[i].avatarUrl)card.querySelector('.rival-avatar').src=rivals[i].avatarUrl;
-  }catch{}
-}
-
-function addRival(){const v=ge('rivalInput').value.trim();if(!v)return;const u=parseId(v);if(!u){toast('Could not parse username.','err');return;}if(rivals.some(r=>r.username.toLowerCase()===u.toLowerCase())){toast('Already in watchlist','err');return;}rivals.push({username:u,avatarUrl:'',rankName:'Loading…',rankImage:'',rankIdx:null,rp:null});saveRivals();ge('rivalInput').value='';renderRivals();}
-function removeRival(i){rivals.splice(i,1);saveRivals();renderRivals();}
-
-// ══════════ OPERATORS ══════════
-async function loadOps(id) {
-  try{const ck='ss_op_'+id.toLowerCase(),TTL=10*60*1000;let ops;const c=localStorage.getItem(ck);if(c){const o=JSON.parse(c);if(Date.now()-o.ts<TTL)ops=o.d;}if(!ops){const raw=await wfetch(`/api/v2/r6siege/standard/profile/ubi/${encodeURIComponent(id)}/segments/operator`);ops=parseOps(raw);localStorage.setItem(ck,JSON.stringify({d:ops,ts:Date.now()}));}allOps=ops;renderOpGrid();renderOpCompare();await loadMapOp(id,allOps.slice(0,6));buildInsights();}catch(e){console.error('Op err',e);ge('opGrid').innerHTML=`<div style="color:var(--dim);font-size:11px;font-family:'DM Mono',monospace;grid-column:1/-1">Could not load operator data.</div>`;}
-}
-
-function parseOps(raw){return(raw?.data||[]).filter(s=>s.type==='operator'&&(s.stats?.matchesPlayed?.value||0)>0).map(s=>{const st=s.stats,meta=s.metadata||{},attr=s.attributes||{};const key=(attr.operatorName||meta.name||'').toLowerCase().replace(/\s+/g,'');const played=st.matchesPlayed?.value||0,wins=st.matchesWon?.value||0;return{key,name:meta.name||key||'Unknown',badgeUrl:`https://trackercdn.com/cdn/r6.tracker.network/operators/badges/${key}.png`,portraitUrl:`https://trackercdn.com/cdn/r6.tracker.network/operators/portrait/${key}.png`,side:meta.roleName?.toLowerCase().includes('def')?'defender':'attacker',kd:st.kdRatio?.value??null,winPct:played?(wins/played*100):null,wins,losses:st.matchesLost?.value||0,matches:played};}).sort((a,b)=>b.matches-a.matches);}
-
-function renderOpGrid(){const ops=opFilter==='all'?allOps:allOps.filter(o=>o.side===opFilter);if(!ops.length){ge('opGrid').innerHTML=`<div style="color:var(--dim);font-size:11px;font-family:'DM Mono',monospace;grid-column:1/-1">No data.</div>`;return;}ge('opGrid').innerHTML=ops.slice(0,24).map(op=>{const kdc=op.kd>=2?'var(--sc)':op.kd>=1?'var(--green)':'var(--red)';const wr=op.winPct??0;return`<div class="op-card"><img class="op-badge" src="${op.badgeUrl}" alt="${op.name}" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div class="op-name">${op.name}</div><div class="op-side-tag">${op.side}</div><div class="op-kd-val" style="color:${kdc}">${op.kd?.toFixed(2)??'—'}</div><div class="op-stats-sub">${op.matches}g · ${wr.toFixed(0)}%WR</div><div class="op-wr-bar"><div class="op-wr-fill" style="width:${Math.min(100,wr)}%"></div></div></div></div>`;}).join('');}
-
-function renderOpCompare(){const top=allOps.slice(0,8);if(!top.length)return;const sc=player?.ranked?.seasonColor||'#a0daae';ge('opCompareRow').innerHTML=top.map(op=>{const kdc=op.kd>=2?'var(--sc)':op.kd>=1?'var(--green)':'var(--red)';return`<div class="op-portrait-card"><img class="op-portrait-img" src="${op.portraitUrl}" alt="${op.name}" onerror="this.src='${op.badgeUrl}';this.style.objectFit='contain';this.style.padding='20px';this.style.background='var(--card2)'"><div class="op-portrait-info"><div class="op-portrait-name">${op.name}</div><div class="op-portrait-kd" style="color:${kdc}">${op.kd?.toFixed(2)??'—'}</div><div class="op-portrait-wr">${(op.winPct??0).toFixed(0)}%WR</div><div class="op-portrait-games">${op.matches}g</div></div></div>`;}).join('');const canvas=ge('opChart');const ex=Chart.getChart(canvas);if(ex)ex.destroy();new Chart(canvas,{type:'bar',data:{labels:top.map(o=>o.name),datasets:[{label:'K/D',data:top.map(o=>o.kd??0),backgroundColor:`${sc}99`,borderColor:sc,borderWidth:1,borderRadius:3,yAxisID:'y'},{label:'Win%',data:top.map(o=>o.winPct??0),backgroundColor:'rgba(61,220,132,.3)',borderColor:'#3ddc84',borderWidth:1,borderRadius:3,yAxisID:'y2'}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#8890a4',font:{family:'DM Mono',size:10}}},tooltip:{backgroundColor:'#1a1a2e',titleColor:'#fff',bodyColor:'#aaa'}},scales:{x:{ticks:{color:'#4a5066',font:{family:'DM Mono',size:10}},grid:{display:false}},y:{position:'left',ticks:{color:'#4a5066',callback:v=>v.toFixed(1),font:{family:'DM Mono',size:10}},grid:{color:'#ffffff06'},title:{display:true,text:'K/D',color:'#4a5066',font:{size:10}}},y2:{position:'right',ticks:{color:'#4a5066',callback:v=>v+'%',font:{family:'DM Mono',size:10}},grid:{drawOnChartArea:false},title:{display:true,text:'Win%',color:'#4a5066',font:{size:10}}}}}});}
-
-// ══════════ MAPS ══════════
-async function loadMaps(id){try{const ck='ss_map_'+id.toLowerCase(),TTL=10*60*1000;let maps;const c=localStorage.getItem(ck);if(c){const o=JSON.parse(c);if(Date.now()-o.ts<TTL)maps=o.d;}if(!maps){const raw=await wfetch(`/api/v2/r6siege/standard/profile/ubi/${encodeURIComponent(id)}/segments/map`);maps=parseMaps(raw);localStorage.setItem(ck,JSON.stringify({d:maps,ts:Date.now()}));}allMaps=maps;renderMapGrid();buildInsights();}catch{ge('mapGrid').innerHTML=`<div style="color:var(--dim);font-size:11px;font-family:'DM Mono',monospace;grid-column:1/-1">Could not load map data.</div>`;}}
-function parseMaps(raw){return(raw?.data||[]).filter(s=>s.type==='map'&&(s.stats?.matchesPlayed?.value||0)>0).map(s=>{const st=s.stats,meta=s.metadata||{},attr=s.attributes||{};const won=st.matchesWon?.value??0,played=st.matchesPlayed?.value??0;return{key:attr.map||'',name:meta.mapName||meta.name||attr.map||'',imageUrl:meta.mapImageUrl||'',won,played,winPct:played?(won/played*100):0};}).sort((a,b)=>b.played-a.played);}
-function renderMapGrid(){ge('mapGrid').innerHTML=allMaps.slice(0,12).map(m=>{const wr=m.winPct.toFixed(0);const wrc=m.winPct>=55?'var(--green)':m.winPct>=45?'var(--muted)':'var(--red)';return`<div class="map-card">${m.imageUrl?`<img class="map-img" src="${m.imageUrl}" alt="${m.name}" onerror="this.style.display='none'">`:''}<div class="map-info"><div class="map-name">${m.name}</div><div class="map-wr-bar"><div class="map-wr-fill" style="width:${Math.min(100,m.winPct)}%"></div></div><div class="map-meta"><span>${m.played}g</span><span style="color:${wrc};font-weight:600">${wr}%WR</span></div></div></div>`;}).join('');}
-
-// ══════════ MAP + OP INSIGHTS ══════════
-async function loadMapOp(id,topOps){mapOpData={};await Promise.all(topOps.map(async op=>{try{const ck=`ss_mop_${id.toLowerCase()}_${op.key}`,TTL=10*60*1000;let data;const c=localStorage.getItem(ck);if(c){const o=JSON.parse(c);if(Date.now()-o.ts<TTL)data=o.d;}if(!data){const raw=await wfetch(`/api/v2/r6siege/standard/profile/ubi/${encodeURIComponent(id)}/segments/map?sessionType=all&season=all&operator=${encodeURIComponent(op.key)}`);data=(raw?.data||[]).filter(s=>s.attributes?.side===null&&(s.stats?.matchesPlayed?.value||0)>0).map(s=>({mapKey:s.attributes.map,winPct:s.stats.winPercentage?.value??null,kd:s.stats.kdRatio?.value??null,played:s.stats.matchesPlayed?.value??0}));localStorage.setItem(ck,JSON.stringify({d:data,ts:Date.now()}));}data.forEach(e=>{if(!mapOpData[e.mapKey])mapOpData[e.mapKey]=[];mapOpData[e.mapKey].push({opName:op.name,badgeUrl:op.badgeUrl,winPct:e.winPct,kd:e.kd,played:e.played});});}catch{}}}));}
-function buildInsights(){if(!allMaps.length)return;ge('insightGrid').innerHTML=allMaps.slice(0,5).map(m=>{const wr=m.winPct.toFixed(0);const wrc=m.winPct>=55?'var(--green)':m.winPct>=45?'var(--muted)':'var(--red)';const ops=(mapOpData[m.key]||[]).filter(o=>o.played>=3).sort((a,b)=>(b.winPct??0)-(a.winPct??0)).slice(0,4);const displayOps=ops.length>0?ops:allOps.slice(0,4).map(o=>({opName:o.name,badgeUrl:o.badgeUrl,winPct:o.winPct,kd:o.kd,played:o.matches}));const label=ops.length>0?`Best on this map (${ops.reduce((t,o)=>t+o.played,0)}g)`:'Top operators overall';return`<div class="insight-card"><div class="insight-map-header">${m.imageUrl?`<img class="insight-map-img" src="${m.imageUrl}" alt="${m.name}" onerror="this.style.display='none'">`:''}<div class="insight-map-overlay"><span class="insight-map-name">${m.name}</span><span class="insight-map-wr" style="color:${wrc}">${wr}% · ${m.played}g</span></div></div><div class="insight-body"><div class="insight-label">${label}</div><div class="insight-ops">${displayOps.map(op=>{const w=op.winPct!=null?op.winPct.toFixed(0):'?';const col=op.winPct>=55?'var(--sc)':op.winPct>=45?'var(--muted)':'var(--red)';return`<div class="insight-op" title="${op.opName} — ${op.kd?.toFixed(2)??'?'}KD · ${w}%WR · ${op.played}g"><img src="${op.badgeUrl}" alt="${op.opName}" onerror="this.style.display='none'"><span>${op.opName}</span><span style="color:${col}">${w}%</span></div>`;}).join('')}</div></div></div>`;}).join('');}
 
 // ══════════ CHAMPION LEADERBOARD ══════════
 async function fetchLeaderboard() {
   try {
-    const ck='ss_lb_'+CUR_SEASON, TTL=5*60*1000;
-    const cached=localStorage.getItem(ck);
-    if (cached) { const o=JSON.parse(cached); if(Date.now()-o.ts<TTL){liveLeaderboard=o.d;updateChampWidget();return;} }
-    const raw = await wfetch(`/api/v2/r6siege/standard/leaderboards?platform=pc&boardId=RankPoints&gamemode=pvp_ranked&seasonId=${CUR_SEASON}&page=1`);
-    const items = raw?.data?.items || [];
-    liveLeaderboard = items.map(i=>({
-      rank: i.rank,
-      username: i.owner?.metadata?.platformUserHandle || i.owner?.metadata?.platformUserIdentifier || '',
-      rp: i.value,
-      avatarUrl: i.owner?.metadata?.avatarUrl || '',
-    }));
-    localStorage.setItem(ck, JSON.stringify({d:liveLeaderboard,ts:Date.now()}));
-    // Find player's position
+    var ck = 'ss_lb_' + CUR_SEASON, TTL = 5 * 60 * 1000;
+    var cached = localStorage.getItem(ck);
+    if (cached) { var o = JSON.parse(cached); if (Date.now() - o.ts < TTL) { liveLeaderboard = o.d; updateChampWidget(); return; } }
+    var raw = await wfetch('/api/v2/r6siege/standard/leaderboards?platform=pc&boardId=RankPoints&gamemode=pvp_ranked&seasonId=' + CUR_SEASON + '&page=1');
+    var items = (raw && raw.data && raw.data.items) ? raw.data.items : [];
+    liveLeaderboard = items.map(function(item){
+      var m = item.owner && item.owner.metadata ? item.owner.metadata : {};
+      return { rank: item.rank, username: m.platformUserHandle || m.platformUserIdentifier || '', rp: item.value };
+    });
+    localStorage.setItem(ck, JSON.stringify({d: liveLeaderboard, ts: Date.now()}));
     if (player) {
-      const match = liveLeaderboard.find(i=>i.username.toLowerCase()===player.username.toLowerCase());
-      if (match) playerChampPosition = match.rank;
+      var match = liveLeaderboard.find(function(i){ return i.username.toLowerCase() === player.username.toLowerCase(); });
+      if (match) playerChampPos = match.rank;
     }
     updateChampWidget();
   } catch(e) { console.warn('Leaderboard fetch failed', e); }
 }
 
 function updateChampWidget() {
-  const wrap = ge('champWidget');
-  if (!wrap || curRankIdx !== 30) return; // only show for champion players
+  var wrap = ge('champWidget');
+  if (!wrap) return;
+  // Only show for Champion-ranked players
+  if (curRankIdx !== 30) { wrap.style.display = 'none'; return; }
   wrap.style.display = 'block';
 
-  const posEl  = ge('champCurrentPos');
-  const goalEl = ge('champGoalPos');
-  const barEl  = ge('champBar');
-  const labelEl= ge('champBarLabel');
-  const inputEl= ge('champGoalInput');
+  var posEl   = ge('champCurrentPos');
+  var goalEl  = ge('champGoalDisp');
+  var barEl   = ge('champBar');
+  var labelEl = ge('champBarLabel');
+  var inputEl = ge('champGoalInput');
 
-  if (posEl)   posEl.textContent = playerChampPosition ? `#${playerChampPosition.toLocaleString()}` : 'Unranked in top 100';
-  if (inputEl && inputEl.value === '') inputEl.value = champGoalPosition;
+  if (posEl)   posEl.textContent  = playerChampPos ? '#' + playerChampPos.toLocaleString() : 'Not in top 100';
+  if (goalEl)  goalEl.textContent = '#' + champGoalPos;
+  if (inputEl && !inputEl.value)  inputEl.value = champGoalPos;
 
-  // Progress bar: from current position toward goal (lower position # = better)
-  if (playerChampPosition && champGoalPosition) {
-    const worst = 100, best = 1;
-    // Progress = how far from worst toward goal
-    const cur  = Math.min(100, Math.max(1, playerChampPosition));
-    const goal = Math.min(100, Math.max(1, champGoalPosition));
-    const pct  = cur <= goal ? 100 : Math.max(0, ((worst - cur) / (worst - goal)) * 100);
-    if (barEl)   barEl.style.width   = `${pct.toFixed(1)}%`;
+  if (playerChampPos) {
+    var cur  = Math.min(100, Math.max(1, playerChampPos));
+    var goal = Math.min(100, Math.max(1, champGoalPos));
+    var pct  = cur <= goal ? 100 : Math.max(0, (100 - cur) / (100 - goal) * 100);
+    if (barEl)   barEl.style.width = pct.toFixed(1) + '%';
     if (labelEl) labelEl.textContent = cur <= goal
-      ? `✓ Champion #${cur} — goal reached!`
-      : `Champion #${cur} → Champion #${goal} (${cur - goal} positions away)`;
+      ? '✓ Champion #' + cur + ' — goal reached!'
+      : 'Champion #' + cur + ' → Champion #' + goal + ' (' + (cur - goal) + ' positions away)';
+  } else {
+    if (labelEl) labelEl.textContent = 'Player not found in top 100 this season';
   }
 
-  // Populate leaderboard table
-  const tbody = ge('lbTableBody');
+  var tbody = ge('lbTableBody');
   if (!tbody || !liveLeaderboard.length) return;
-  tbody.innerHTML = liveLeaderboard.slice(0,20).map(item => {
-    const isPlayer = player && item.username.toLowerCase()===player.username.toLowerCase();
-    const isGoal   = item.rank === champGoalPosition;
-    return `<tr style="${isPlayer?'background:rgba(160,218,174,.08);':''}${isGoal?'background:rgba(245,200,66,.06);':''}">
-      <td style="color:${item.rank<=5?'var(--gold)':'var(--dim)'};font-weight:${item.rank<=5?'600':'400'}">#${item.rank}</td>
-      <td style="color:${isPlayer?'var(--sc)':'var(--text)'}${isGoal?';color:var(--gold)':''}">${item.username}${isPlayer?' ◀ you':''}</td>
-      <td style="color:var(--muted)">${item.rp?.toLocaleString()||'—'}</td>
-    </tr>`;
-  }).join('');
+  var rows = '';
+  for (var i = 0; i < Math.min(20, liveLeaderboard.length); i++) {
+    var item     = liveLeaderboard[i];
+    var isPlayer = player && item.username.toLowerCase() === player.username.toLowerCase();
+    var isGoal   = item.rank === champGoalPos;
+    var rowStyle = isPlayer ? 'background:rgba(160,218,174,.08)' : isGoal ? 'background:rgba(245,200,66,.06)' : '';
+    var numColor = item.rank <= 5 ? 'var(--gold)' : 'var(--dim)';
+    var nameColor= isPlayer ? 'var(--sc)' : isGoal ? 'var(--gold)' : 'var(--text)';
+    rows += '<tr style="' + rowStyle + '">'
+      + '<td style="color:' + numColor + ';font-weight:' + (item.rank <= 5 ? '600' : '400') + '">#' + item.rank + '</td>'
+      + '<td style="color:' + nameColor + '">' + item.username + (isPlayer ? ' ◀ you' : '') + '</td>'
+      + '<td style="color:var(--muted)">' + (item.rp ? item.rp.toLocaleString() : '—') + '</td>'
+      + '</tr>';
+  }
+  tbody.innerHTML = rows;
 }
 
-window.setChampGoal = () => {
-  const inputEl = ge('champGoalInput');
+window.setChampGoal = function() {
+  var inputEl = ge('champGoalInput');
   if (!inputEl) return;
-  const val = parseInt(inputEl.value);
-  if (!val || val < 1 || val > 100) { toast('Enter a position between 1 and 100', 'err'); return; }
-  champGoalPosition = val;
+  var val = parseInt(inputEl.value);
+  if (!val || val < 1 || val > 100) { toast('Enter 1–100', 'err'); return; }
+  champGoalPos = val;
   localStorage.setItem('ss_champGoal', val);
   updateChampWidget();
 };
 
+// ══════════ SEASON HISTORY ══════════
+function toggleHist() {
+  histOpen = !histOpen;
+  ge('histWrap').classList.toggle('open', histOpen);
+  ge('histArrow').classList.toggle('open', histOpen);
+  ge('histLabel').textContent = histOpen ? 'Hide' : 'Show';
+}
+
+function renderSeasonCards(hist) {
+  ge('seasonCards').innerHTML = (hist || []).slice(0, 20).map(function(s){
+    var isC = s.rankName && s.rankName.toLowerCase().indexOf('champion') >= 0;
+    var tip = isC && s.lbPos ? s.short + ' · Champion #' + s.lbPos.toLocaleString() : s.short + ' · ' + (s.peakName || s.rankName);
+    return '<div class="season-card" onclick="toggleSeasonLog(\'' + s.season + '\', this)">'
+      + '<div class="season-card-label">' + (s.short || s.season) + '</div>'
+      + (s.rankImg ? '<img class="season-rank-img" src="' + s.rankImg + '" alt="' + s.rankName + '" onerror="this.style.display=\'none\'">' : '')
+      + '<div class="season-card-wins">' + (s.wins !== null && s.wins !== undefined ? s.wins : '?') + 'W/' + (s.losses !== null && s.losses !== undefined ? s.losses : '?') + 'L</div>'
+      + '<div class="season-tooltip">' + tip + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function toggleSeasonLog(season, cardEl) {
+  var drawer = ge('seasonLogDrawer');
+  if (activeSeasonCard === cardEl && drawer.classList.contains('open')) {
+    drawer.classList.remove('open'); cardEl.classList.remove('active'); activeSeasonCard = null; return;
+  }
+  if (activeSeasonCard) activeSeasonCard.classList.remove('active');
+  activeSeasonCard = cardEl; cardEl.classList.add('active'); drawer.classList.add('open');
+  var rows = ge('seasonLog').querySelectorAll('tr');
+  rows.forEach(function(r){ r.style.display = 'none'; });
+  rows.forEach(function(r){ if (r.textContent.indexOf(String(season)) >= 0) r.style.display = ''; });
+  var shown = Array.from(rows).filter(function(r){ return r.style.display !== 'none'; });
+  if (!shown.length) rows.forEach(function(r){ r.style.display = ''; });
+}
+
+// ══════════ RIVALS ══════════
+function saveRivals() { localStorage.setItem('ss_rivals', JSON.stringify(rivals)); }
+
+function getDelta(rv) {
+  if (curRankIdx < 0 || rv.rankIdx === null || rv.rankIdx === undefined || rv.rankIdx < 0) return {cls:'', text:'Rank unknown'};
+  var diff = curRankIdx - rv.rankIdx;
+  // Same rank level: show RP delta (approved location 3)
+  if (diff === 0 && curRP !== null && curRP !== undefined && rv.rp !== null && rv.rp !== undefined) {
+    var rd = curRP - rv.rp;
+    if (rd > 0) return {cls:'d-ahead',  text:'+' + rd.toLocaleString() + ' RP ahead'};
+    if (rd < 0) return {cls:'d-behind', text:Math.abs(rd).toLocaleString() + ' RP behind'};
+    return {cls:'d-tied', text:'Same rank & RP'};
+  }
+  // Both Champion: RP comparison (approved location 3)
+  if (rv.rankIdx === 30 && curRankIdx === 30 && curRP !== null && rv.rp !== null && rv.rp !== undefined) {
+    var rd2 = curRP - rv.rp;
+    if (rd2 > 0) return {cls:'d-ahead',  text:'+' + rd2.toLocaleString() + ' RP ahead'};
+    if (rd2 < 0) return {cls:'d-behind', text:Math.abs(rd2).toLocaleString() + ' RP behind'};
+    return {cls:'d-tied', text:'Same RP'};
+  }
+  if (diff > 0) return {cls:'d-ahead',  text:'+' + diff + ' rank' + (diff > 1 ? 's' : '') + ' ahead'};
+  if (diff < 0) return {cls:'d-behind', text:Math.abs(diff) + ' rank' + (Math.abs(diff) > 1 ? 's' : '') + ' behind'};
+  return {cls:'d-tied', text:'Same rank'};
+}
+
+function renderRivals() {
+  var grid = ge('rivalGrid');
+  if (!rivals.length) { grid.innerHTML = '<div style="color:var(--dim);font-size:11px;font-family:\'DM Mono\',monospace;padding:4px 0;grid-column:1/-1">No rivals added yet.</div>'; return; }
+  grid.innerHTML = rivals.map(function(rv, i){
+    var d = getDelta(rv);
+    return '<div class="rival-card" id="rv-' + i + '">'
+      + '<img class="rival-avatar" src="' + (rv.avatarUrl || '') + '" alt="" onerror="this.style.opacity=\'.15\'">'
+      + '<div style="flex:1;min-width:0"><div class="rival-name">' + rv.username + '</div>'
+      + '<div class="rival-rank-row">'
+      + (rv.rankImage ? '<img class="rival-rank-img" src="' + rv.rankImage + '" alt="">' : '')
+      + '<span class="rival-rank-name">' + (rv.rankName || '—') + '</span></div>'
+      + '<div class="rival-delta ' + d.cls + '">' + d.text + '</div></div>'
+      + '<button class="rival-remove" onclick="removeRival(' + i + ')">✕</button></div>';
+  }).join('');
+  rivals.forEach(function(rv, i){
+    var ck = 'ss_p_' + rv.username.toLowerCase(), c = localStorage.getItem(ck);
+    if (!c || Date.now() - JSON.parse(c).ts > 5 * 60 * 1000) refreshRival(rv.username, i);
+  });
+}
+
+async function refreshRival(username, i) {
+  try {
+    var raw = await wfetch('/api/v2/r6siege/standard/profile/ubi/' + encodeURIComponent(username));
+    var p2  = parseProfile(raw);
+    if (!rivals[i]) return;
+    rivals[i] = { username: p2.username, avatarUrl: p2.avatarUrl, rankName: (p2.ranked && p2.ranked.rankName) || '—', rankImage: (p2.ranked && p2.ranked.rankImage) || '', rankIdx: rIdx(p2.ranked && p2.ranked.rankName), rp: (p2.ranked && p2.ranked.rp !== undefined) ? p2.ranked.rp : null };
+    saveRivals();
+    var card = ge('rv-' + i);
+    if (!card) { renderRivals(); return; }
+    card.querySelector('.rival-rank-row').innerHTML = (rivals[i].rankImage ? '<img class="rival-rank-img" src="' + rivals[i].rankImage + '" alt="">' : '') + '<span class="rival-rank-name">' + rivals[i].rankName + '</span>';
+    var dl = card.querySelector('.rival-delta'), d = getDelta(rivals[i]);
+    dl.textContent = d.text; dl.className = 'rival-delta ' + d.cls;
+    if (rivals[i].avatarUrl) card.querySelector('.rival-avatar').src = rivals[i].avatarUrl;
+  } catch(e) {}
+}
+
+function addRival() {
+  var v = ge('rivalInput').value.trim(); if (!v) return;
+  var u = parseId(v); if (!u) { toast('Could not parse username.', 'err'); return; }
+  if (rivals.some(function(r){ return r.username.toLowerCase() === u.toLowerCase(); })) { toast('Already in watchlist', 'err'); return; }
+  rivals.push({username: u, avatarUrl: '', rankName: 'Loading…', rankImage: '', rankIdx: null, rp: null});
+  saveRivals(); ge('rivalInput').value = ''; renderRivals();
+}
+
+function removeRival(i) { rivals.splice(i, 1); saveRivals(); renderRivals(); }
+
+// ══════════ OPERATORS ══════════
+async function loadOps(id) {
+  try {
+    var ck = 'ss_op_' + id.toLowerCase(), TTL = 10 * 60 * 1000, ops = null;
+    var c = localStorage.getItem(ck);
+    if (c) { var o = JSON.parse(c); if (Date.now() - o.ts < TTL) ops = o.d; }
+    if (!ops) {
+      var raw = await wfetch('/api/v2/r6siege/standard/profile/ubi/' + encodeURIComponent(id) + '/segments/operator');
+      ops = parseOps(raw);
+      localStorage.setItem(ck, JSON.stringify({d: ops, ts: Date.now()}));
+    }
+    allOps = ops; renderOpGrid(); renderOpCompare();
+    await loadMapOp(id, allOps.slice(0, 6));
+    buildInsights();
+  } catch(e) {
+    console.error('Op err', e);
+    ge('opGrid').innerHTML = '<div style="color:var(--dim);font-size:11px;font-family:\'DM Mono\',monospace;grid-column:1/-1">Could not load operator data.</div>';
+  }
+}
+
+function parseOps(raw) {
+  return (raw && raw.data ? raw.data : []).filter(function(s){ return s.type === 'operator' && s.stats && s.stats.matchesPlayed && s.stats.matchesPlayed.value > 0; }).map(function(s){
+    var st = s.stats, meta = s.metadata || {}, attr = s.attributes || {};
+    var key    = ((attr.operatorName || meta.name || '')).toLowerCase().replace(/\s+/g, '');
+    var played = (st.matchesPlayed && st.matchesPlayed.value) || 0;
+    var wins   = (st.matchesWon    && st.matchesWon.value)   || 0;
+    return { key: key, name: meta.name || key || 'Unknown', badgeUrl: 'https://trackercdn.com/cdn/r6.tracker.network/operators/badges/' + key + '.png', portraitUrl: 'https://trackercdn.com/cdn/r6.tracker.network/operators/portrait/' + key + '.png', side: (meta.roleName && meta.roleName.toLowerCase().indexOf('def') >= 0) ? 'defender' : 'attacker', kd: (st.kdRatio && st.kdRatio.value !== undefined) ? st.kdRatio.value : null, winPct: played ? (wins / played * 100) : null, wins: wins, losses: (st.matchesLost && st.matchesLost.value) || 0, matches: played };
+  }).sort(function(a, b){ return b.matches - a.matches; });
+}
+
+function renderOpGrid() {
+  var ops = opFilter === 'all' ? allOps : allOps.filter(function(o){ return o.side === opFilter; });
+  if (!ops.length) { ge('opGrid').innerHTML = '<div style="color:var(--dim);font-size:11px;font-family:\'DM Mono\',monospace;grid-column:1/-1">No data.</div>'; return; }
+  ge('opGrid').innerHTML = ops.slice(0, 24).map(function(op){
+    var kdc = op.kd >= 2 ? 'var(--sc)' : op.kd >= 1 ? 'var(--green)' : 'var(--red)';
+    var wr  = op.winPct || 0;
+    return '<div class="op-card"><img class="op-badge" src="' + op.badgeUrl + '" alt="' + op.name + '" onerror="this.style.display=\'none\'">'
+      + '<div style="flex:1;min-width:0"><div class="op-name">' + op.name + '</div><div class="op-side-tag">' + op.side + '</div>'
+      + '<div class="op-kd-val" style="color:' + kdc + '">' + (op.kd !== null ? op.kd.toFixed(2) : '—') + '</div>'
+      + '<div class="op-stats-sub">' + op.matches + 'g · ' + wr.toFixed(0) + '%WR</div>'
+      + '<div class="op-wr-bar"><div class="op-wr-fill" style="width:' + Math.min(100, wr) + '%"></div></div></div></div>';
+  }).join('');
+}
+
+function renderOpCompare() {
+  var top = allOps.slice(0, 8); if (!top.length) return;
+  var sc = (player && player.ranked && player.ranked.seasonColor) ? player.ranked.seasonColor : '#a0daae';
+  ge('opCompareRow').innerHTML = top.map(function(op){
+    var kdc = op.kd >= 2 ? 'var(--sc)' : op.kd >= 1 ? 'var(--green)' : 'var(--red)';
+    return '<div class="op-portrait-card"><img class="op-portrait-img" src="' + op.portraitUrl + '" alt="' + op.name + '" onerror="this.src=\'' + op.badgeUrl + '\';this.style.objectFit=\'contain\';this.style.padding=\'20px\';this.style.background=\'var(--card2)\'">'
+      + '<div class="op-portrait-info"><div class="op-portrait-name">' + op.name + '</div>'
+      + '<div class="op-portrait-kd" style="color:' + kdc + '">' + (op.kd !== null ? op.kd.toFixed(2) : '—') + '</div>'
+      + '<div class="op-portrait-wr">' + (op.winPct || 0).toFixed(0) + '%WR</div>'
+      + '<div class="op-portrait-games">' + op.matches + 'g</div></div></div>';
+  }).join('');
+  var canvas = ge('opChart'), ex = Chart.getChart(canvas); if (ex) ex.destroy();
+  new Chart(canvas, {
+    type: 'bar',
+    data: { labels: top.map(function(o){ return o.name; }), datasets: [
+      {label:'K/D',  data:top.map(function(o){ return o.kd || 0; }),      backgroundColor:sc+'99', borderColor:sc,         borderWidth:1, borderRadius:3, yAxisID:'y'},
+      {label:'Win%', data:top.map(function(o){ return o.winPct || 0; }), backgroundColor:'rgba(61,220,132,.3)', borderColor:'#3ddc84', borderWidth:1, borderRadius:3, yAxisID:'y2'}
+    ]},
+    options: {
+      responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false},
+      plugins:{legend:{labels:{color:'#8890a4', font:{family:'DM Mono', size:10}}}, tooltip:{backgroundColor:'#1a1a2e', titleColor:'#fff', bodyColor:'#aaa'}},
+      scales:{
+        x:{ticks:{color:'#4a5066', font:{family:'DM Mono', size:10}}, grid:{display:false}},
+        y: {position:'left',  ticks:{color:'#4a5066', callback:function(v){ return v.toFixed(1); }, font:{family:'DM Mono', size:10}}, grid:{color:'#ffffff06'}, title:{display:true, text:'K/D',  color:'#4a5066', font:{size:10}}},
+        y2:{position:'right', ticks:{color:'#4a5066', callback:function(v){ return v + '%'; },     font:{family:'DM Mono', size:10}}, grid:{drawOnChartArea:false}, title:{display:true, text:'Win%', color:'#4a5066', font:{size:10}}}
+      }
+    }
+  });
+}
+
+// ══════════ MAPS ══════════
+async function loadMaps(id) {
+  try {
+    var ck = 'ss_map_' + id.toLowerCase(), TTL = 10 * 60 * 1000, maps = null;
+    var c = localStorage.getItem(ck);
+    if (c) { var o = JSON.parse(c); if (Date.now() - o.ts < TTL) maps = o.d; }
+    if (!maps) {
+      var raw = await wfetch('/api/v2/r6siege/standard/profile/ubi/' + encodeURIComponent(id) + '/segments/map');
+      maps = parseMaps(raw);
+      localStorage.setItem(ck, JSON.stringify({d: maps, ts: Date.now()}));
+    }
+    allMaps = maps; renderMapGrid(); buildInsights();
+  } catch(e) {
+    ge('mapGrid').innerHTML = '<div style="color:var(--dim);font-size:11px;font-family:\'DM Mono\',monospace;grid-column:1/-1">Could not load map data.</div>';
+  }
+}
+
+function parseMaps(raw) {
+  return (raw && raw.data ? raw.data : []).filter(function(s){ return s.type === 'map' && s.stats && s.stats.matchesPlayed && s.stats.matchesPlayed.value > 0; }).map(function(s){
+    var st = s.stats, meta = s.metadata || {}, attr = s.attributes || {};
+    var won = (st.matchesWon && st.matchesWon.value) || 0, played = (st.matchesPlayed && st.matchesPlayed.value) || 0;
+    return { key: attr.map || '', name: meta.mapName || meta.name || attr.map || '', imageUrl: meta.mapImageUrl || '', won: won, played: played, winPct: played ? (won / played * 100) : 0 };
+  }).sort(function(a, b){ return b.played - a.played; });
+}
+
+function renderMapGrid() {
+  ge('mapGrid').innerHTML = allMaps.slice(0, 12).map(function(m){
+    var wr  = m.winPct.toFixed(0);
+    var wrc = m.winPct >= 55 ? 'var(--green)' : m.winPct >= 45 ? 'var(--muted)' : 'var(--red)';
+    return '<div class="map-card">'
+      + (m.imageUrl ? '<img class="map-img" src="' + m.imageUrl + '" alt="' + m.name + '" onerror="this.style.display=\'none\'">' : '')
+      + '<div class="map-info"><div class="map-name">' + m.name + '</div>'
+      + '<div class="map-wr-bar"><div class="map-wr-fill" style="width:' + Math.min(100, m.winPct) + '%"></div></div>'
+      + '<div class="map-meta"><span>' + m.played + 'g</span><span style="color:' + wrc + ';font-weight:600">' + wr + '%WR</span></div></div></div>';
+  }).join('');
+}
+
+// ══════════ MAP + OP INSIGHTS ══════════
+async function loadMapOp(id, topOps) {
+  mapOpData = {};
+  var TTL = 10 * 60 * 1000;
+  var promises = topOps.map(async function(op) {
+    try {
+      var ck = 'ss_mop_' + id.toLowerCase() + '_' + op.key;
+      var data = null, c = localStorage.getItem(ck);
+      if (c) { var o = JSON.parse(c); if (Date.now() - o.ts < TTL) data = o.d; }
+      if (!data) {
+        var url = '/api/v2/r6siege/standard/profile/ubi/' + encodeURIComponent(id) + '/segments/map?sessionType=all&season=all&operator=' + encodeURIComponent(op.key);
+        var raw = await wfetch(url);
+        data = (raw && raw.data ? raw.data : []).filter(function(s){ return s.attributes && s.attributes.side === null && s.stats && s.stats.matchesPlayed && s.stats.matchesPlayed.value > 0; }).map(function(s){
+          return { mapKey: s.attributes.map, winPct: (s.stats.winPercentage && s.stats.winPercentage.value !== undefined) ? s.stats.winPercentage.value : null, kd: (s.stats.kdRatio && s.stats.kdRatio.value !== undefined) ? s.stats.kdRatio.value : null, played: (s.stats.matchesPlayed && s.stats.matchesPlayed.value) || 0 };
+        });
+        localStorage.setItem(ck, JSON.stringify({d: data, ts: Date.now()}));
+      }
+      data.forEach(function(e){
+        if (!mapOpData[e.mapKey]) mapOpData[e.mapKey] = [];
+        mapOpData[e.mapKey].push({opName: op.name, badgeUrl: op.badgeUrl, winPct: e.winPct, kd: e.kd, played: e.played});
+      });
+    } catch(e) {}
+  });
+  await Promise.all(promises);
+}
+
+function buildInsights() {
+  if (!allMaps.length) return;
+  ge('insightGrid').innerHTML = allMaps.slice(0, 5).map(function(m){
+    var wr  = m.winPct.toFixed(0);
+    var wrc = m.winPct >= 55 ? 'var(--green)' : m.winPct >= 45 ? 'var(--muted)' : 'var(--red)';
+    var ops = (mapOpData[m.key] || []).filter(function(o){ return o.played >= 3; }).sort(function(a, b){ return (b.winPct || 0) - (a.winPct || 0); }).slice(0, 4);
+    var displayOps = ops.length > 0 ? ops : allOps.slice(0, 4).map(function(o){ return {opName:o.name, badgeUrl:o.badgeUrl, winPct:o.winPct, kd:o.kd, played:o.matches}; });
+    var label = ops.length > 0 ? 'Best on this map (' + ops.reduce(function(t,o){ return t+o.played; }, 0) + 'g)' : 'Top operators overall';
+    var opHtml = displayOps.map(function(op){
+      var w   = op.winPct !== null && op.winPct !== undefined ? op.winPct.toFixed(0) : '?';
+      var col = op.winPct >= 55 ? 'var(--sc)' : op.winPct >= 45 ? 'var(--muted)' : 'var(--red)';
+      return '<div class="insight-op"><img src="' + op.badgeUrl + '" alt="' + op.opName + '" onerror="this.style.display=\'none\'"><span>' + op.opName + '</span><span style="color:' + col + '">' + w + '%</span></div>';
+    }).join('');
+    return '<div class="insight-card"><div class="insight-map-header">'
+      + (m.imageUrl ? '<img class="insight-map-img" src="' + m.imageUrl + '" alt="' + m.name + '" onerror="this.style.display=\'none\'">' : '')
+      + '<div class="insight-map-overlay"><span class="insight-map-name">' + m.name + '</span><span class="insight-map-wr" style="color:' + wrc + '">' + wr + '% · ' + m.played + 'g</span></div></div>'
+      + '<div class="insight-body"><div class="insight-label">' + label + '</div><div class="insight-ops">' + opHtml + '</div></div></div>';
+  }).join('');
+}
+
 // ══════════ DISCORD ══════════
-async function discord(msg){if(!DISCORD_HOOK||DISCORD_HOOK.includes('YOUR_DISCORD'))return;try{await fetch(DISCORD_HOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:msg})});}catch{}}
-function sendDiscordUpdate(){if(!player)return;const r=player.ranked||{},goal=RANKS[goalIdx],away=Math.max(0,goalIdx-curRankIdx);discord([`📊 **SiegeScope — ${player.username}**`,`🏆 Current Rank: **${r.rankName||'—'}**`,`🎯 Goal: **${goal}** — ${away===0?'GOAL REACHED! 🎉':`${away} rank${away>1?'s':''} away`}`,`📅 ${r.seasonName} · ${r.wins}W/${r.losses}L · ${r.winPct?.toFixed(1)}% WR`].join('\n'));toast('Discord update sent!');}
+async function discordSend(msg) {
+  if (!DISCORD_HOOK || DISCORD_HOOK.indexOf('YOUR_DISCORD') >= 0) return;
+  try { await fetch(DISCORD_HOOK, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({content:msg})}); } catch(e) {}
+}
+function sendDiscordUpdate() {
+  if (!player) return;
+  var r = player.ranked || {}, goal = RANKS[goalIdx], away = Math.max(0, goalIdx - curRankIdx);
+  discordSend('📊 **SiegeScope — ' + player.username + '**\n🏆 Current Rank: **' + (r.rankName || '—') + '**\n🎯 Goal: **' + goal + '** — ' + (away === 0 ? 'GOAL REACHED! 🎉' : away + ' rank' + (away > 1 ? 's' : '') + ' away') + '\n📅 ' + r.seasonName + ' · ' + r.wins + 'W/' + r.losses + 'L · ' + (r.winPct ? r.winPct.toFixed(1) : '?') + '% WR');
+  toast('Discord update sent!');
+}
 
 // ══════════ UI HELPERS ══════════
-function showLoad(m){ge('stateEmpty').style.display='none';ge('stateErr').style.display='none';ge('tab-overview').classList.remove('active');ge('tab-operators').classList.remove('active');ge('tabBar').classList.remove('show');ge('stateLoad').style.display='flex';ge('loadMsg').textContent=m;}
-function showDash(){ge('stateLoad').style.display='none';ge('tab-overview').classList.add('active');ge('tabBar').classList.add('show');ge('refreshBtn').style.display='';}
-function showErr(m){ge('stateLoad').style.display='none';ge('stateErr').style.display='flex';ge('errMsg').textContent=m;}
-function resetUI(){ge('stateErr').style.display='none';ge('stateEmpty').style.display='flex';}
-function kdC(kd){return kd==null?'':kd>=2?'sv-sc':kd>=1?'sv-green':'sv-red';}
+function showLoad(m) { ge('stateEmpty').style.display='none'; ge('stateErr').style.display='none'; ge('tab-overview').classList.remove('active'); ge('tab-operators').classList.remove('active'); ge('tabBar').classList.remove('show'); ge('stateLoad').style.display='flex'; ge('loadMsg').textContent=m; }
+function showDash()  { ge('stateLoad').style.display='none'; ge('tab-overview').classList.add('active'); ge('tabBar').classList.add('show'); ge('refreshBtn').style.display=''; }
+function showErr(m)  { ge('stateLoad').style.display='none'; ge('stateErr').style.display='flex'; ge('errMsg').textContent=m; }
+function resetUI()   { ge('stateErr').style.display='none'; ge('stateEmpty').style.display='flex'; }
+function kdC(kd)     { return kd === null || kd === undefined ? '' : kd >= 2 ? 'sv-sc' : kd >= 1 ? 'sv-green' : 'sv-red'; }
 </script>
 </body>
 </html>
