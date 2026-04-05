@@ -6,7 +6,7 @@
  */
 
 const WORKER_BASE = 'https://siegescope-proxy.millezbiz.workers.dev';
-const TRN_BASE = 'https://r6.tracker.network';
+const TRN_BASE = 'https://api.tracker.gg';
 
 // ─── Internal fetch helper ───────────────────────────────────────────────────
 
@@ -26,13 +26,24 @@ async function workerFetch(path) {
 export async function fetchProfile(identifier) {
   const encoded = encodeURIComponent(identifier);
 
-  const raw = await workerFetch(`/api/v2/r6siege/standard/profile/ubi/${encoded}`);
-  const historyRaw = await workerFetch(
-    `/api/v2/r6siege/standard/profile/ubi/${encoded}/stats/overview/rankPoints?localOffset=300`
-  );
+  const [profileResult, historyResult] = await Promise.allSettled([
+    workerFetch(`/api/v2/r6siege/standard/profile/ubi/${encoded}`),
+    workerFetch(`/api/v2/r6siege/standard/profile/ubi/${encoded}/stats/overview/rankPoints?localOffset=300`)
+  ]);
 
-  const player = parseProfile(raw);
-  const rpHistory = parseRPHistory(historyRaw);
+  if (profileResult.status !== 'fulfilled') {
+    throw profileResult.reason;
+  }
+
+  const player = parseProfile(profileResult.value);
+
+  const rpHistory =
+    historyResult.status === 'fulfilled'
+      ? parseRPHistory(historyResult.value)
+      : [];
+
+  console.log('profileResult:', profileResult);
+  console.log('historyResult:', historyResult);
 
   player.rpHistory = rpHistory;
   player.prediction = computePrediction(player, rpHistory);
